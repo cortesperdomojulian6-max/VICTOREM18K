@@ -1,106 +1,91 @@
+// ============================================================
+// VICTOREM - Servidor principal (Node.js + Express + PostgreSQL)
+// ============================================================
+
+require('dotenv').config();
 
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
-const sqlite3 = require('sqlite3').verbose();
+
+const db = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
+// ----------------- Middlewares globales -----------------
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
 
-const DB_PATH = path.join(__dirname, 'victorem.db');
-const db = new sqlite3.Database(DB_PATH, (err) => {
-	if (err) {
-		console.error('Error al abrir la base de datos:', err);
-	} else {
-		console.log('Conectado a la base de datos SQLite:', DB_PATH);
-	}
+// Logger sencillo
+app.use((req, res, next) => {
+  const now = new Date().toISOString();
+  console.log(`[${now}] ${req.method} ${req.url}`);
+  next();
 });
 
-// Crear tablas si no existen
-db.serialize(() => {
-	db.run(`CREATE TABLE IF NOT EXISTS users (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		name TEXT NOT NULL,
-		email TEXT NOT NULL UNIQUE,
-		password TEXT NOT NULL,
-		registrationDate INTEGER NOT NULL
-	)`);
+// ----------------- Verificar conexión a Supabase -----------------
+(async () => {
+  try {
+    await db.query('SELECT 1');
+    console.log('✅ Conexión a PostgreSQL (Supabase) verificada.');
+  } catch (err) {
+    console.error('❌ No se pudo conectar a la base de datos:');
+    console.error('   ' + err.message);
+    console.error('   Revisa DATABASE_URL en tu archivo .env');
+    process.exit(1);
+  }
+})();
 
-	db.run(`CREATE TABLE IF NOT EXISTS addresses (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		userId INTEGER,
-		alias TEXT,
-		destinatario TEXT,
-		ciudad TEXT,
-		departamento TEXT,
-		direccion TEXT,
-		telefono TEXT
-	)`);
 
-	db.run(`CREATE TABLE IF NOT EXISTS orders (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		userId INTEGER,
-		numeroPedido TEXT,
-		tipo TEXT,
-		total REAL,
-		estado TEXT,
-		fecha INTEGER
-	)`);
+// ----------------- Rutas API -----------------
+app.use('/api/auth',      require('./server-auth'));
+app.use('/api/admin',     require('./server-admin'));
+app.use('/api/products',  require('./server-products'));
+app.use('/api/cart',      require('./server-cart'));
+app.use('/api/orders',    require('./server-orders'));
+app.use('/api/addresses', require('./server-addresses'));
+app.use('/api/users',     require('./server-users'));
 
-	db.run(`CREATE TABLE IF NOT EXISTS cart_items (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		userId INTEGER,
-		producto TEXT,
-		cantidad INTEGER
-	)`);
-});
-
-// Montar rutas de autenticación desde ./server-auth.js
-const JWT_SECRET = process.env.JWT_SECRET || 'cambiar_esta_clave_en_produccion';
-const authRouterFactory = require('./server-auth');
-const authRouter = authRouterFactory(db, JWT_SECRET);
-app.use('/api/auth', authRouter);
-
-// Ruta de prueba
+// Health check
 app.get('/api/health', (req, res) => {
-	res.json({ ok: true, message: 'API viva' });
+  res.json({ ok: true, message: 'API viva', time: new Date().toISOString() });
 });
 
-// Servir frontend (archivos estáticos en la raíz del proyecto)
+// ----------------- Frontend (archivos estáticos) -----------------
 app.use(express.static(path.join(__dirname)));
 
-// Simple request logger
-app.use((req, res, next) => {
-	const now = new Date().toISOString();
-	console.log(`[${now}] ${req.method} ${req.url}`);
-	next();
+// ----------------- Manejador de errores -----------------
+app.use((err, req, res, next) => {
+  console.error('❌ Error no controlado:', err);
+  res.status(500).json({ error: 'Error interno del servidor' });
 });
 
-// Start server with error handling
+// ----------------- Iniciar servidor -----------------
 const server = app.listen(PORT, HOST, () => {
-	console.log(`Servidor iniciado en http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}`);
+  console.log('═══════════════════════════════════════════════════════');
+  console.log('   ✅ VICTOREM - Servidor iniciado');
+  console.log('═══════════════════════════════════════════════════════');
+  console.log(`   🌐 http://localhost:${PORT}`);
+  console.log(`   🔌 API: http://localhost:${PORT}/api/health`);
+  console.log('═══════════════════════════════════════════════════════');
 });
 
 server.on('error', (err) => {
-	console.error('Error en el servidor HTTP:', err && err.message ? err.message : err);
-	if (err && err.code === 'EADDRINUSE') {
-		console.error(`El puerto ${PORT} está en uso. Mata el proceso que lo ocupa o cambia el puerto (PORT env).`);
-	}
-	process.exit(1);
+  console.error('Error en el servidor HTTP:', err.message);
+  if (err.code === 'EADDRINUSE') {
+    console.error(`El puerto ${PORT} está en uso. Cierra el otro proceso o cambia PORT en .env`);
+  }
+  process.exit(1);
 });
 
 process.on('uncaughtException', (err) => {
-	console.error('Excepción no capturada:', err && err.stack ? err.stack : err);
-	process.exit(1);
+  console.error('Excepción no capturada:', err);
 });
 
 process.on('unhandledRejection', (reason) => {
-	console.error('Rechazo de promesa no manejado:', reason);
+  console.error('Rechazo de promesa no manejado:', reason);
 });
 
-module.exports = { app, db };
-
+module.exports = { app };

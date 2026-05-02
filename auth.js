@@ -32,31 +32,73 @@
     return !!localStorage.getItem('token');
   }
 
+  function getCurrentUser() {
+    try {
+      return JSON.parse(localStorage.getItem('currentUser') || 'null');
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function updateAuthNav() {
+    const authNav = document.getElementById('auth-nav');
+    if (!authNav) return;
+
+    const user = getCurrentUser();
+    if (isAuthenticated() && user) {
+      authNav.innerHTML = `
+        <span class="auth-welcome">Hola, ${user.name}</span>
+        <button id="logoutButton" class="auth-nav-btn">Cerrar sesión</button>
+      `;
+    } else {
+      authNav.innerHTML = `
+        <button id="showLoginButton" class="auth-nav-btn">Iniciar sesión</button>
+        <button id="showRegisterButton" class="auth-nav-btn btn-outline">Regístrate</button>
+      `;
+    }
+  }
+
   function showLoginModal() { showElement('loginModal'); }
   function showRegisterModal() { showElement('registerModal'); }
 
-  document.addEventListener('DOMContentLoaded', function () {
-    // Links para abrir modales
-    const showRegister = document.getElementById('showRegister');
-    const showLogin = document.getElementById('showLogin');
-    if (showRegister) showRegister.addEventListener('click', (e) => { e.preventDefault(); showRegisterModal(); });
-    if (showLogin) showLogin.addEventListener('click', (e) => { e.preventDefault(); showLoginModal(); });
+  function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
+    updateAuthNav();
+    window.location.reload();
+  }
 
-    // Close buttons
-    const closeLogin = document.getElementById('closeLogin');
-    const closeRegister = document.getElementById('closeRegister');
-    if (closeLogin) closeLogin.addEventListener('click', () => hideElement('loginModal'));
-    if (closeRegister) closeRegister.addEventListener('click', () => hideElement('registerModal'));
+  function attachAuthEvents() {
+    document.body.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!target) return;
 
-    // Register form
+      if (target.matches('#showLogin, #showLoginButton')) {
+        event.preventDefault();
+        showLoginModal();
+      }
+
+      if (target.matches('#showRegister, #showRegisterButton')) {
+        event.preventDefault();
+        showRegisterModal();
+      }
+
+      if (target.matches('#logoutButton')) {
+        event.preventDefault();
+        logout();
+      }
+    });
+  }
+
+  function attachAuthFormEvents() {
     const registerForm = document.getElementById('registerForm');
     const registerError = document.getElementById('registerError');
     const registerSuccess = document.getElementById('registerSuccess');
     if (registerForm) {
       registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        registerError.textContent = '';
-        registerSuccess.textContent = '';
+        if (registerError) registerError.textContent = '';
+        if (registerSuccess) registerSuccess.textContent = '';
 
         const name = document.getElementById('registerName').value.trim();
         const email = document.getElementById('registerEmail').value.trim();
@@ -64,7 +106,7 @@
         const confirm = document.getElementById('registerConfirmPassword').value;
 
         if (password !== confirm) {
-          registerError.textContent = 'Las contraseñas no coinciden.';
+          if (registerError) registerError.textContent = 'Las contraseñas no coinciden.';
           return;
         }
 
@@ -72,26 +114,27 @@
           const res = await register({ name, email, password });
           const data = await res.json().catch(() => ({}));
           if (res.status === 201) {
-            localStorage.setItem('token', data.token || data.token);
+            localStorage.setItem('token', data.token);
             localStorage.setItem('currentUser', JSON.stringify({ id: data.id, name: data.name, email: data.email }));
-            registerSuccess.textContent = 'Registro exitoso.';
+            if (registerSuccess) registerSuccess.textContent = 'Registro exitoso.';
+            updateAuthNav();
             setTimeout(() => hideElement('registerModal'), 800);
           } else {
-            registerError.textContent = data.error || 'Error en el registro.';
+            if (registerError) registerError.textContent = data.error || 'Error en el registro.';
           }
         } catch (err) {
-          registerError.textContent = 'Error al conectar con el servidor.';
+          if (registerError) registerError.textContent = 'Error al conectar con el servidor.';
         }
       });
     }
 
-    // Login form
     const loginForm = document.getElementById('loginForm');
     const loginError = document.getElementById('loginError');
     if (loginForm) {
       loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        loginError.textContent = '';
+        if (loginError) loginError.textContent = '';
+
         const email = document.getElementById('loginEmail').value.trim();
         const password = document.getElementById('loginPassword').value;
 
@@ -99,24 +142,39 @@
           const res = await login({ email, password });
           const data = await res.json().catch(() => ({}));
           if (res.ok) {
-            localStorage.setItem('token', data.token || data.token);
+            localStorage.setItem('token', data.token);
             localStorage.setItem('currentUser', JSON.stringify({ id: data.id, name: data.name, email: data.email }));
+            updateAuthNav();
             hideElement('loginModal');
           } else {
-            loginError.textContent = data.error || 'Login fallido.';
+            if (loginError) loginError.textContent = data.error || 'Login fallido.';
           }
         } catch (err) {
-          loginError.textContent = 'Error al conectar con el servidor.';
+          if (loginError) loginError.textContent = 'Error al conectar con el servidor.';
         }
       });
     }
-  });
+
+    const closeLogin = document.getElementById('closeLogin');
+    const closeRegister = document.getElementById('closeRegister');
+    if (closeLogin) closeLogin.addEventListener('click', () => hideElement('loginModal'));
+    if (closeRegister) closeRegister.addEventListener('click', () => hideElement('registerModal'));
+  }
+
+  function initAuth() {
+    attachAuthEvents();
+    attachAuthFormEvents();
+    updateAuthNav();
+  }
+
+  document.addEventListener('DOMContentLoaded', initAuth);
 
   window.auth = {
     register,
     login,
     isAuthenticated,
     showLoginModal,
-    showRegisterModal
+    showRegisterModal,
+    updateAuthNav
   };
 })();

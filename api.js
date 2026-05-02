@@ -1,7 +1,7 @@
 // ============ CLIENTE API CENTRALIZADO ============
 // Funciones para interactuar con la API del backend
 
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'http://localhost:3001/api';
 
 // Función auxiliar para hacer peticiones autenticadas
 async function apiRequest(endpoint, options = {}) {
@@ -29,7 +29,24 @@ async function apiRequest(endpoint, options = {}) {
   return response.json();
 }
 
+// ============ PRODUCTOS ============
+
+// Obtener todos los productos
+async function getProducts() {
+  return apiRequest('/products');
+}
+
+// Obtener un producto específico
+async function getProduct(productId) {
+  return apiRequest(`/products/${productId}`);
+}
+
 // ============ USUARIOS ============
+
+// Obtener perfil actual
+async function getCurrentUser() {
+  return apiRequest('/users/me');
+}
 
 // Actualizar perfil
 async function updateProfile(profileData) {
@@ -40,10 +57,10 @@ async function updateProfile(profileData) {
 }
 
 // Cambiar contraseña
-async function changePassword(currentPassword, newPassword) {
+async function changePassword(old_password, new_password) {
   return apiRequest('/users/password', {
     method: 'PUT',
-    body: JSON.stringify({ currentPassword, newPassword })
+    body: JSON.stringify({ old_password, new_password })
   });
 }
 
@@ -65,6 +82,14 @@ async function getAddresses() {
 async function addAddress(addressData) {
   return apiRequest('/addresses', {
     method: 'POST',
+    body: JSON.stringify(addressData)
+  });
+}
+
+// Actualizar dirección
+async function updateAddress(addressId, addressData) {
+  return apiRequest(`/addresses/${addressId}`, {
+    method: 'PUT',
     body: JSON.stringify(addressData)
   });
 }
@@ -104,29 +129,29 @@ async function getCart() {
 }
 
 // Agregar producto al carrito
-async function addToCart(producto, cantidad = 1) {
-  return apiRequest('/cart', {
+async function addToCart(product_id, quantity = 1) {
+  return apiRequest('/cart/items', {
     method: 'POST',
-    body: JSON.stringify({ producto, cantidad })
+    body: JSON.stringify({ product_id, quantity })
   });
 }
 
 // Actualizar cantidad en el carrito
-async function updateCartItem(cartItemId, cantidad) {
-  return apiRequest(`/cart/${cartItemId}`, {
+async function updateCartItem(itemId, quantity) {
+  return apiRequest(`/cart/items/${itemId}`, {
     method: 'PUT',
-    body: JSON.stringify({ cantidad })
+    body: JSON.stringify({ quantity })
   });
 }
 
 // Eliminar item del carrito
-async function removeFromCart(cartItemId) {
-  return apiRequest(`/cart/${cartItemId}`, {
+async function removeFromCart(itemId) {
+  return apiRequest(`/cart/items/${itemId}`, {
     method: 'DELETE'
   });
 }
 
-// Limpiar carrito
+// Vaciar carrito
 async function clearCart() {
   return apiRequest('/cart', {
     method: 'DELETE'
@@ -135,11 +160,15 @@ async function clearCart() {
 
 // Exportar funciones
 window.api = {
+  getProducts,
+  getProduct,
+  getCurrentUser,
   updateProfile,
   changePassword,
   deleteAccount,
   getAddresses,
   addAddress,
+  updateAddress,
   deleteAddress,
   createOrder,
   getOrders,

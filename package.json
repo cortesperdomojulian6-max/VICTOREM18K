@@ -1,19 +1,21 @@
 {
   "name": "victorem-backend",
-  "version": "1.0.0",
-  "description": "Backend para la aplicación VICTOREM",
+  "version": "2.0.0",
+  "description": "Backend para la aplicación VICTOREM (PostgreSQL + Supabase)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "ver-datos": "node ver-datos.js"
+    "db:setup": "node db/setup.js",
+    "db:reset": "node db/setup.js --reset"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "sqlite3": "^5.1.6",
     "bcrypt": "^5.1.1",
-    "jsonwebtoken": "^9.0.2"
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.20.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
@@ -21,9 +23,10 @@
   "keywords": [
     "victorem",
     "backend",
-    "api"
+    "api",
+    "postgresql",
+    "supabase"
   ],
   "author": "",
   "license": "ISC"
 }
-

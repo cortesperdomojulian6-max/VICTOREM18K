@@ -1,4 +1,38 @@
-// Datos de los productos
+// Variable global para almacenar productos desde la API
+let productosData = {};
+
+// Cargar productos desde la API
+async function cargarProductos() {
+  try {
+    const response = await api.getProducts();
+    productosData = {};
+    
+    // Convertir array a objeto indexado por ID para compatibilidad con código existente
+    response.forEach(producto => {
+      productosData[producto.id] = {
+        nombre: producto.name,
+        precio: `$${producto.price.toLocaleString('es-CO')}`,
+        precioNumerico: producto.price,
+        imagen: producto.image || 'imagenes/placeholder.jpg',
+        descripcion: producto.description,
+        caracteristicas: [
+          `Material: Acero quirúrgico premium`,
+          `Técnica: Balinería artesanal`,
+          `Acabado: Resistente`,
+          `Garantía: 1 año contra defectos`,
+          `Categoría: ${producto.category_id}`
+        ]
+      };
+    });
+    
+    renderizarCatalogo();
+  } catch (err) {
+    console.error('Error al cargar productos:', err);
+    alert('Error al cargar el catálogo. Por favor, intenta nuevamente.');
+  }
+}
+
+// Datos de los productos (para fallback si API falla)
 const productos = {
     1: {
         nombre: "Pulsera Clásica Dorada",
@@ -160,234 +194,17 @@ const productos = {
 
 };
 
-// Sistema de autenticación
+// Sistema de autenticación y renderizado
 document.addEventListener('DOMContentLoaded', function () {
-    // Elementos del DOM para autenticación
-    const authNav = document.getElementById('auth-nav');
-    const loginModal = document.getElementById('loginModal');
-    const registerModal = document.getElementById('registerModal');
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    const showRegister = document.getElementById('showRegister');
-    const showLogin = document.getElementById('showLogin');
-    const closeLogin = document.getElementById('closeLogin');
-    const closeRegister = document.getElementById('closeRegister');
-    const loginError = document.getElementById('loginError');
-    const loginSuccess = document.getElementById('loginSuccess');
-    const registerError = document.getElementById('registerError');
-    const registerSuccess = document.getElementById('registerSuccess');
-
-    // Verificar si el usuario ya está autenticado
-    function checkAuthStatus() {
-        const user = JSON.parse(localStorage.getItem('currentUser'));
-        if (user) {
-            // Usuario autenticado
-            authNav.innerHTML = `
-            <div class="user-menu">
-              <button class="user-menu-btn">
-                <span>${user.name}</span>
-                <span>▼</span>
-              </button>
-              <div class="user-dropdown">
-                <a href="miperfil.html" id="profileLink">Mi Perfil</a>
-                <a href="#" id="logoutLink">Cerrar Sesión</a>
-              </div>
-            </div>
-          `;
-
-            // Agregar eventos para los enlaces del menú de usuario
-            document.getElementById('logoutLink').addEventListener('click', logout);
-        } else {
-            // Usuario no autenticado
-            authNav.innerHTML = `
-            <li><a href="#" id="loginLink">Iniciar Sesión</a></li>
-          `;
-            document.getElementById('loginLink').addEventListener('click', showLoginModal);
-        }
-    }
-
-    // Mostrar modal de inicio de sesión
-    function showLoginModal() {
-        loginModal.style.display = 'flex';
-    }
-
-    // Mostrar modal de registro
-    function showRegisterModal() {
-        registerModal.style.display = 'flex';
-    }
-
-    // Cerrar modales
-    function closeModals() {
-        loginModal.style.display = 'none';
-        registerModal.style.display = 'none';
-        loginError.style.display = 'none';
-        loginSuccess.style.display = 'none';
-        registerError.style.display = 'none';
-        registerSuccess.style.display = 'none';
-    }
-
-    // Iniciar sesión
-    function login(email, password) {
-        // Obtener usuarios del localStorage
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-
-        // Buscar usuario
-        const user = users.find(u => u.email === email && u.password === password);
-
-        if (user) {
-            // Guardar usuario actual en localStorage
-            localStorage.setItem('currentUser', JSON.stringify(user));
-
-            // Mostrar mensaje de éxito
-            loginSuccess.textContent = '¡Inicio de sesión exitoso!';
-            loginSuccess.style.display = 'block';
-
-            // Actualizar interfaz después de un breve retraso
-            setTimeout(() => {
-                closeModals();
-                checkAuthStatus();
-            }, 1500);
-
-            return true;
-        } else {
-            // Mostrar mensaje de error
-            loginError.textContent = 'Correo electrónico o contraseña incorrectos';
-            loginError.style.display = 'block';
-            return false;
-        }
-    }
-
-    // Registrar nuevo usuario
-    function register(name, email, password) {
-        // Obtener usuarios del localStorage
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-
-        // Verificar si el usuario ya existe
-        const existingUser = users.find(u => u.email === email);
-
-        if (existingUser) {
-            registerError.textContent = 'Ya existe un usuario con este correo electrónico';
-            registerError.style.display = 'block';
-            return false;
-        }
-
-        // Crear nuevo usuario
-        const newUser = {
-            id: Date.now().toString(),
-            name,
-            email,
-            password,
-            registrationDate: new Date().toISOString()
-        };
-
-        // Guardar usuario
-        users.push(newUser);
-        localStorage.setItem('users', JSON.stringify(users));
-
-        // Iniciar sesión automáticamente
-        localStorage.setItem('currentUser', JSON.stringify(newUser));
-
-        // Mostrar mensaje de éxito
-        registerSuccess.textContent = '¡Cuenta creada exitosamente!';
-        registerSuccess.style.display = 'block';
-
-        // Actualizar interfaz después de un breve retraso
-        setTimeout(() => {
-            closeModals();
-            checkAuthStatus();
-        }, 1500);
-
-        return true;
-    }
-
-    // Cerrar sesión
-    function logout() {
-        localStorage.removeItem('currentUser');
-        checkAuthStatus();
-    }
-
-    // Validar formulario de registro
-    function validateRegisterForm(name, email, password, confirmPassword) {
-        if (password !== confirmPassword) {
-            registerError.textContent = 'Las contraseñas no coinciden';
-            registerError.style.display = 'block';
-            return false;
-        }
-
-        if (password.length < 6) {
-            registerError.textContent = 'La contraseña debe tener al menos 6 caracteres';
-            registerError.style.display = 'block';
-            return false;
-        }
-
-        return true;
-    }
-
-    // Event Listeners para autenticación
-    loginForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
-        login(email, password);
+    
+    // Cargar productos desde la API primero
+    cargarProductos().then(() => {
+        console.log('Productos cargados exitosamente');
+    }).catch(err => {
+        console.error('Error cargando productos:', err);
     });
-
-    registerForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        const name = document.getElementById('registerName').value;
-        const email = document.getElementById('registerEmail').value;
-        const password = document.getElementById('registerPassword').value;
-        const confirmPassword = document.getElementById('registerConfirmPassword').value;
-
-        if (validateRegisterForm(name, email, password, confirmPassword)) {
-            register(name, email, password);
-        }
-    });
-
-    showRegister.addEventListener('click', function (e) {
-        e.preventDefault();
-        closeModals();
-        showRegisterModal();
-    });
-
-    showLogin.addEventListener('click', function (e) {
-        e.preventDefault();
-        closeModals();
-        showLoginModal();
-    });
-
-    closeLogin.addEventListener('click', closeModals);
-    closeRegister.addEventListener('click', closeModals);
-
-    // Cerrar modal al hacer clic fuera del contenido
-    window.addEventListener('click', function (e) {
-        if (e.target === loginModal) {
-            closeModals();
-        }
-        if (e.target === registerModal) {
-            closeModals();
-        }
-    });
-
-    // Inicializar estado de autenticación
-    checkAuthStatus();
-
-    // Funcionalidad del carrito
-    const cartIcon = document.getElementById('cart-icon');
-    if (cartIcon) {
-      cartIcon.addEventListener('click', function() {
-        // Verificar si el usuario está autenticado
-        const user = JSON.parse(localStorage.getItem('currentUser'));
-        if (!user) {
-          alert('Por favor, inicia sesión para ver tu carrito.');
-          showLoginModal();
-          return;
-        }
-        // Redirigir a la sección del carrito en miperfil.html
-        window.location.href = 'miperfil.html#carrito';
-      });
-    }
-
-    // Funcionalidad de búsqueda y filtros (guardamos elementos por si se carga este script en páginas sin filtros)
+    
+    // Elementos del DOM para filtros y búsqueda
     const busquedaInput = document.getElementById('busqueda');
     const categoriaSelect = document.getElementById('categoria');
     const precioSelect = document.getElementById('precio');
@@ -395,21 +212,192 @@ document.addEventListener('DOMContentLoaded', function () {
     const limpiarFiltrosBtn = document.getElementById('limpiar-filtros');
     const ordenarSelect = document.getElementById('ordenar');
     const productosContainer = document.getElementById('lista-productos');
-    const cards = productosContainer ? Array.from(productosContainer.querySelectorAll('.card')) : [];
+    const modal = document.getElementById('modal-producto');
+    const cerrarModal = document.getElementById('cerrar-modal');
+    const modalNombre = document.getElementById('modal-nombre');
+    const modalPrecio = document.getElementById('modal-precio');
+    const modalImagen = document.getElementById('modal-imagen');
+    const modalDescripcion = document.getElementById('modal-descripcion');
+    const modalCaracteristicas = document.getElementById('modal-caracteristicas');
 
-    // Función para filtrar productos
+    // Funcionalidad del carrito
+    const cartIcon = document.getElementById('cart-icon');
+    if (cartIcon) {
+      cartIcon.addEventListener('click', function() {
+        // Verificar si el usuario está autenticado
+        const token = localStorage.getItem('token');
+        if (!token) {
+          alert('Por favor, inicia sesión para ver tu carrito.');
+          // Mostrar modal de login desde header compartido
+          const loginBtn = document.getElementById('showLoginButton');
+          if (loginBtn) loginBtn.click();
+          return;
+        }
+        // Redirigir a la sección del carrito en miperfil.html
+        window.location.href = 'miperfil.html#carrito';
+      });
+    }
+
+    // Función para renderizar el catálogo
+    function renderizarCatalogo() {
+        if (!productosContainer) return;
+        
+        // Limpiar contenedor
+        productosContainer.innerHTML = '';
+        
+        // Crear tarjetas de producto
+        Object.entries(productosData).forEach(([id, producto]) => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.setAttribute('data-producto', id);
+            card.setAttribute('data-categoria', 'general');
+            card.setAttribute('data-precio', producto.precioNumerico);
+            
+            card.innerHTML = `
+                <img src="${producto.imagen}" alt="${producto.nombre}">
+                <h3>${producto.nombre}</h3>
+                <p class="precio">${producto.precio}</p>
+                <p class="descripcion">${producto.descripcion.substring(0, 100)}...</p>
+                <button class="btn-detalle" data-producto="${id}">Ver Detalles</button>
+                <button class="btn-agregar-carrito" data-producto="${id}">Agregar al Carrito</button>
+            `;
+            
+            productosContainer.appendChild(card);
+        });
+        
+        // Re-aplicar event listeners
+        aplicarEventListeners();
+    }
+
+    // Función para aplicar event listeners a los productos
+    function aplicarEventListeners() {
+        // Event listeners para ver detalles
+        document.querySelectorAll('.btn-detalle').forEach(boton => {
+            boton.addEventListener('click', function () {
+                const productoId = this.getAttribute('data-producto');
+                const producto = productosData[productoId];
+
+                if (producto && modal) {
+                    modalNombre.textContent = producto.nombre;
+                    modalPrecio.textContent = producto.precio;
+                    modalImagen.src = producto.imagen;
+                    modalImagen.alt = producto.nombre;
+                    modalDescripcion.textContent = producto.descripcion;
+
+                    // Limpiar características anteriores
+                    modalCaracteristicas.innerHTML = '';
+
+                    // Agregar características
+                    (producto.caracteristicas || []).forEach(caracteristica => {
+                        const li = document.createElement('li');
+                        li.textContent = caracteristica;
+                        modalCaracteristicas.appendChild(li);
+                    });
+
+                    modal.style.display = 'block';
+                    
+                    // Marcar como activo
+                    document.querySelectorAll('.btn-detalle').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // Event listeners para agregar al carrito (desde tarjeta)
+        document.querySelectorAll('.btn-agregar-carrito').forEach(boton => {
+            boton.addEventListener('click', function () {
+                const productoId = this.getAttribute('data-producto');
+                const producto = productosData[productoId];
+
+                // Verificar autenticación
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    alert('Por favor, inicia sesión para agregar productos al carrito.');
+                    const loginBtn = document.getElementById('showLoginButton');
+                    if (loginBtn) loginBtn.click();
+                    return;
+                }
+
+                agregarAlCarritoAPI(productoId, producto, 1);
+            });
+        });
+
+        // Botón de agregar al carrito desde el modal
+        const btnAgregarModal = document.getElementById('agregar-carrito-modal');
+        if (btnAgregarModal) {
+            btnAgregarModal.addEventListener('click', function () {
+                const productoId = document.querySelector('.btn-detalle.active')?.getAttribute('data-producto');
+                if (productoId) {
+                    const producto = productosData[productoId];
+                    const token = localStorage.getItem('token');
+                    
+                    if (!token) {
+                        alert('Por favor, inicia sesión para agregar productos al carrito.');
+                        const loginBtn = document.getElementById('showLoginButton');
+                        if (loginBtn) loginBtn.click();
+                        return;
+                    }
+
+                    agregarAlCarritoAPI(productoId, producto, 1);
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // Botón de comprar ahora desde el modal
+        const btnComprarAhora = document.getElementById('comprar-ahora');
+        if (btnComprarAhora) {
+            btnComprarAhora.addEventListener('click', function () {
+                const productoId = document.querySelector('.btn-detalle.active')?.getAttribute('data-producto');
+                if (!productoId) return;
+
+                const producto = productosData[productoId];
+                const token = localStorage.getItem('token');
+
+                if (!token) {
+                    alert('Por favor, inicia sesión para realizar una compra.');
+                    const loginBtn = document.getElementById('showLoginButton');
+                    if (loginBtn) loginBtn.click();
+                    return;
+                }
+
+                // Guardar el producto para checkout y redirigir
+                localStorage.setItem('productoParaComprar', JSON.stringify({
+                    id: productoId,
+                    nombre: producto.nombre,
+                    precio: producto.precioNumerico,
+                    cantidad: 1
+                }));
+                window.location.href = 'checkout.html';
+            });
+        }
+    }
+
+    // Función para agregar producto al carrito via API
+    async function agregarAlCarritoAPI(productoId, producto, cantidad) {
+        try {
+            await api.addToCart(parseInt(productoId), cantidad);
+            alert(`¡${producto.nombre} agregado al carrito!`);
+        } catch (err) {
+            console.error('Error al agregar al carrito:', err);
+            alert('Error al agregar producto al carrito. Por favor intenta nuevamente.');
+        }
+    }
+
+    // Función para filtrar productos (búsqueda en tiempo real)
     function filtrarProductos() {
         const terminoBusqueda = busquedaInput ? busquedaInput.value.toLowerCase() : '';
         const categoriaSeleccionada = categoriaSelect ? categoriaSelect.value : 'todos';
         const rangoPrecio = precioSelect ? precioSelect.value : 'todos';
 
+        const cards = productosContainer ? Array.from(productosContainer.querySelectorAll('.card')) : [];
+
         cards.forEach(card => {
             const nombreProducto = card.querySelector('h3').textContent.toLowerCase();
-            const categoriaProducto = card.getAttribute('data-categoria');
             const precioProducto = parseInt(card.getAttribute('data-precio'));
 
             let coincideBusqueda = nombreProducto.includes(terminoBusqueda);
-            let coincideCategoria = categoriaSeleccionada === 'todos' || categoriaProducto === categoriaSeleccionada;
+            let coincideCategoria = categoriaSeleccionada === 'todos' || card.getAttribute('data-categoria') === categoriaSeleccionada;
             let coincidePrecio = rangoPrecio === 'todos' || verificarRangoPrecio(precioProducto, rangoPrecio);
 
             if (coincideBusqueda && coincideCategoria && coincidePrecio) {
@@ -419,17 +407,17 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        // Actualizar título del catálogo (si existe en la página)
+        // Actualizar título del catálogo
         const catalogoTitulo = document.querySelector('.catalogo-titulo');
         if (catalogoTitulo) {
             const productosVisibles = cards.filter(card => card.style.display !== 'none').length;
-            catalogoTitulo.textContent = productosVisibles === cards.length ?
+            catalogoTitulo.textContent = productosVisibles === Object.keys(productosData).length ?
                 'Todos los Productos' :
                 `Productos Encontrados (${productosVisibles})`;
         }
     }
 
-    // Función para verificar si el precio está en el rango seleccionado
+    // Función para verificar rango de precio
     function verificarRangoPrecio(precio, rango) {
         switch (rango) {
             case '120-140':
@@ -445,7 +433,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Función para ordenar productos
     function ordenarProductos() {
-        const criterio = ordenarSelect.value;
+        const criterio = ordenarSelect ? ordenarSelect.value : 'popularidad';
+        const cards = productosContainer ? Array.from(productosContainer.querySelectorAll('.card')) : [];
         const productosVisibles = cards.filter(card => card.style.display !== 'none');
 
         productosVisibles.sort((a, b) => {
@@ -463,11 +452,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     return nombreA.localeCompare(nombreB);
                 case 'popularidad':
                 default:
-                    return 0; // Mantener orden original
+                    return 0;
             }
         });
 
-        // Reorganizar los productos en el contenedor
+        // Reorganizar productos
         productosVisibles.forEach(card => {
             productosContainer.appendChild(card);
         });
@@ -475,182 +464,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Función para limpiar filtros
     function limpiarFiltros() {
-        busquedaInput.value = '';
-        categoriaSelect.value = 'todos';
-        precioSelect.value = 'todos';
-        ordenarSelect.value = 'popularidad';
+        if (busquedaInput) busquedaInput.value = '';
+        if (categoriaSelect) categoriaSelect.value = 'todos';
+        if (precioSelect) precioSelect.value = 'todos';
+        if (ordenarSelect) ordenarSelect.value = 'popularidad';
         filtrarProductos();
     }
 
-    // Event Listeners para filtros (añadir solo si existen los elementos)
+    // Event listeners para filtros
     if (aplicarFiltrosBtn) aplicarFiltrosBtn.addEventListener('click', filtrarProductos);
     if (limpiarFiltrosBtn) limpiarFiltrosBtn.addEventListener('click', limpiarFiltros);
     if (ordenarSelect) ordenarSelect.addEventListener('change', ordenarProductos);
-
-    // Búsqueda en tiempo real
     if (busquedaInput) busquedaInput.addEventListener('input', filtrarProductos);
 
-    // Funcionalidad del modal de productos
-    const modal = document.getElementById('modal-producto');
-    const cerrarModal = document.getElementById('cerrar-modal');
-    const modalNombre = document.getElementById('modal-nombre');
-    const modalPrecio = document.getElementById('modal-precio');
-    const modalImagen = document.getElementById('modal-imagen');
-    const modalDescripcion = document.getElementById('modal-descripcion');
-    const modalCaracteristicas = document.getElementById('modal-caracteristicas');
-
-    // Abrir modal al hacer clic en "Ver Detalles"
-    document.querySelectorAll('.btn-detalle').forEach(boton => {
-        boton.addEventListener('click', function () {
-            const productoId = this.getAttribute('data-producto');
-            const producto = productos[productoId];
-
-            if (producto) {
-                modalNombre.textContent = producto.nombre;
-                modalPrecio.textContent = producto.precio;
-                modalImagen.src = producto.imagen;
-                modalImagen.alt = producto.nombre;
-                modalDescripcion.textContent = producto.descripcion;
-
-                // Limpiar características anteriores
-                modalCaracteristicas.innerHTML = '';
-
-                // Agregar nuevas características
-                producto.caracteristicas.forEach(caracteristica => {
-                    const li = document.createElement('li');
-                    li.textContent = caracteristica;
-                    modalCaracteristicas.appendChild(li);
-                });
-
-                modal.style.display = 'block';
-            }
+    // Event listener para cerrar modal
+    if (cerrarModal) {
+        cerrarModal.addEventListener('click', function () {
+            if (modal) modal.style.display = 'none';
         });
-    });
+    }
 
-    // Cerrar modal
-    cerrarModal.addEventListener('click', function () {
-        modal.style.display = 'none';
-    });
-
-    // Cerrar modal al hacer clic fuera del contenido
+    // Cerrar modal al hacer clic fuera
     window.addEventListener('click', function (event) {
-        if (event.target === modal) {
+        if (modal && event.target === modal) {
             modal.style.display = 'none';
         }
     });
-
-    // Funcionalidad para agregar al carrito
-    document.querySelectorAll('.btn-agregar-carrito').forEach(boton => {
-        boton.addEventListener('click', function () {
-            const productoId = this.getAttribute('data-producto');
-            const producto = productos[productoId];
-
-            // Verificar si el usuario está autenticado
-            const user = JSON.parse(localStorage.getItem('currentUser'));
-            if (!user) {
-                alert('Por favor, inicia sesión para agregar productos al carrito.');
-                showLoginModal();
-                return;
-            }
-
-            // Agregar al carrito
-            agregarAlCarrito(productoId, producto);
-        });
-    });
-
-    // Función para agregar producto al carrito
-    function agregarAlCarrito(productoId, producto) {
-        // Obtener carrito del localStorage
-        let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
-
-        // Verificar si el producto ya está en el carrito
-        const productoExistente = carrito.find(item => item.id === productoId);
-
-        if (productoExistente) {
-            productoExistente.cantidad += 1;
-        } else {
-            carrito.push({
-                id: productoId,
-                nombre: producto.nombre,
-                precio: producto.precio,
-                imagen: producto.imagen,
-                cantidad: 1
-            });
-        }
-
-        // Guardar carrito actualizado
-        localStorage.setItem('carrito', JSON.stringify(carrito));
-
-        // Mostrar mensaje de éxito
-        alert(`¡${producto.nombre} agregado al carrito!`);
-    }
-
-    // Event listener para el botón de agregar al carrito en el modal
-    document.getElementById('agregar-carrito-modal').addEventListener('click', function () {
-        const productoId = document.querySelector('.btn-detalle.active')?.getAttribute('data-producto');
-        if (productoId) {
-            const producto = productos[productoId];
-
-            // Verificar si el usuario está autenticado
-            const user = JSON.parse(localStorage.getItem('currentUser'));
-            if (!user) {
-                alert('Por favor, inicia sesión para agregar productos al carrito.');
-                showLoginModal();
-                return;
-            }
-
-            agregarAlCarrito(productoId, producto);
-            modal.style.display = 'none';
-        }
-    });
-
-    // Marcar el botón activo cuando se abre el modal
-    document.querySelectorAll('.btn-detalle').forEach(boton => {
-        boton.addEventListener('click', function () {
-            document.querySelectorAll('.btn-detalle').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-        });
-    });
-
-    // Botón "Comprar Ahora" del modal: guarda pedido y redirige a checkout
-    const btnComprarAhora = document.getElementById('comprar-ahora');
-    if (btnComprarAhora) {
-        btnComprarAhora.addEventListener('click', function () {
-            const productoId = document.querySelector('.btn-detalle.active')?.getAttribute('data-producto');
-            if (!productoId) return;
-
-            const producto = productos[productoId];
-
-            // Verificar autenticación
-            const user = JSON.parse(localStorage.getItem('currentUser'));
-            if (!user) {
-                alert('Por favor, inicia sesión para realizar una compra.');
-                // Mostrar modal de login definido en este archivo
-                showLoginModal();
-                return;
-            }
-
-            // Parsear precio numérico (ej: "$125.000" -> 125000)
-            const precioNum = parseInt((producto.precio || '').replace(/[^0-9]/g, ''), 10) || 0;
-
-            const pedido = {
-                tipo: 'catalogo',
-                producto: {
-                    id: productoId,
-                    nombre: producto.nombre,
-                    imagen: producto.imagen
-                },
-                cantidad: 1,
-                total: precioNum,
-                precioFormateado: producto.precio,
-                fecha: new Date().toISOString()
-            };
-
-            // Guardar pedido y redirigir
-            localStorage.setItem('pedidoActual', JSON.stringify(pedido));
-            window.location.href = 'checkout.html';
-        });
-    }
 });
 
 // En la función que maneja el botón "Comprar ahora", agregar:
