@@ -78,20 +78,24 @@ document.addEventListener('DOMContentLoaded', async function() {
             <h3>Nueva Dirección</h3>
             <form id="form-direccion">
               <div class="form-group">
-                <label>Calle</label>
-                <input type="text" name="street" required>
+                <label>Destinatario</label>
+                <input type="text" name="destinatario" placeholder="Nombre" required>
+              </div>
+              <div class="form-group">
+                <label>Dirección</label>
+                <input type="text" name="direccion" placeholder="Calle y número" required>
               </div>
               <div class="form-group">
                 <label>Ciudad</label>
-                <input type="text" name="city" required>
+                <input type="text" name="ciudad" required>
               </div>
               <div class="form-group">
-                <label>Código Postal</label>
-                <input type="text" name="zip" required>
+                <label>Departamento</label>
+                <input type="text" name="departamento" required>
               </div>
               <div class="form-group">
                 <label>Teléfono</label>
-                <input type="tel" name="phone" required>
+                <input type="tel" name="telefono" required>
               </div>
               <button type="submit" class="btn">Guardar Dirección</button>
               <button type="button" id="btn-cancelar-dir" class="btn btn-secondary">Cancelar</button>
@@ -279,9 +283,10 @@ document.addEventListener('DOMContentLoaded', async function() {
 
       lista.innerHTML = direcciones.map(dir => `
         <div class="direccion-item">
-          <p><strong>${dir.street}</strong></p>
-          <p>${dir.city}, ${dir.zip}</p>
-          <p>Teléfono: ${dir.phone}</p>
+          <p><strong>${dir.destinatario}</strong></p>
+          <p>${dir.direccion}</p>
+          <p>${dir.ciudad}, ${dir.departamento}</p>
+          <p>Teléfono: ${dir.telefono}</p>
           <button class="btn-delete-dir" data-dir="${dir.id}">Eliminar</button>
         </div>
       `).join('');
@@ -362,10 +367,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     const formData = new FormData(e.target);
     try {
       await api.addAddress({
-        street: formData.get('street'),
-        city: formData.get('city'),
-        zip: formData.get('zip'),
-        phone: formData.get('phone')
+        destinatario: formData.get('destinatario'),
+        direccion: formData.get('direccion'),
+        ciudad: formData.get('ciudad'),
+        departamento: formData.get('departamento'),
+        telefono: formData.get('telefono')
       });
       alert('Dirección agregada correctamente');
       document.getElementById('form-nueva-direccion').style.display = 'none';

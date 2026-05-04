@@ -18,7 +18,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const result = await db.query(
-      `SELECT id, name, description, price, image, category_id, active, created_at
+      `SELECT id, name, description, price, image_url, category_id, active, created_at
        FROM products
        WHERE active = true
        ORDER BY created_at DESC`
@@ -35,7 +35,7 @@ router.get('/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     const result = await db.query(
-      `SELECT id, name, description, price, image, category_id, active, created_at
+      `SELECT id, name, description, price, image_url, category_id, active, created_at
        FROM products
        WHERE id = $1`,
       [id]
@@ -53,17 +53,17 @@ router.get('/:id', async (req, res) => {
 // POST - Crear nuevo producto (solo admin)
 router.post('/', requireAuth, requireAdmin, async (req, res) => {
   try {
-    const { name, description, price, image, category_id } = req.body || {};
+    const { name, description, price, image_url, category_id } = req.body || {};
 
     if (!name || price === undefined || !category_id) {
       return res.status(400).json({ error: 'Faltan campos requeridos' });
     }
 
     const result = await db.query(
-      `INSERT INTO products (name, description, price, image, category_id, active)
+      `INSERT INTO products (name, description, price, image_url, category_id, active)
        VALUES ($1, $2, $3, $4, $5, true)
-       RETURNING id, name, description, price, image, category_id, active, created_at`,
-      [name.trim(), description?.trim() || '', price, image || '', category_id]
+       RETURNING id, name, description, price, image_url, category_id, active, created_at`,
+      [name.trim(), description?.trim() || '', price, image_url || '', category_id]
     );
 
     return res.status(201).json(result.rows[0]);
@@ -77,7 +77,7 @@ router.post('/', requireAuth, requireAdmin, async (req, res) => {
 router.put('/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
-    const { name, description, price, image, active } = req.body || {};
+    const { name, description, price, image_url, active } = req.body || {};
 
     const updates = [];
     const values = [];
@@ -98,9 +98,9 @@ router.put('/:id', requireAuth, requireAdmin, async (req, res) => {
       values.push(price);
       paramIndex++;
     }
-    if (image !== undefined) {
-      updates.push(`image = $${paramIndex}`);
-      values.push(image);
+    if (image_url !== undefined) {
+      updates.push(`image_url = $${paramIndex}`);
+      values.push(image_url);
       paramIndex++;
     }
     if (active !== undefined) {
