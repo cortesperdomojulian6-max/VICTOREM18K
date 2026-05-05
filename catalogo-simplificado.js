@@ -332,8 +332,3 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 });
-
-// Datos de los productos (para fallback si API falla)
-const productos = {
-    // Fallback empty (data comes from API)
-};

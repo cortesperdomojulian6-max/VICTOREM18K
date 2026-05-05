@@ -1,4 +1,3 @@
-
 // Mi Perfil - Refactorizado para usar APIs
 let seccionActiva = 'carrito';
 
@@ -232,7 +231,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 <td>${item.name}</td>
                 <td>$${item.price.toLocaleString('es-CO')}</td>
                 <td>
-                  <input type="number" min="1" value="${item.cantidad}" 
+                  <input type="number" min="1" value="${item.quantity}" 
                     class="qty-input" data-item="${item.id}">
                 </td>
                 <td>$${item.subtotal.toLocaleString('es-CO')}</td>
