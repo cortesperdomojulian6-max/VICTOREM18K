@@ -69,9 +69,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     <div class="resumen-producto">
       <div class="resumen-info">
         <div class="resumen-nombre">${item.name}</div>
-        <div class="resumen-detalles">Cantidad: ${item.quantity}</div>
+        <div class="resumen-detalles">Cantidad: ${item.cantidad || item.quantity}</div>
       </div>
-      <div class="resumen-precio">$${(item.price * item.quantity).toLocaleString('es-CO')}</div>
+      <div class="resumen-precio">$${(item.price * (item.cantidad || item.quantity)).toLocaleString('es-CO')}</div>
     </div>
   `).join('');
 

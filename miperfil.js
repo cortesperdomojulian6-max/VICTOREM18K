@@ -232,7 +232,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 <td>${item.name}</td>
                 <td>$${item.price.toLocaleString('es-CO')}</td>
                 <td>
-                  <input type="number" min="1" value="${item.quantity}" 
+                  <input type="number" min="1" value="${item.cantidad}" 
                     class="qty-input" data-item="${item.id}">
                 </td>
                 <td>$${item.subtotal.toLocaleString('es-CO')}</td>

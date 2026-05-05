@@ -7,7 +7,7 @@ router.get('/', requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const result = await db.query(
-      `SELECT ci.id, ci.product_id, p.name, p.price, ci.quantity, (p.price * ci.quantity) as subtotal
+      `SELECT ci.id, ci.product_id, p.name, p.price, ci.cantidad, (p.price * ci.cantidad) as subtotal
        FROM cart_items ci
        JOIN products p ON ci.product_id = p.id
        WHERE ci.user_id = $1`,
@@ -28,19 +28,19 @@ router.post('/items', requireAuth, async (req, res) => {
     if (!product_id || quantity <= 0) return res.status(400).json({ error: 'Datos inválidos' });
     
     const existing = await db.query(
-      'SELECT id, quantity FROM cart_items WHERE user_id = $1 AND product_id = $2',
+      'SELECT id, cantidad FROM cart_items WHERE user_id = $1 AND product_id = $2',
       [userId, product_id]
     );
     
     let result;
     if (existing.rows.length > 0) {
       result = await db.query(
-        'UPDATE cart_items SET quantity = quantity + $1 WHERE id = $2 RETURNING *',
+        'UPDATE cart_items SET cantidad = cantidad + $1 WHERE id = $2 RETURNING *',
         [quantity, existing.rows[0].id]
       );
     } else {
       result = await db.query(
-        'INSERT INTO cart_items (user_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING *',
+        'INSERT INTO cart_items (user_id, product_id, cantidad) VALUES ($1, $2, $3) RETURNING *',
         [userId, product_id, quantity]
       );
     }
