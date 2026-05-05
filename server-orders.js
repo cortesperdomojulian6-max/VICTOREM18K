@@ -13,7 +13,7 @@ router.post('/', requireAuth, async (req, res) => {
     }
 
     const cartResult = await db.query(
-      `SELECT SUM(p.price * ci.quantity) as total
+      `SELECT SUM(p.price * ci.cantidad) as total
        FROM cart_items ci
        JOIN products p ON ci.product_id = p.id
        WHERE ci.user_id = $1`,
@@ -24,9 +24,9 @@ router.post('/', requireAuth, async (req, res) => {
     if (total === 0) return res.status(400).json({ error: 'Carrito vacío' });
 
     const orderResult = await db.query(
-      `INSERT INTO orders (user_id, total, address_id, payment_method, estado)
-       VALUES ($1, $2, $3, $4, 'pendiente')
-       RETURNING id, user_id, total, estado, created_at`,
+      `INSERT INTO orders (user_id, total, address_id, metodo_pago, numero_pedido, estado)
+       VALUES ($1, $2, $3, $4, 'ORD-' || LPAD(CAST((random() * 1000000) AS INT)::TEXT, 6, '0'), 'pendiente')
+       RETURNING id, user_id, total, numero_pedido, estado, fecha`,
       [userId, total, address_id, payment_method]
     );
 
@@ -34,8 +34,8 @@ router.post('/', requireAuth, async (req, res) => {
 
     // Copiar items del carrito a order_items
     await db.query(
-      `INSERT INTO order_items (order_id, product_id, quantity, price)
-       SELECT $1, ci.product_id, ci.quantity, p.price
+      `INSERT INTO order_items (order_id, product_id, nombre_producto, cantidad, precio_unitario, subtotal)
+       SELECT $1, ci.product_id, p.name, ci.cantidad, p.price, (p.price * ci.cantidad)
        FROM cart_items ci
        JOIN products p ON ci.product_id = p.id
        WHERE ci.user_id = $2`,
@@ -55,7 +55,7 @@ router.post('/', requireAuth, async (req, res) => {
 router.get('/', requireAuth, async (req, res) => {
   try {
     const result = await db.query(
-      `SELECT id, total, estado, payment_method, created_at FROM orders WHERE user_id = $1 ORDER BY created_at DESC`,
+      `SELECT id, numero_pedido, total, estado, metodo_pago, created_at FROM orders WHERE user_id = $1 ORDER BY created_at DESC`,
       [req.user.id]
     );
     return res.json(result.rows);

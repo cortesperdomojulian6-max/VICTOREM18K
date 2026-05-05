@@ -2,9 +2,16 @@
 document.addEventListener('DOMContentLoaded', async function() {
   const resumenPedido = document.getElementById('resumen-pedido');
   const totalPedido = document.getElementById('total-pedido');
-  const formularioCompra = document.getElementById('formulario-compra');
   const metodoPagoOpciones = document.querySelectorAll('.metodo-pago-opcion');
   const btnPagar = document.getElementById('btn-pagar');
+  
+  // Elementos del formulario
+  const inputNombre = document.getElementById('nombre');
+  const inputApellido = document.getElementById('apellido');
+  const inputDireccion = document.getElementById('direccion');
+  const inputCiudad = document.getElementById('ciudad');
+  const inputDepartamento = document.getElementById('departamento');
+  const inputTelefono = document.getElementById('telefono');
 
   // Verificar autenticación
   const token = localStorage.getItem('token');
@@ -85,77 +92,19 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.error('Error cargando direcciones:', err);
   }
 
-  // Renderizar sección de dirección
-  const direccionSection = document.getElementById('direccion-entrega');
-  if (direccionSection && direcciones.length > 0) {
-    direccionSection.innerHTML = `
-      <h3>Dirección de Entrega</h3>
-      <div id="opciones-direccion">
-        ${direcciones.map(dir => `
-          <label class="direccion-opcion">
-            <input type="radio" name="address_id" value="${dir.id}" ${direcciones.indexOf(dir) === 0 ? 'checked' : ''}>
-            <div class="direccion-texto">
-              <strong>${dir.destinatario}</strong><br>
-              ${dir.direccion}<br>
-              ${dir.ciudad}, ${dir.departamento}<br>
-              Teléfono: ${dir.telefono}
-            </div>
-          </label>
-        `).join('')}
-      </div>
-      <a href="#" id="nueva-direccion-link">+ Usar nueva dirección</a>
-      <div id="nueva-direccion-form" style="display:none; margin-top:1rem;">
-        <h4>Nueva Dirección</h4>
-        <form id="form-nueva-dir">
-          <input type="text" name="destinatario" placeholder="Destinatario" required>
-          <input type="text" name="direccion" placeholder="Dirección" required>
-          <input type="text" name="ciudad" placeholder="Ciudad" required>
-          <input type="text" name="departamento" placeholder="Departamento" required>
-          <input type="tel" name="telefono" placeholder="Teléfono" required>
-          <button type="submit" class="btn">Guardar y Usar</button>
-        </form>
-      </div>
-    `;
-
-    // Event listeners para nueva dirección
-    document.getElementById('nueva-direccion-link').addEventListener('click', (e) => {
-      e.preventDefault();
-      document.getElementById('nueva-direccion-form').style.display = 
-        document.getElementById('nueva-direccion-form').style.display === 'none' ? 'block' : 'none';
-    });
-
-    document.getElementById('form-nueva-dir').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(e.target);
-      try {
-        const nuevaDir = await api.addAddress({
-          destinatario: formData.get('destinatario'),
-          direccion: formData.get('direccion'),
-          ciudad: formData.get('ciudad'),
-          departamento: formData.get('departamento'),
-          telefono: formData.get('telefono')
-        });
-        
-        // Marcar como seleccionada
-        const radio = document.querySelector(`input[value="${nuevaDir.id}"]`);
-        if (radio) radio.checked = true;
-        
-        document.getElementById('nueva-direccion-form').style.display = 'none';
-      } catch (err) {
-        alert('Error al guardar dirección');
-      }
-    });
+  // Si hay direcciones guardadas, llenarlas en el formulario
+  if (direcciones.length > 0) {
+    const primeraDireccion = direcciones[0];
+    inputNombre.value = primeraDireccion.destinatario.split(' ')[0] || '';
+    inputApellido.value = primeraDireccion.destinatario.split(' ').slice(1).join(' ') || '';
+    inputDireccion.value = primeraDireccion.direccion;
+    inputCiudad.value = primeraDireccion.ciudad;
+    inputDepartamento.value = primeraDireccion.departamento;
+    inputTelefono.value = primeraDireccion.telefono;
+    
+    // Guardar el ID de la dirección seleccionada
+    document.direccionSeleccionada = { id: primeraDireccion.id };
   }
-
-  // Manejo de método de pago
-  let metodoPagoSeleccionado = 'transfer';
-  metodoPagoOpciones.forEach(opcion => {
-    opcion.addEventListener('click', function() {
-      metodoPagoOpciones.forEach(o => o.classList.remove('seleccionado'));
-      this.classList.add('seleccionado');
-      metodoPagoSeleccionado = this.getAttribute('data-metodo');
-    });
-  });
 
   // Evento para procesar pago
   if (btnPagar) {
@@ -163,15 +112,21 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
   async function procesarPago() {
-    const addressIdInput = document.querySelector('input[name="address_id"]:checked');
-    if (!addressIdInput) {
-      alert('Por favor selecciona una dirección de entrega');
-      return;
-    }
-
-    const addressId = addressIdInput.value;
-
     try {
+      let addressId = document.direccionSeleccionada?.id;
+      
+      // Si no hay dirección seleccionada, crear una nueva
+      if (!addressId) {
+        const nuevaDireccion = await api.addAddress({
+          destinatario: `${inputNombre.value} ${inputApellido.value}`,
+          direccion: inputDireccion.value,
+          ciudad: inputCiudad.value,
+          departamento: inputDepartamento.value,
+          telefono: inputTelefono.value
+        });
+        addressId = nuevaDireccion.id;
+      }
+
       // Crear orden
       const orden = await api.createOrder({
         address_id: parseInt(addressId),
@@ -183,28 +138,8 @@ document.addEventListener('DOMContentLoaded', async function() {
       localStorage.removeItem('productoParaComprar');
 
       // Mostrar confirmación
-      const confirmSection = document.getElementById('confirmacion-compra') || document.createElement('div');
-      confirmSection.id = 'confirmacion-compra';
-      confirmSection.innerHTML = `
-        <div class="confirmacion-exito">
-          <h2>¡Compra Confirmada!</h2>
-          <p>Tu pedido #${orden.id} ha sido creado correctamente.</p>
-          <p>Total: <strong>$${total.toLocaleString('es-CO')}</strong></p>
-          <p>Estado: <strong>Pendiente de Pago</strong></p>
-          <a href="miperfil.html#pedidos" class="btn">Ver Mis Pedidos</a>
-          <a href="catalogo.html" class="btn btn-secondary">Continuar Comprando</a>
-        </div>
-      `;
-      
-      if (document.getElementById('confirmacion-compra')) {
-        document.getElementById('confirmacion-compra').replaceWith(confirmSection);
-      } else {
-        document.body.insertBefore(confirmSection, document.body.firstChild);
-      }
-
-      // Ocultar formulario
-      const formulario = document.querySelector('.formulario-checkout');
-      if (formulario) formulario.style.display = 'none';
+      alert(`¡Compra confirmada! Tu pedido #${orden.numero_pedido} ha sido creado.`);
+      window.location.href = 'miperfil.html';
 
     } catch (err) {
       alert('Error al procesar la compra: ' + err.message);
@@ -212,53 +147,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
   }
 
-  // Asegurarse de que hay al menos una dirección
-  if (direcciones.length === 0) {
-    const direccionSection = document.getElementById('direccion-entrega');
-    if (direccionSection) {
-      direccionSection.innerHTML = `
-        <h3>Dirección de Entrega</h3>
-        <div id="nueva-direccion-form-inicial">
-          <h4>Crea una dirección de entrega</h4>
-          <form id="form-primera-dir">
-            <div class="form-group">
-              <input type="text" name="destinatario" placeholder="Destinatario" required>
-            </div>
-            <div class="form-group">
-              <input type="text" name="direccion" placeholder="Dirección" required>
-            </div>
-            <div class="form-group">
-              <input type="text" name="ciudad" placeholder="Ciudad" required>
-            </div>
-            <div class="form-group">
-              <input type="text" name="departamento" placeholder="Departamento" required>
-            </div>
-            <div class="form-group">
-              <input type="tel" name="telefono" placeholder="Teléfono" required>
-            </div>
-            <button type="submit" class="btn">Usar esta Dirección</button>
-          </form>
-        </div>
-      `;
+  // Manejo de método de pago
+  let metodoPagoSeleccionado = 'transferencia';
+  metodoPagoOpciones.forEach(opcion => {
+    opcion.addEventListener('click', function() {
+      metodoPagoOpciones.forEach(o => o.classList.remove('seleccionado'));
+      this.classList.add('seleccionado');
+      metodoPagoSeleccionado = this.getAttribute('data-metodo');
+    });
+  });
 
-    document.getElementById('form-primera-dir').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        try {
-          const nuevaDir = await api.addAddress({
-            destinatario: formData.get('destinatario'),
-            direccion: formData.get('direccion'),
-            ciudad: formData.get('ciudad'),
-            departamento: formData.get('departamento'),
-            telefono: formData.get('telefono')
-          });
-          
-          // Recargar direcciones
-          window.location.reload();
-        } catch (err) {
-          alert('Error al guardar dirección');
-        }
-      });
-    }
-  }
 });
