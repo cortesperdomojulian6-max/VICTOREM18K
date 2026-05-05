@@ -55,7 +55,7 @@ router.post('/', requireAuth, async (req, res) => {
 router.get('/', requireAuth, async (req, res) => {
   try {
     const result = await db.query(
-      `SELECT id, numero_pedido, total, estado, metodo_pago, created_at FROM orders WHERE user_id = $1 ORDER BY created_at DESC`,
+      `SELECT id, numero_pedido, total, estado, metodo_pago, fecha FROM orders WHERE user_id = $1 ORDER BY fecha DESC`,
       [req.user.id]
     );
     return res.json(result.rows);
@@ -67,13 +67,13 @@ router.get('/', requireAuth, async (req, res) => {
 router.get('/:id', requireAuth, async (req, res) => {
   try {
     const orderResult = await db.query(
-      `SELECT id, total, estado, payment_method, created_at FROM orders WHERE id = $1 AND user_id = $2`,
+      `SELECT id, total, estado, metodo_pago, fecha FROM orders WHERE id = $1 AND user_id = $2`,
       [req.params.id, req.user.id]
     );
     if (orderResult.rows.length === 0) return res.status(404).json({ error: 'Orden no encontrada' });
 
     const itemsResult = await db.query(
-      `SELECT product_id, quantity, price FROM order_items WHERE order_id = $1`,
+      `SELECT product_id, cantidad, precio_unitario FROM order_items WHERE order_id = $1`,
       [req.params.id]
     );
 
