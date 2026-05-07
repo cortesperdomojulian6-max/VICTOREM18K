@@ -92,9 +92,12 @@ app.get('/api/health', (req, res) => {
 });
 
 // ----------------- Frontend (archivos estáticos) -----------------
-app.use(express.static(path.join(__dirname, '../frontend/public')));
-app.use('/assets', express.static(path.join(__dirname, '../frontend/assets')));
-app.use('/components', express.static(path.join(__dirname, '../frontend/components')));
+// En local, Express sirve los estáticos. En Vercel lo hace nativamente.
+if (!process.env.VERCEL) {
+  app.use(express.static(path.join(__dirname, '../frontend/public')));
+  app.use('/assets', express.static(path.join(__dirname, '../frontend/assets')));
+  app.use('/components', express.static(path.join(__dirname, '../frontend/components')));
+}
 
 // ============ MANEJADOR DE ERRORES ============
 const { AppError } = require('./services/errors');
@@ -128,22 +131,25 @@ app.use((req, res) => {
 });
 
 // ============ INICIAR SERVIDOR ============
-const server = app.listen(PORT, HOST, () => {
-  console.log('═══════════════════════════════════════════════════════');
-  console.log('   ✅ VICTOREM - Servidor iniciado');
-  console.log('═══════════════════════════════════════════════════════');
-  console.log(`   🌐 http://localhost:${PORT}`);
-  console.log(`   🔌 API: http://localhost:${PORT}/api/health`);
-  console.log('═══════════════════════════════════════════════════════');
-});
+// En Vercel no se llama app.listen(), la plataforma lo maneja como serverless
+if (!process.env.VERCEL) {
+  const server = app.listen(PORT, HOST, () => {
+    console.log('═══════════════════════════════════════════════════════');
+    console.log('   ✅ VICTOREM - Servidor iniciado');
+    console.log('═══════════════════════════════════════════════════════');
+    console.log(`   🌐 http://localhost:${PORT}`);
+    console.log(`   🔌 API: http://localhost:${PORT}/api/health`);
+    console.log('═══════════════════════════════════════════════════════');
+  });
 
-server.on('error', (err) => {
-  console.error('Error en el servidor HTTP:', err.message);
-  if (err.code === 'EADDRINUSE') {
-    console.error(`El puerto ${PORT} está en uso. Cierra el otro proceso o cambia PORT en .env`);
-  }
-  process.exit(1);
-});
+  server.on('error', (err) => {
+    console.error('Error en el servidor HTTP:', err.message);
+    if (err.code === 'EADDRINUSE') {
+      console.error(`El puerto ${PORT} está en uso. Cierra el otro proceso o cambia PORT en .env`);
+    }
+    process.exit(1);
+  });
+}
 
 process.on('uncaughtException', (err) => {
   console.error('Excepción no capturada:', err);
