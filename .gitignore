@@ -23,3 +23,24 @@ Thumbs.db
 dist/
 build/
 coverage/
+
+# Python Virtual Environment
+.venv/
+venv/
+env/
+
+# Archivos temporales y backups
+*-temp.js
+*-backup.js
+*-old.js
+*-new.js
+*-final.js
+*.bak
+*.tmp
+
+# Vercel
+.vercel/
+
+# Database
+*.sqlite
+*.db

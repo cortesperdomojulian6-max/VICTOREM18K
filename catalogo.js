@@ -27,8 +27,10 @@ function renderizarCatalogo() {
             <h3>${producto.nombre}</h3>
             <p class="precio">${producto.precio}</p>
             <p class="descripcion">${producto.descripcion.substring(0, 100)}...</p>
-            <button class="btn-detalle" data-producto="${id}">Ver Detalles</button>
-            <button class="btn-agregar-carrito" data-producto="${id}">Agregar al Carrito</button>
+            <div class="card-buttons">
+                <button class="btn btn-secondary btn-small" data-producto="${id}">Ver Detalles</button>
+                <button class="btn btn-primary btn-small" data-producto="${id}">Agregar al Carrito</button>
+            </div>
         `;
         
         productosContainer.appendChild(card);
@@ -51,7 +53,7 @@ function aplicarEventListeners() {
     }
 
     // Event listeners para ver detalles
-    document.querySelectorAll('.btn-detalle').forEach(boton => {
+    document.querySelectorAll('.card-buttons .btn-secondary').forEach(boton => {
         boton.addEventListener('click', function () {
             const productoId = this.getAttribute('data-producto');
             const producto = productosData[productoId];
