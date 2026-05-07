@@ -2,12 +2,12 @@
   "name": "victorem-backend",
   "version": "2.0.0",
   "description": "Backend para la aplicación VICTOREM (PostgreSQL + Supabase)",
-  "main": "server.js",
+  "main": "backend/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
-    "db:setup": "node db/setup.js",
-    "db:reset": "node db/setup.js --reset"
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "db:setup": "node backend/db/setup.js",
+    "db:reset": "node backend/db/setup.js --reset"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
