@@ -1,11 +1,17 @@
-// Checkout - Refactorizado para usar APIs
+import { getCurrentUser, getCart, getAddresses, addAddress, createOrder } from '../services/api.js';
+import { wompiClient } from '../services/wompi-client.js';
+import { loadSharedHeader } from '../components/header-loader.js';
+import { initAuth } from '../services/auth.js';
+
 document.addEventListener('DOMContentLoaded', async function() {
+  loadSharedHeader();
+  initAuth();
+
   const resumenPedido = document.getElementById('resumen-pedido');
   const totalPedido = document.getElementById('total-pedido');
   const metodoPagoOpciones = document.querySelectorAll('.metodo-pago-opcion');
   const btnPagar = document.getElementById('btn-pagar');
-  
-  // Elementos del formulario
+
   const inputNombre = document.getElementById('nombre');
   const inputApellido = document.getElementById('apellido');
   const inputDireccion = document.getElementById('direccion');
@@ -13,7 +19,6 @@ document.addEventListener('DOMContentLoaded', async function() {
   const inputDepartamento = document.getElementById('departamento');
   const inputTelefono = document.getElementById('telefono');
 
-  // Verificar autenticación
   const token = localStorage.getItem('token');
   if (!token) {
     resumenPedido.innerHTML = `
@@ -29,22 +34,19 @@ document.addEventListener('DOMContentLoaded', async function() {
     return;
   }
 
-  // Obtener datos del usuario autenticado
   let usuario = null;
   try {
-    usuario = await api.getCurrentUser();
+    usuario = await getCurrentUser();
   } catch (err) {
     resumenPedido.innerHTML = '<p>Error al cargar tus datos. Por favor intenta nuevamente.</p>';
     return;
   }
 
-  // Cargar datos del carrito o producto específico
   let cartItems = [];
   let total = 0;
   let productoParaComprar = localStorage.getItem('productoParaComprar');
-  
+
   if (productoParaComprar) {
-    // Compra directa de un producto
     const producto = JSON.parse(productoParaComprar);
     cartItems = [{
       name: producto.nombre,
@@ -54,9 +56,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     }];
     total = producto.precio * producto.cantidad;
   } else {
-    // Compra desde el carrito
     try {
-      const datos = await api.getCart();
+      const datos = await getCart();
       cartItems = datos.items || [];
       total = datos.total || 0;
     } catch (err) {
@@ -71,7 +72,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     return;
   }
 
-  // Renderizar resumen del carrito
   resumenPedido.innerHTML = cartItems.map(item => `
     <div class="resumen-producto">
       <div class="resumen-info">
@@ -84,15 +84,13 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   totalPedido.textContent = `$${total.toLocaleString('es-CO')}`;
 
-  // Cargar direcciones del usuario
   let direcciones = [];
   try {
-    direcciones = await api.getAddresses();
+    direcciones = await getAddresses();
   } catch (err) {
     console.error('Error cargando direcciones:', err);
   }
 
-  // Si hay direcciones guardadas, llenarlas en el formulario
   if (direcciones.length > 0) {
     const primeraDireccion = direcciones[0];
     inputNombre.value = primeraDireccion.destinatario.split(' ')[0] || '';
@@ -101,12 +99,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     inputCiudad.value = primeraDireccion.ciudad;
     inputDepartamento.value = primeraDireccion.departamento;
     inputTelefono.value = primeraDireccion.telefono;
-    
-    // Guardar el ID de la dirección seleccionada
+
     document.direccionSeleccionada = { id: primeraDireccion.id };
   }
 
-  // Evento para procesar pago
   if (btnPagar) {
     btnPagar.addEventListener('click', procesarPago);
   }
@@ -114,10 +110,9 @@ document.addEventListener('DOMContentLoaded', async function() {
   async function procesarPago() {
     try {
       let addressId = document.direccionSeleccionada?.id;
-      
-      // Si no hay dirección seleccionada, crear una nueva
+
       if (!addressId) {
-        const nuevaDireccion = await api.addAddress({
+        const nuevaDireccion = await addAddress({
           destinatario: `${inputNombre.value} ${inputApellido.value}`,
           direccion: inputDireccion.value,
           ciudad: inputCiudad.value,
@@ -127,23 +122,19 @@ document.addEventListener('DOMContentLoaded', async function() {
         addressId = nuevaDireccion.id;
       }
 
-      // Si es Wompi, procesar pago con pasarela
       if (metodoPagoSeleccionado === 'wompi') {
         await procesarPagoWompi(parseInt(addressId), total);
         return;
       }
 
-      // Para otros métodos, crear orden directamente
-      const orden = await api.createOrder({
+      const orden = await createOrder({
         address_id: parseInt(addressId),
         payment_method: metodoPagoSeleccionado
       });
 
-      // Limpiar localStorage
       localStorage.removeItem('pedidoActual');
       localStorage.removeItem('productoParaComprar');
 
-      // Mostrar confirmación
       alert(`¡Compra confirmada! Tu pedido #${orden.numero_pedido} ha sido creado.`);
       window.location.href = 'miperfil.html';
 
@@ -153,27 +144,17 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
   }
 
-  /**
-   * Procesar pago con Wompi
-   */
   async function procesarPagoWompi(addressId, monto) {
     try {
-      console.log('💳 Iniciando pago con Wompi...');
-
-      // Inicializar Wompi si no está inicializado
       if (!wompiClient.initialized) {
         await wompiClient.init();
       }
 
-      // Primero, crear la orden
-      const orden = await api.createOrder({
+      const orden = await createOrder({
         address_id: addressId,
         payment_method: 'wompi'
       });
 
-      console.log('📋 Orden creada:', orden.numero_pedido);
-
-      // Crear transacción en Wompi
       const reference = `ORD-${orden.id}`;
       const transaction = await wompiClient.createTransaction(
         monto,
@@ -182,27 +163,22 @@ document.addEventListener('DOMContentLoaded', async function() {
         orden.id
       );
 
-      console.log('✅ Transacción creada:', transaction);
-
-      // Si hay redirect_url, redirigir al cliente a Wompi
       if (transaction.redirect_url) {
         window.location.href = transaction.redirect_url;
         return;
       }
 
-      // Si no hay redirect, mostrar mensaje de éxito
       alert('¡Pago procesado! Por favor revisa tu correo para detalles.');
       localStorage.removeItem('pedidoActual');
       localStorage.removeItem('productoParaComprar');
       window.location.href = 'miperfil.html';
 
     } catch (err) {
-      console.error('❌ Error en Wompi:', err);
+      console.error('Error en Wompi:', err);
       alert('Error procesando pago con Wompi: ' + err.message);
     }
   }
 
-  // Manejo de método de pago
   let metodoPagoSeleccionado = 'transferencia';
   metodoPagoOpciones.forEach(opcion => {
     opcion.addEventListener('click', function() {
@@ -211,5 +187,4 @@ document.addEventListener('DOMContentLoaded', async function() {
       metodoPagoSeleccionado = this.getAttribute('data-metodo');
     });
   });
-
 });

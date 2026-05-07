@@ -1,3 +1,10 @@
+import { initAuth } from '../services/auth.js';
+
+document.addEventListener('DOMContentLoaded', function() {
+  initAuth();
+  fetchUsers();
+});
+
 async function fetchUsers() {
   const statusEl = document.getElementById('status');
   statusEl.textContent = 'Cargando...';
@@ -41,12 +48,10 @@ async function onDelete(e) {
   try {
     const res = await fetch('/api/admin/users/' + id, { method: 'DELETE' });
     if (!res.ok) throw new Error('Error ' + res.status);
-    const json = await res.json();
-    alert('Eliminados: ' + json.deleted);
+    await res.json();
+    alert('Usuario eliminado.');
     fetchUsers();
   } catch (err) {
     alert('Error borrando usuario: ' + err.message);
   }
 }
-
-fetchUsers();
