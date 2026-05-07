@@ -76,10 +76,21 @@
               <div class="metodo-pago-icono">💳</div>
               <div>Tarjeta de Crédito</div>
             </div>
+            <div class="metodo-pago-opcion" data-metodo="wompi">
+              <div class="metodo-pago-icono">💎</div>
+              <div>Wompi (Recomendado)</div>
+            </div>
             <div class="metodo-pago-opcion" data-metodo="transferencia">
               <div class="metodo-pago-icono">🏦</div>
               <div>Transferencia</div>
             </div>
+          </div>
+
+          <!-- Detalles de Wompi -->
+          <div class="detalles-tarjeta" id="detalles-wompi">
+            <p>✅ Pagos seguros con Wompi</p>
+            <p>Acepta tarjetas de crédito, débito y billeteras digitales.</p>
+            <p><strong>Tu pago será redirigido a la plataforma segura de Wompi.</strong></p>
           </div>
 
           <!-- Detalles de tarjeta -->
@@ -209,6 +220,7 @@
 
   <!-- Header compartido e modales de auth cargados dinámicamente -->
   <script src="api.js" defer></script>
+  <script src="wompi-client.js" defer></script>
   <script src="header-loader.js" defer></script>
   <script src="auth.js" defer></script>
   <script src="main.js" defer></script>

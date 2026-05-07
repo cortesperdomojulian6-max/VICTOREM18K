@@ -127,7 +127,13 @@ document.addEventListener('DOMContentLoaded', async function() {
         addressId = nuevaDireccion.id;
       }
 
-      // Crear orden
+      // Si es Wompi, procesar pago con pasarela
+      if (metodoPagoSeleccionado === 'wompi') {
+        await procesarPagoWompi(parseInt(addressId), total);
+        return;
+      }
+
+      // Para otros métodos, crear orden directamente
       const orden = await api.createOrder({
         address_id: parseInt(addressId),
         payment_method: metodoPagoSeleccionado
@@ -144,6 +150,55 @@ document.addEventListener('DOMContentLoaded', async function() {
     } catch (err) {
       alert('Error al procesar la compra: ' + err.message);
       console.error('Error:', err);
+    }
+  }
+
+  /**
+   * Procesar pago con Wompi
+   */
+  async function procesarPagoWompi(addressId, monto) {
+    try {
+      console.log('💳 Iniciando pago con Wompi...');
+
+      // Inicializar Wompi si no está inicializado
+      if (!wompiClient.initialized) {
+        await wompiClient.init();
+      }
+
+      // Primero, crear la orden
+      const orden = await api.createOrder({
+        address_id: addressId,
+        payment_method: 'wompi'
+      });
+
+      console.log('📋 Orden creada:', orden.numero_pedido);
+
+      // Crear transacción en Wompi
+      const reference = `ORD-${orden.id}`;
+      const transaction = await wompiClient.createTransaction(
+        monto,
+        reference,
+        usuario.email,
+        orden.id
+      );
+
+      console.log('✅ Transacción creada:', transaction);
+
+      // Si hay redirect_url, redirigir al cliente a Wompi
+      if (transaction.redirect_url) {
+        window.location.href = transaction.redirect_url;
+        return;
+      }
+
+      // Si no hay redirect, mostrar mensaje de éxito
+      alert('¡Pago procesado! Por favor revisa tu correo para detalles.');
+      localStorage.removeItem('pedidoActual');
+      localStorage.removeItem('productoParaComprar');
+      window.location.href = 'miperfil.html';
+
+    } catch (err) {
+      console.error('❌ Error en Wompi:', err);
+      alert('Error procesando pago con Wompi: ' + err.message);
     }
   }
 
