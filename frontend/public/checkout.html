@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Victorem</title>
+  <link rel="icon" type="image/x-icon" href="/assets/images/logo.png">
+  <link rel="stylesheet" href="/assets/css/catalogo.css">
+  <link rel="stylesheet" href="/assets/css/checkout.css">
+</head>
+
+<body>
+  <div id="header-root"></div>
+
+  <!-- Hero Section -->
+  <section class="hero"
+    style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/assets/images/textura.png') center/cover no-repeat;">
+    <div class="container">
+      <h1>Finalizar Compra</h1>
+      <p>Completa tus datos para procesar tu pedido.</p>
+    </div>
+  </section>
+
+  <!-- Contenido del Checkout -->
+  <section class="checkout">
+    <div class="container checkout-container">
+      <!-- Formulario de pago -->
+      <div class="checkout-form">
+        <h2 class="checkout-titulo">Información de Pago</h2>
+        
+        <!-- Información de envío -->
+        <div class="form-section">
+          <h3>Información de Envío</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nombre">Nombre</label>
+              <input type="text" id="nombre" required>
+            </div>
+            <div class="form-group">
+              <label for="apellido">Apellido</label>
+              <input type="text" id="apellido" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="direccion">Dirección</label>
+            <input type="text" id="direccion" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="ciudad">Ciudad</label>
+              <input type="text" id="ciudad" required>
+            </div>
+            <div class="form-group">
+              <label for="departamento">Departamento</label>
+              <input type="text" id="departamento" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="codigo-postal">Código Postal</label>
+              <input type="text" id="codigo-postal" required>
+            </div>
+            <div class="form-group">
+              <label for="telefono">Teléfono</label>
+              <input type="tel" id="telefono" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Método de pago -->
+        <div class="form-section">
+          <h3>Método de Pago</h3>
+          <div class="metodo-pago-opciones">
+            <div class="metodo-pago-opcion" data-metodo="tarjeta">
+              <div class="metodo-pago-icono">💳</div>
+              <div>Tarjeta de Crédito</div>
+            </div>
+            <div class="metodo-pago-opcion" data-metodo="wompi">
+              <div class="metodo-pago-icono">💎</div>
+              <div>Wompi (Recomendado)</div>
+            </div>
+            <div class="metodo-pago-opcion" data-metodo="transferencia">
+              <div class="metodo-pago-icono">🏦</div>
+              <div>Transferencia</div>
+            </div>
+          </div>
+
+          <!-- Detalles de Wompi -->
+          <div class="detalles-tarjeta" id="detalles-wompi">
+            <p>✅ Pagos seguros con Wompi</p>
+            <p>Acepta tarjetas de crédito, débito y billeteras digitales.</p>
+            <p><strong>Tu pago será redirigido a la plataforma segura de Wompi.</strong></p>
+          </div>
+
+          <!-- Detalles de tarjeta -->
+          <div class="detalles-tarjeta" id="detalles-tarjeta">
+            <div class="form-group">
+              <label for="numero-tarjeta">Número de Tarjeta</label>
+              <input type="text" id="numero-tarjeta" placeholder="1234 5678 9012 3456">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="fecha-expiracion">Fecha de Expiración</label>
+                <input type="text" id="fecha-expiracion" placeholder="MM/AA">
+              </div>
+              <div class="form-group">
+                <label for="cvv">CVV</label>
+                <input type="text" id="cvv" placeholder="123">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="nombre-tarjeta">Nombre en la Tarjeta</label>
+              <input type="text" id="nombre-tarjeta">
+            </div>
+          </div>
+
+          <!-- Detalles de transferencia -->
+          <div class="detalles-tarjeta" id="detalles-transferencia">
+            <p>Para completar tu compra, realiza una transferencia a:</p>
+            <p><strong>Banco: Nequi</strong></p>
+            <p><strong>Cuenta: 3107875531</strong></p>
+            <p><strong>Titular: Julian Cortes</strong></p>
+            <p>Una vez realizada la transferencia, envíanos el comprobante a info@victorem.co</p>
+          </div>
+        </div>
+
+        <!-- Botón de pago -->
+        <button class="btn-pagar" id="btn-pagar">Realizar Pago</button>
+
+        <!-- Mensaje de éxito -->
+        <div class="mensaje-exito" id="mensaje-exito">
+          <div class="icono-exito">✓</div>
+          <h2>¡Pago Completado!</h2>
+          <p>Tu pedido ha sido procesado exitosamente.</p>
+          <p>Recibirás un correo de confirmación en breve.</p>
+          <p><strong>Número de pedido: #VM-<span id="numero-pedido"></span></strong></p>
+          <a href="index.html" class="btn" style="margin-top: 20px;">Volver al Inicio</a>
+        </div>
+      </div>
+
+      <!-- Resumen del pedido -->
+      <div class="checkout-resumen">
+        <h2 class="checkout-titulo">Resumen del Pedido</h2>
+        <div id="resumen-pedido">
+          <!-- El contenido se cargará dinámicamente -->
+        </div>
+        <div class="resumen-linea">
+          <span>Envío:</span>
+          <span>$10.000</span>
+        </div>
+        <div class="resumen-total">
+          <span>Total:</span>
+          <span id="total-pedido">$0</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>VICTOREM</h3>
+          <p>Arte en cada balín, elegancia en cada detalle. Creamos joyas únicas que trascienden el tiempo.</p>
+        </div>
+
+        <div class="footer-section">
+          <h3>Contacto</h3>
+          <div class="contacto-grid">
+            <div class="contacto-item">
+              <strong>Dirección</strong><br>
+              Calle 20 #9-59, Campoalegre, Huila
+            </div>
+            <div class="contacto-item">
+              <strong>Teléfono</strong><br>
+              +57 310 787 5531
+            </div>
+            <div class="contacto-item">
+              <strong>Email</strong><br>
+              info@victorem.co
+            </div>
+            <div class="contacto-item">
+              <strong>Horario</strong><br>
+              Lun - Sáb: 9:00 AM - 6:00 PM
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-section">
+          <h3>Enlaces</h3>
+          <ul>
+            <li><a href="politicas.html">Políticas y Privacidad</a></li>
+            <li><a href="cuidado.html">Cuidado de joyas</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h3>Formas de pago</h3>
+          <div class="metodos-pago">
+            <span class="metodo-pago">VISA</span>
+            <span class="metodo-pago">MC</span>
+            <span class="metodo-pago">AMEX</span>
+            <span class="metodo-pago">PSE</span>
+            <span class="metodo-pago">EFECTY</span>
+            <span class="metodo-pago">NEQUI</span>
+          </div>
+          <p style="margin-top: 15px;">Envíos seguros a toda Colombia</p>
+        </div>
+
+
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2024 Victorem. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Header compartido e modales de auth cargados dinámicamente -->
+  <script type="module" src="/assets/js/pages/checkout.js"></script>
+</body>
+
+</html>

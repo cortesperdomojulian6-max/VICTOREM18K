@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Victorem - Catálogo</title>
+  <link rel="icon" type="image/x-icon" href="/assets/images/logo.png">
+  <link rel="stylesheet" href="/assets/css/catalogo.css">
+</head>
+
+<body>
+  <div id="header-root"></div>
+
+  <!-- Hero Section -->
+  <section class="hero"
+    style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/assets/images/textura.png') center/cover no-repeat;">
+    <div class="container">
+      <h1>Nuestro Catálogo</h1>
+      <p>Cada pieza es una obra maestra única, creada con la más fina técnica artesanal y materiales de la más alta
+        calidad.</p>
+    </div>
+  </section>
+
+  <!-- Filtros y búsqueda -->
+  <section class="filtros">
+    <div class="container">
+      <div class="filtros-container">
+        <div class="filtro-grupo">
+          <label for="categoria">Categoría:</label>
+          <select id="categoria">
+            <option value="todos">Todos</option>
+            <option value="pulseras">Pulseras</option>
+            <option value="anillos">Anillos</option>
+            <option value="collares">Collares</option>
+          </select>
+        </div>
+
+        <div class="filtro-grupo">
+          <label for="precio">Precio:</label>
+          <select id="precio">
+            <option value="todos">Todos</option>
+            <option value="120-140">$120.000 - $140.000</option>
+            <option value="140-160">$140.000 - $160.000</option>
+            <option value="160-180">$160.000 - $180.000</option>
+          </select>
+        </div>
+
+        <div class="filtro-grupo">
+          <label for="busqueda">Buscar:</label>
+          <input type="text" id="busqueda" placeholder="Nombre del producto...">
+        </div>
+
+        <button class="btn" id="aplicar-filtros">Aplicar Filtros</button>
+        <button class="btn btn-outline" id="limpiar-filtros">Limpiar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Catálogo de productos -->
+  <section class="catalogo">
+    <div class="container">
+      <div class="catalogo-header">
+        <h2 class="catalogo-titulo">Todos los Productos</h2>
+        <div class="ordenar">
+          <label for="ordenar">Ordenar por:</label>
+          <select id="ordenar">
+            <option value="popularidad">Popularidad</option>
+            <option value="precio-asc">Precio: Menor a Mayor</option>
+            <option value="precio-desc">Precio: Mayor a Menor</option>
+            <option value="nombre">Nombre A-Z</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="productos" id="lista-productos">
+        <!-- Producto 1 -->
+        <div class="card" data-categoria="pulseras" data-precio="60000">
+          <img src="/assets/images/balines dorados.jpeg" alt="Pulsera Clásica Dorada" class="card-img">
+          <div class="card-content">
+            <h3>Pulsera Clásica Dorada</h3>
+            <p>Elegante pulsera con diseño tradicional en balinería y acabado dorado de alta calidad.</p>
+            <p class="price">$60.000</p>
+            <div class="card-acciones">
+              <button class="btn btn-detalle" data-producto="1">Ver Detalles</button>
+              <button class="btn btn-outline btn-agregar-carrito" data-producto="1">Agregar al Carrito</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Producto 2 -->
+        <div class="card" data-categoria="pulseras" data-precio="165000">
+          <img src="/assets/images/van cleef dorada.jpeg" alt="Pulsera Van Cleef Dorada" class="card-img">
+          <div class="card-content">
+            <h3>Pulsera Van Cleef Dorada</h3>
+            <p>Diseño contemporáneo con balinería de diferentes tamaños y acabado plateado brillante.</p>
+            <p class="price">$165.000</p>
+            <div class="card-acciones">
+              <button class="btn btn-detalle" data-producto="2">Ver Detalles</button>
+              <button class="btn btn-outline btn-agregar-carrito" data-producto="2">Agregar al Carrito</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Producto 3 -->
+        <div class="card" data-categoria="pulseras" data-precio="150000">
+          <img src="/assets/images/van cleef negra.jpeg" alt="Pulsera Van Cleef negra" class="card-img">
+          <div class="card-content">
+            <h3>Pulsera Premium Van Cleef negra</h3>
+            <p>Edición especial con balinería de alta gama y detalles únicos en acabado dorado.</p>
+            <p class="price">$150.000</p>
+            <div class="card-acciones">
+              <button class="btn btn-detalle" data-producto="3">Ver Detalles</button>
+              <button class="btn btn-outline btn-agregar-carrito" data-producto="3">Agregar al Carrito</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Producto 4 -->
+        <div class="card" data-categoria="pulseras" data-precio="150000">
+          <img src="/assets/images/van cleef roja.jpeg" alt="Pulsera Van Cleef Roja" class="card-img">
+          <div class="card-content">
+            <h3>Pulsera Van Cleef Roja</h3>
+            <p>Diseño vanguardista con patrones geométricos en acabado rojo mate resistente.</p>
+            <p class="price">$150.000</p>
+            <div class="card-acciones">
+              <button class="btn btn-detalle" data-producto="4">Ver Detalles</button>
+              <button class="btn btn-outline btn-agregar-carrito" data-producto="4">Agregar al Carrito</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Producto 5 -->
+        <div class="card" data-categoria="anillos" data-precio="50000">
+          <img src="/assets/images/AnilloDiseñoExclusivo.jpg" alt="Anillo Diseño Exclusivo" class="card-img">
+          <div class="card-content">
+            <h3>Anillo Clásico Dorado</h3>
+            <p>Anillo tradicional con diseño en balinería y acabado dorado de larga duración.</p>
+            <p class="price">$50.000</p>
+            <div class="card-acciones">
+              <button class="btn btn-detalle" data-producto="5">Ver Detalles</button>
+              <button class="btn btn-outline btn-agregar-carrito" data-producto="5">Agregar al Carrito</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Producto 6 -->
+        <div class="card" data-categoria="anillos" data-precio="75000">
+          <img src="/assets/images/AnilloTresCarriles.jpg" alt="Anillo Tres Carriles Diamantado" class="card-img">
+          <div class="card-content">
+            <h3>Anillo Tres Carriles Diamantado</h3>
+            <p>Diseño contemporáneo con detalles únicos en balinería y acabado plateado brillante.</p>
+            <p class="price">$75.000</p>
+            <div class="card-acciones">
+              <button class="btn btn-detalle" data-producto="6">Ver Detalles</button>
+              <button class="btn btn-outline btn-agregar-carrito" data-producto="6">Agregar al Carrito</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Producto 7 -->
+        <div class="card" data-categoria="anillos" data-precio="50000">
+          <img src="/assets/images/AnilloTresCarrilesLiso.jpg" alt="Anillo Tres Carriles Liso" class="card-img">
+          <div class="card-content">
+            <h3>Anillo Tres Carriles Liso</h3>
+            <p>Diseño contemporáneo con dije central en balinería y cadena ajustable.</p>
+            <p class="price">$50.000</p>
+            <div class="card-acciones">
+              <button class="btn btn-detalle" data-producto="7">Ver Detalles</button>
+              <button class="btn btn-outline btn-agregar-carrito" data-producto="7">Agregar al Carrito</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Producto 8 -->
+        <div class="card" data-categoria="pulseras" data-precio="100000">
+          <img src="/assets/images/Manilla7BalinesDiamantada.jpg" alt="Manilla 7 Balines Diamantada" class="card-img">
+          <div class="card-content">
+            <h3>Manilla 7 Balines Diamantada</h3>
+            <p>Edición limitada con diseño exclusivo y detalles en balinería de alta calidad.</p>
+            <p class="price">$100.000</p>
+            <div class="card-acciones">
+              <button class="btn btn-detalle" data-producto="8">Ver Detalles</button>
+              <button class="btn btn-outline btn-agregar-carrito" data-producto="8">Agregar al Carrito</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Producto 9 -->
+        <div class="card" data-categoria="pulseras" data-precio="120000">
+          <img src="/assets/images/ManillaBolsaDinero.jpg" alt="Manilla Bolsa Dinero" class="card-img">
+          <div class="card-content">
+            <h3>Manilla Bolsa Dinero</h3>
+            <p>Edición limitada con diseño exclusivo y detalles en balinería de alta calidad.</p>
+            <p class="price">$120.000</p>
+            <div class="card-acciones">
+              <button class="btn btn-detalle" data-producto="9">Ver Detalles</button>
+              <button class="btn btn-outline btn-agregar-carrito" data-producto="9">Agregar al Carrito</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Producto 10 -->
+        <div class="card" data-categoria="pulseras" data-precio="120000">
+          <img src="/assets/images/ManillaDiamantadaCentro.jpg" alt="Manilla Diamantada Centrado" class="card-img">
+          <div class="card-content">
+            <h3>Manilla Diamantada Centrado</h3>
+            <p>Edición limitada con diseño exclusivo y detalles en balinería de alta calidad.</p>
+            <p class="price">$120.000</p>
+            <div class="card-acciones">
+              <button class="btn btn-detalle" data-producto="10">Ver Detalles</button>
+              <button class="btn btn-outline btn-agregar-carrito" data-producto="10">Agregar al Carrito</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Producto 11 -->
+        <div class="card" data-categoria="pulseras" data-precio="150000">
+          <img src="/assets/images/ManillaDollar.jpg" alt="Manilla Dollar" class="card-img">
+          <div class="card-content">
+            <h3>Manilla Dollar</h3>
+            <p>Edición limitada con diseño exclusivo y detalles en balinería de alta calidad.</p>
+            <p class="price">$150.000</p>
+            <div class="card-acciones">
+              <button class="btn btn-detalle" data-producto="11">Ver Detalles</button>
+              <button class="btn btn-outline btn-agregar-carrito" data-producto="11">Agregar al Carrito</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Producto 12 -->
+        <div class="card" data-categoria="pulseras" data-precio="115000">
+          <img src="/assets/images/ManillaFullBalinLiso.jpg" alt="Manilla Full Balin Liso" class="card-img">
+          <div class="card-content">
+            <h3>Manilla Full Balin Liso</h3>
+            <p>Edición limitada con diseño exclusivo y detalles en balinería de alta calidad.</p>
+            <p class="price">$115.000</p>
+            <div class="card-acciones">
+              <button class="btn btn-detalle" data-producto="12">Ver Detalles</button>
+              <button class="btn btn-outline btn-agregar-carrito" data-producto="12">Agregar al Carrito</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Modal de detalles del producto -->
+  <div class="modal" id="modal-producto">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-titulo">Detalles del Producto</h2>
+        <button class="modal-close" id="cerrar-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-imagen">
+          <img id="modal-imagen" src="" alt="Producto">
+        </div>
+        <div class="modal-info">
+          <h2 id="modal-nombre">Nombre del Producto</h2>
+          <p class="modal-precio" id="modal-precio">$0</p>
+          <p class="modal-descripcion" id="modal-descripcion">Descripción del producto.</p>
+
+          <div class="modal-caracteristicas">
+            <h3>Características</h3>
+            <ul id="modal-caracteristicas">
+              <!-- Las características se llenarán con JavaScript -->
+            </ul>
+          </div>
+
+          <div class="modal-acciones">
+            <button class="btn btn-large" id="comprar-ahora">Comprar Ahora</button>
+            <button class="btn btn-large btn-outline" id="agregar-carrito-modal">Agregar al Carrito</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>VICTOREM</h3>
+          <p>Arte en cada balín, elegancia en cada detalle. Creamos joyas únicas que trascienden el tiempo.</p>
+        </div>
+
+        <div class="footer-section">
+          <h3>Contacto</h3>
+          <div class="contacto-grid">
+            <div class="contacto-item">
+              <strong>Dirección</strong><br>
+              Calle 20 #9-59, Campoalegre, Huila
+            </div>
+            <div class="contacto-item">
+              <strong>Teléfono</strong><br>
+              +57 310 787 5531
+            </div>
+            <div class="contacto-item">
+              <strong>Email</strong><br>
+              info@victorem.co
+            </div>
+            <div class="contacto-item">
+              <strong>Horario</strong><br>
+              Lun - Sáb: 9:00 AM - 6:00 PM
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-section">
+          <h3>Enlaces</h3>
+          <ul>
+            <li><a href="politicas.html">Políticas y Privacidad</a></li>
+            <li><a href="cuidado.html">Cuidado de joyas</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h3>Formas de pago</h3>
+          <div class="metodos-pago">
+            <span class="metodo-pago">VISA</span>
+            <span class="metodo-pago">MC</span>
+            <span class="metodo-pago">AMEX</span>
+            <span class="metodo-pago">PSE</span>
+            <span class="metodo-pago">EFECTY</span>
+            <span class="metodo-pago">NEQUI</span>
+          </div>
+          <p style="margin-top: 15px;">Envíos seguros a toda Colombia</p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2024 Victorem. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Header compartido e modales de auth cargados dinámicamente -->
+  <script type="module" src="/assets/js/pages/catalogo.js"></script>
+
+
+</body>
+
+</html>
