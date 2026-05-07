@@ -97,17 +97,22 @@ app.use('/assets', express.static(path.join(__dirname, '../frontend/assets')));
 app.use('/components', express.static(path.join(__dirname, '../frontend/components')));
 
 // ============ MANEJADOR DE ERRORES ============
+const { AppError } = require('./services/errors');
+
 app.use((err, req, res, next) => {
-  const status = err.status || err.statusCode || 500;
-  const message = err.message || 'Error interno del servidor';
-  
+  const status = err instanceof AppError ? err.status : err.statusCode || 500;
+  const message = err instanceof AppError ? err.message : 'Error interno del servidor';
+
   console.error(`❌ [${status}] ${message}`);
   console.error('   URL:', req.url);
   console.error('   IP:', req.ip);
-  
+  if (process.env.NODE_ENV === 'development') {
+    console.error('   Stack:', err.stack?.split('\n').slice(0, 3).join('\n'));
+  }
+
   res.status(status).json({
     error: message,
-    status: status,
+    status,
     timestamp: new Date().toISOString(),
     ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
   });
