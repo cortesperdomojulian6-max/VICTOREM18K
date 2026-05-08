@@ -1,4 +1,4 @@
-export class WompiClient {
+class WompiClient {
   constructor() {
     this.publicKey = null;
     this.environment = null;
@@ -129,4 +129,4 @@ export class WompiClient {
   }
 }
 
-export const wompiClient = new WompiClient();
+var wompiClient = new WompiClient();

@@ -1,7 +1,3 @@
-import { addToCart } from '../services/api.js';
-import { isAuthenticated, showLoginModal, initAuth } from '../services/auth.js';
-import { loadSharedHeader } from '../components/header-loader.js';
-
 document.addEventListener('DOMContentLoaded', function() {
   loadSharedHeader();
   initAuth();

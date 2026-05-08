@@ -23,103 +23,122 @@ async function apiRequest(endpoint, options = {}) {
   return response.json();
 }
 
-export async function getProducts() {
+async function getProducts() {
   return apiRequest('/products');
 }
 
-export async function getProduct(productId) {
+async function getProduct(productId) {
   return apiRequest(`/products/${productId}`);
 }
 
-export async function getCurrentUser() {
+async function fetchCurrentUser() {
   return apiRequest('/users/me');
 }
 
-export async function updateProfile(profileData) {
+async function updateProfile(profileData) {
   return apiRequest('/users/profile', {
     method: 'PUT',
     body: JSON.stringify(profileData)
   });
 }
 
-export async function changePassword(old_password, new_password) {
+async function changePassword(old_password, new_password) {
   return apiRequest('/users/password', {
     method: 'PUT',
     body: JSON.stringify({ old_password, new_password })
   });
 }
 
-export async function deleteAccount() {
+async function deleteAccount() {
   return apiRequest('/users/account', {
     method: 'DELETE'
   });
 }
 
-export async function getAddresses() {
+async function getAddresses() {
   return apiRequest('/addresses');
 }
 
-export async function addAddress(addressData) {
+async function addAddress(addressData) {
   return apiRequest('/addresses', {
     method: 'POST',
     body: JSON.stringify(addressData)
   });
 }
 
-export async function updateAddress(addressId, addressData) {
+async function updateAddress(addressId, addressData) {
   return apiRequest(`/addresses/${addressId}`, {
     method: 'PUT',
     body: JSON.stringify(addressData)
   });
 }
 
-export async function deleteAddress(addressId) {
+async function deleteAddress(addressId) {
   return apiRequest(`/addresses/${addressId}`, {
     method: 'DELETE'
   });
 }
 
-export async function createOrder(orderData) {
+async function createOrder(orderData) {
   return apiRequest('/orders', {
     method: 'POST',
     body: JSON.stringify(orderData)
   });
 }
 
-export async function getOrders() {
+async function getOrders() {
   return apiRequest('/orders');
 }
 
-export async function getOrder(orderId) {
+async function getOrder(orderId) {
   return apiRequest(`/orders/${orderId}`);
 }
 
-export async function getCart() {
+async function getCart() {
   return apiRequest('/cart');
 }
 
-export async function addToCart(product_id, quantity = 1) {
+async function addToCart(product_id, quantity = 1) {
   return apiRequest('/cart/items', {
     method: 'POST',
     body: JSON.stringify({ product_id, quantity })
   });
 }
 
-export async function updateCartItem(itemId, quantity) {
+async function updateCartItem(itemId, quantity) {
   return apiRequest(`/cart/items/${itemId}`, {
     method: 'PUT',
     body: JSON.stringify({ quantity })
   });
 }
 
-export async function removeFromCart(itemId) {
+async function removeFromCart(itemId) {
   return apiRequest(`/cart/items/${itemId}`, {
     method: 'DELETE'
   });
 }
 
-export async function clearCart() {
+async function clearCart() {
   return apiRequest('/cart', {
     method: 'DELETE'
   });
 }
+
+window.getProducts = getProducts;
+window.getProduct = getProduct;
+window.fetchCurrentUser = fetchCurrentUser;
+window.updateProfile = updateProfile;
+window.changePassword = changePassword;
+window.deleteAccount = deleteAccount;
+window.getAddresses = getAddresses;
+window.addAddress = addAddress;
+window.updateAddress = updateAddress;
+window.deleteAddress = deleteAddress;
+window.createOrder = createOrder;
+window.getOrders = getOrders;
+window.getOrder = getOrder;
+window.getCart = getCart;
+window.addToCart = addToCart;
+window.updateCartItem = updateCartItem;
+window.removeFromCart = removeFromCart;
+window.clearCart = clearCart;

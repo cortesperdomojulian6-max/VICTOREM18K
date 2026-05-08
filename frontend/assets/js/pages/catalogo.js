@@ -1,7 +1,3 @@
-import { getProducts, addToCart } from '../services/api.js';
-import { isAuthenticated, initAuth } from '../services/auth.js';
-import { loadSharedHeader } from '../components/header-loader.js';
-
 let todosLosProductos = [];
 let productosFiltrados = [];
 let productosContainer = null;

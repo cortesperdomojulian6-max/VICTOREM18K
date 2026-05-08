@@ -1,8 +1,3 @@
-import { getCurrentUser, getCart, getAddresses, addAddress, createOrder } from '../services/api.js';
-import { wompiClient } from '../services/wompi-client.js';
-import { loadSharedHeader } from '../components/header-loader.js';
-import { initAuth } from '../services/auth.js';
-
 document.addEventListener('DOMContentLoaded', async function() {
   loadSharedHeader();
   initAuth();
@@ -36,7 +31,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   let usuario = null;
   try {
-    usuario = await getCurrentUser();
+    usuario = await fetchCurrentUser();
   } catch (err) {
     resumenPedido.innerHTML = '<p>Error al cargar tus datos. Por favor intenta nuevamente.</p>';
     return;

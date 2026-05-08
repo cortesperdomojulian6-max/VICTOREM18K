@@ -1,7 +1,3 @@
-import { getCurrentUser, getOrders, getCart, updateCartItem, removeFromCart, getAddresses, deleteAddress, updateProfile, changePassword, deleteAccount, addAddress } from '../services/api.js';
-import { loadSharedHeader } from '../components/header-loader.js';
-import { initAuth } from '../services/auth.js';
-
 let seccionActiva = 'carrito';
 
 document.addEventListener('DOMContentLoaded', async function() {
@@ -27,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   let usuario = null;
   try {
-    usuario = await getCurrentUser();
+    usuario = await fetchCurrentUser();
   } catch (err) {
     perfilContenido.innerHTML = '<p>Error al cargar tu perfil. Por favor intenta nuevamente.</p>';
     return;
