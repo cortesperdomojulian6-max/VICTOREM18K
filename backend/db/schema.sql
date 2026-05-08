@@ -114,8 +114,9 @@ CREATE TABLE orders (
     envio           NUMERIC(12, 2) NOT NULL DEFAULT 0,
     total           NUMERIC(12, 2) NOT NULL,
     estado          VARCHAR(30) NOT NULL DEFAULT 'pendiente'
-                    CHECK (estado IN ('pendiente', 'pagado', 'enviado', 'entregado', 'cancelado')),
+                    CHECK (estado IN ('pendiente', 'pagado', 'confirmado', 'enviado', 'entregado', 'cancelado')),
     metodo_pago     VARCHAR(30),
+    wompi_transaction_id VARCHAR(100),
     notas           TEXT,
     fecha           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()

@@ -44,3 +44,5 @@ env/
 # Database
 *.sqlite
 *.db
+
+.vercel

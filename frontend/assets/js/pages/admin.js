@@ -1,6 +1,8 @@
 import { initAuth } from '../services/auth.js';
+import { loadSharedHeader } from '../components/header-loader.js';
 
 document.addEventListener('DOMContentLoaded', function() {
+  loadSharedHeader();
   initAuth();
   fetchUsers();
 });

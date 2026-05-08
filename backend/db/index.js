@@ -10,16 +10,20 @@ const { Pool } = require('pg');
 
 if (!process.env.DATABASE_URL) {
   console.error('❌ ERROR: La variable DATABASE_URL no está definida en .env');
-  process.exit(1);
 }
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }, // Supabase requiere SSL
-  max: 10,                             // máximo de conexiones simultáneas
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000
-});
+let pool = null;
+try {
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
+    max: 10,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000
+  });
+} catch (err) {
+  console.error('❌ Error al crear pool de PostgreSQL:', err.message);
+}
 
 pool.on('error', (err) => {
   console.error('❌ Error inesperado en el pool de PostgreSQL:', err);
@@ -32,6 +36,9 @@ pool.on('error', (err) => {
  * @returns {Promise<import('pg').QueryResult>}
  */
 async function query(text, params) {
+  if (!pool) {
+    throw new Error('Base de datos no configurada (DATABASE_URL faltante)');
+  }
   const start = Date.now();
   const result = await pool.query(text, params);
   const duration = Date.now() - start;
@@ -46,6 +53,9 @@ async function query(text, params) {
  * Recordar siempre llamar a client.release() al terminar.
  */
 async function getClient() {
+  if (!pool) {
+    throw new Error('Base de datos no configurada (DATABASE_URL faltante)');
+  }
   return pool.connect();
 }
 

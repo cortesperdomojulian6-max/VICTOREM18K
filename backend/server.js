@@ -9,38 +9,30 @@ const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-
 const db = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
-// ============ MIDDLEWARES DE SEGURIDAD ============
-// Helmet: Protege contra vulnerabilidades comunes
 app.use(helmet());
 
-// CORS: Control de origen
 app.use(cors({
   origin: process.env.CORS_ORIGIN || '*',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  credentials: true
 }));
 
-// Rate Limiting: Protege contra ataques DDoS
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // límite de 100 requests por ventana
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: 'Demasiadas solicitudes, intenta más tarde',
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-// Rate limiting más estricto para auth
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5, // 5 intentos por IP
+  max: 5,
   message: 'Demasiados intentos de login, intenta en 15 minutos',
   skipSuccessfulRequests: true,
 });
@@ -49,32 +41,18 @@ app.use('/api/', limiter);
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
 
-// Parse JSON con límite
-app.use(express.json({ limit: '1mb' }));
-app.use(express.urlencoded({ limit: '1mb', extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Logger mejorado
 app.use((req, res, next) => {
-  const now = new Date().toISOString();
-  const method = req.method.padEnd(6);
-  const url = req.url.substring(0, 50).padEnd(50);
-  console.log(`[${now}] ${method} ${url}`);
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
 
-// ----------------- Verificar conexión a Supabase -----------------
+// Verificar BD sin bloquear
 (async () => {
-  try {
-    await db.query('SELECT 1');
-    console.log('✅ Conexión a PostgreSQL (Supabase) verificada.');
-  } catch (err) {
-    console.error('❌ No se pudo conectar a la base de datos:');
-    console.error('   ' + err.message);
-    console.error('   Revisa DATABASE_URL en tu archivo .env');
-    process.exit(1);
-  }
+  try { await db.query('SELECT 1'); console.log('BD conectada'); } catch (e) { console.error('BD error:', e.message); }
 })();
-
 
 // ============ RUTAS API ============
 app.use('/api/auth',      require('./routes/auth'));
@@ -92,12 +70,9 @@ app.get('/api/health', (req, res) => {
 });
 
 // ----------------- Frontend (archivos estáticos) -----------------
-// En local, Express sirve los estáticos. En Vercel lo hace nativamente.
-if (!process.env.VERCEL) {
-  app.use(express.static(path.join(__dirname, '../frontend/public')));
-  app.use('/assets', express.static(path.join(__dirname, '../frontend/assets')));
-  app.use('/components', express.static(path.join(__dirname, '../frontend/components')));
-}
+app.use(express.static(path.join(__dirname, '../frontend/public')));
+app.use('/assets', express.static(path.join(__dirname, '../frontend/assets')));
+app.use('/components', express.static(path.join(__dirname, '../frontend/components')));
 
 // ============ MANEJADOR DE ERRORES ============
 const { AppError } = require('./services/errors');
@@ -159,4 +134,4 @@ process.on('unhandledRejection', (reason) => {
   console.error('Rechazo de promesa no manejado:', reason);
 });
 
-module.exports = { app };
+module.exports = app;

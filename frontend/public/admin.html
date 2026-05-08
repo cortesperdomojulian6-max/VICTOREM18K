@@ -4,24 +4,30 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Admin - Usuarios</title>
+  <link rel="stylesheet" href="/assets/css/main.css">
   <style>
     body{font-family:Arial,Helvetica,sans-serif;padding:20px}
-    table{width:100%;border-collapse:collapse}
+    .admin-content{max-width:1000px;margin:40px auto;padding:0 20px}
+    table{width:100%;border-collapse:collapse;margin-top:20px}
     th,td{padding:8px;border:1px solid #ddd;text-align:left}
     th{background:#f4f4f4}
     button{padding:6px 10px}
+    h1{color:var(--color-primary,#b8860b)}
   </style>
 </head>
 <body>
-  <h1>Administrar usuarios</h1>
-  <p>Lista de usuarios en la base de datos. Puedes borrar usuarios desde aquí.</p>
-  <div id="status"></div>
-  <table id="users-table">
-    <thead>
-      <tr><th>ID</th><th>Nombre</th><th>Email</th><th>Fecha registro</th><th>Acciones</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div id="header-root"></div>
+  <div class="admin-content">
+    <h1>Administrar usuarios</h1>
+    <p>Lista de usuarios en la base de datos. Puedes borrar usuarios desde aquí.</p>
+    <div id="status"></div>
+    <table id="users-table">
+      <thead>
+        <tr><th>ID</th><th>Nombre</th><th>Email</th><th>Fecha registro</th><th>Acciones</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
   <script type="module" src="/assets/js/pages/admin.js"></script>
 </body>
 </html>

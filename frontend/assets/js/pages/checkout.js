@@ -152,10 +152,11 @@ document.addEventListener('DOMContentLoaded', async function() {
 
       const orden = await createOrder({
         address_id: addressId,
-        payment_method: 'wompi'
+        payment_method: 'wompi',
+        keepCart: true
       });
 
-      const reference = `ORD-${orden.id}`;
+      const reference = orden.numero_pedido;
       const transaction = await wompiClient.createTransaction(
         monto,
         reference,
@@ -164,6 +165,11 @@ document.addEventListener('DOMContentLoaded', async function() {
       );
 
       if (transaction.redirect_url) {
+        localStorage.setItem('wompiPendingOrder', JSON.stringify({
+          orderId: orden.id,
+          reference,
+          amount: monto
+        }));
         window.location.href = transaction.redirect_url;
         return;
       }
