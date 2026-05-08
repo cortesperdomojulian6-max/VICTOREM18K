@@ -1,7 +1,7 @@
 let seccionActiva = 'carrito';
 
 document.addEventListener('DOMContentLoaded', async function() {
-  loadSharedHeader();
+  await loadSharedHeader();
   initAuth();
 
   const perfilContenido = document.getElementById('perfil-contenido');

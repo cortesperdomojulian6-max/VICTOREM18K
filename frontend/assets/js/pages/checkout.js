@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', async function() {
-  loadSharedHeader();
+  await loadSharedHeader();
   initAuth();
 
   const resumenPedido = document.getElementById('resumen-pedido');

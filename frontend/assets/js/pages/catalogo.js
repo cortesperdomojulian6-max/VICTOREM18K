@@ -132,7 +132,7 @@ function cerrarModal() {
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
-  loadSharedHeader();
+  await loadSharedHeader();
   initAuth();
 
   productosContainer = document.getElementById('lista-productos');
