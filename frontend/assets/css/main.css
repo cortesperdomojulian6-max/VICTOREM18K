@@ -784,42 +784,109 @@
       position: relative;
       display: inline-block;
     }
-    
+
     .user-menu-btn {
       background: none;
       border: none;
-      color: #fff;
+      color: var(--white);
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      transition: var(--transition);
+      font-size: 14px;
     }
-    
+
+    .user-menu-btn:hover {
+      background-color: rgba(255,255,255,0.08);
+      transform: none;
+      box-shadow: none;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .user-name {
+      font-weight: 500;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .user-arrow {
+      font-size: 10px;
+      color: #999;
+      transition: var(--transition);
+    }
+
+    .user-menu:hover .user-arrow {
+      transform: rotate(180deg);
+    }
+
     .user-dropdown {
       display: none;
       position: absolute;
       right: 0;
-      top: 100%;
-      background-color: #fff;
-      min-width: 160px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-      border-radius: 4px;
-      z-index: 1;
+      top: calc(100% + 8px);
+      background-color: var(--white);
+      min-width: 200px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+      border-radius: 10px;
+      z-index: 2000;
+      padding: 6px;
+      border: 1px solid rgba(0,0,0,0.06);
+      animation: slideDown 0.15s ease;
     }
-    
+
     .user-dropdown a {
-      color: #333;
-      padding: 12px 16px;
+      color: var(--text);
+      padding: 10px 14px;
       display: block;
+      font-size: 14px;
+      border-radius: 6px;
+      transition: var(--transition);
     }
-    
+
     .user-dropdown a:hover {
-      background-color: #f1f1f1;
-      color: #d4af37;
+      background-color: rgba(212, 175, 55, 0.08);
+      color: var(--primary);
     }
-    
+
     .user-menu:hover .user-dropdown {
       display: block;
+    }
+
+    .dropdown-divider {
+      height: 1px;
+      background-color: #eee;
+      margin: 4px 0;
+    }
+
+    .dropdown-logout {
+      color: #e74c3c !important;
+    }
+
+    .dropdown-logout:hover {
+      background-color: #fef2f2 !important;
+      color: #dc2626 !important;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-8px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
     
     /* Responsive */

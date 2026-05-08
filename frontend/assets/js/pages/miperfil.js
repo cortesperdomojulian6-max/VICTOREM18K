@@ -48,7 +48,90 @@ document.addEventListener('DOMContentLoaded', async function() {
           <li><a href="#" class="nav-link" data-seccion="seguridad">Seguridad</a></li>
         </ul>
       </div>
-      <div class="perfil-content">...</div>
+      <div class="perfil-content">
+        <div id="informacion" class="perfil-seccion" style="display:none;">
+          <h3>Información Personal</h3>
+          <form id="form-info-personal">
+            <div class="form-group">
+              <label for="nombre">Nombre</label>
+              <input type="text" id="nombre" value="${usuario.name}" required>
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" value="${usuario.email}" disabled style="opacity:0.6;">
+            </div>
+            <button type="submit" class="btn">Guardar Cambios</button>
+          </form>
+        </div>
+
+        <div id="direcciones" class="perfil-seccion" style="display:none;">
+          <h3>Mis Direcciones</h3>
+          <div id="lista-direcciones"></div>
+          <button id="btn-nueva-direccion" class="btn btn-outline" style="margin-top:16px;">+ Agregar Dirección</button>
+          <div id="form-nueva-direccion" style="display:none; margin-top:16px;">
+            <form id="form-direccion">
+              <div class="form-group">
+                <label for="destinatario">Destinatario</label>
+                <input type="text" name="destinatario" required>
+              </div>
+              <div class="form-group">
+                <label for="dir-direccion">Dirección</label>
+                <input type="text" name="direccion" required>
+              </div>
+              <div class="form-group">
+                <label for="dir-ciudad">Ciudad</label>
+                <input type="text" name="ciudad" required>
+              </div>
+              <div class="form-group">
+                <label for="dir-departamento">Departamento</label>
+                <input type="text" name="departamento" required>
+              </div>
+              <div class="form-group">
+                <label for="dir-telefono">Teléfono</label>
+                <input type="tel" name="telefono" required>
+              </div>
+              <button type="submit" class="btn">Guardar Dirección</button>
+              <button type="button" id="btn-cancelar-dir" class="btn btn-outline">Cancelar</button>
+            </form>
+          </div>
+        </div>
+
+        <div id="pedidos" class="perfil-seccion" style="display:none;">
+          <h3>Mis Pedidos</h3>
+          <div id="lista-pedidos"></div>
+        </div>
+
+        <div id="carrito" class="perfil-seccion" style="display:none;">
+          <h3>Carrito de Compras</h3>
+          <div id="lista-carrito"></div>
+          <div id="resumen-carrito" style="display:none; margin-top:20px;">
+            <p style="font-size:18px;">Total: <strong id="total-carrito">$0</strong></p>
+            <button id="btn-finalizar-compra" class="btn" style="margin-top:12px;">Finalizar Compra</button>
+          </div>
+        </div>
+
+        <div id="seguridad" class="perfil-seccion" style="display:none;">
+          <h3>Seguridad</h3>
+          <form id="form-cambiar-password">
+            <div class="form-group">
+              <label for="old_password">Contraseña Actual</label>
+              <input type="password" id="old_password" required>
+            </div>
+            <div class="form-group">
+              <label for="new_password">Nueva Contraseña</label>
+              <input type="password" id="new_password" required minlength="6">
+            </div>
+            <div class="form-group">
+              <label for="confirm_password">Confirmar Nueva Contraseña</label>
+              <input type="password" id="confirm_password" required>
+            </div>
+            <button type="submit" class="btn">Cambiar Contraseña</button>
+          </form>
+          <div style="margin-top:30px; padding-top:20px; border-top:1px solid #eee;">
+            <button id="btn-eliminar-cuenta" class="btn btn-danger">Eliminar mi Cuenta</button>
+          </div>
+        </div>
+      </div>
     </div>
   `;
 
@@ -121,9 +204,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             ${items.map(item => `
               <tr>
                 <td>${item.name}</td>
-                <td>$${item.price.toLocaleString('es-CO')}</td>
+                <td>$${Number(item.price).toLocaleString('es-CO')}</td>
                 <td><input type="number" min="1" value="${item.cantidad}" class="qty-input" data-item="${item.id}"></td>
-                <td>$${item.subtotal.toLocaleString('es-CO')}</td>
+                <td>$${Number(item.subtotal).toLocaleString('es-CO')}</td>
                 <td><button class="btn-remove" data-item="${item.id}">Eliminar</button></td>
               </tr>
             `).join('')}
