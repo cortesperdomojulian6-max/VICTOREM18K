@@ -53,11 +53,27 @@ function updateAuthNav() {
           <span class="user-arrow">&#9662;</span>
         </button>
         <div class="user-dropdown">
-          <a href="miperfil.html">Mi Perfil</a>
-          <a href="miperfil.html#pedidos">Mis Pedidos</a>
-          <a href="miperfil.html#carrito">Mi Carrito</a>
+          <div class="dropdown-header">
+            <span class="dropdown-avatar">${inicial}</span>
+            <div class="dropdown-user-info">
+              <span class="dropdown-user-name">${user.name}</span>
+              <span class="dropdown-user-email">${user.email || ''}</span>
+            </div>
+          </div>
           <div class="dropdown-divider"></div>
-          <a href="#" id="logoutButton" class="dropdown-logout">Cerrar sesión</a>
+          <a href="miperfil.html" class="dropdown-item">
+            <span class="dropdown-icon">&#128100;</span> Mi Perfil
+          </a>
+          <a href="miperfil.html#pedidos" class="dropdown-item">
+            <span class="dropdown-icon">&#128230;</span> Mis Pedidos
+          </a>
+          <a href="miperfil.html#carrito" class="dropdown-item">
+            <span class="dropdown-icon">&#128722;</span> Mi Carrito
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="#" id="logoutButton" class="dropdown-item dropdown-logout">
+            <span class="dropdown-icon">&#128682;</span> Cerrar sesión
+          </a>
         </div>
       </div>
     `;
@@ -174,10 +190,25 @@ function attachAuthFormEvents() {
   if (closeRegister) closeRegister.addEventListener('click', () => hideElement('registerModal'));
 }
 
+function initCart() {
+  const cartIcon = document.getElementById('cart-icon');
+  if (cartIcon) {
+    cartIcon.addEventListener('click', function() {
+      if (!isAuthenticated()) {
+        alert('Por favor, inicia sesión para ver tu carrito.');
+        showLoginModal();
+        return;
+      }
+      window.location.href = 'miperfil.html#carrito';
+    });
+  }
+}
+
 function initAuth() {
   attachAuthEvents();
   attachAuthFormEvents();
   updateAuthNav();
+  initCart();
 }
 
 window.register = register;
