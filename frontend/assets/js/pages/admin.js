@@ -1,6 +1,5 @@
-import { initAuth } from '../services/auth.js';
-
 document.addEventListener('DOMContentLoaded', function() {
+  loadSharedHeader();
   initAuth();
   fetchUsers();
 });

@@ -1,9 +1,6 @@
-import { addToCart } from '../services/api.js';
-import { isAuthenticated, showLoginModal } from '../services/auth.js';
-import { loadSharedHeader } from '../components/header-loader.js';
-
 document.addEventListener('DOMContentLoaded', function() {
   loadSharedHeader();
+  initAuth();
 
   const datosPersonalizacion = {
     tipoJoya: null,
@@ -30,6 +27,33 @@ document.addEventListener('DOMContentLoaded', function() {
     'sin-dije': { nombre: 'Sin Dije', precio: 0 }
   };
 
+  function paso(id) { return document.getElementById('paso-' + id); }
+  function mostrarPaso(id) {
+    document.querySelectorAll('.paso-contenido').forEach(p => p.classList.remove('activo'));
+    document.querySelectorAll('.paso').forEach(p => p.classList.remove('activo'));
+    const pasoEl = paso(id);
+    if (pasoEl) pasoEl.classList.add('activo');
+    const indicador = document.querySelector(`.paso[data-paso="${id}"]`);
+    if (indicador) indicador.classList.add('activo');
+  }
+
+  function actualizarResumen() {
+    const d = datosPersonalizacion;
+    document.getElementById('resumen-tipo').textContent =
+      d.tipoJoya === 'pulsera' ? 'Pulsera' : d.tipoJoya === 'anillo' ? 'Anillo' : '-';
+    document.getElementById('resumen-dije').textContent =
+      d.dije ? (dijesDisponibles[d.dije]?.nombre || d.dije) : 'Ninguno';
+    document.getElementById('resumen-color').textContent =
+      d.colorHilo ? d.colorHilo.charAt(0).toUpperCase() + d.colorHilo.slice(1) : '-';
+    document.getElementById('resumen-balines').textContent = d.cantidadBalines;
+    document.getElementById('resumen-precio-base').textContent = `$${d.precioBase.toLocaleString()}`;
+    document.getElementById('resumen-precio-dije').textContent = d.dije
+      ? `$${d.precioDije.toLocaleString()}`
+      : '$0';
+    document.getElementById('resumen-precio-balines').textContent = `$${d.precioBalines.toLocaleString()}`;
+    document.getElementById('resumen-total').textContent = `$${d.total.toLocaleString()}`;
+  }
+
   function actualizarPrecio() {
     const tipo = datosPersonalizacion.tipoJoya;
     if (!tipo) return;
@@ -42,27 +66,20 @@ document.addEventListener('DOMContentLoaded', function() {
       + datosPersonalizacion.precioDije
       + datosPersonalizacion.precioBalines;
 
-    document.getElementById('precio-base').textContent = `$${datosPersonalizacion.precioBase.toLocaleString()}`;
-    document.getElementById('precio-dije').textContent = datosPersonalizacion.dije
-      ? `$${datosPersonalizacion.precioDije.toLocaleString()}`
-      : 'No seleccionado';
-    document.getElementById('precio-balines').textContent = `$${datosPersonalizacion.precioBalines.toLocaleString()}`;
-    document.getElementById('precio-total').textContent = `$${datosPersonalizacion.total.toLocaleString()}`;
+    actualizarResumen();
   }
 
-  document.querySelectorAll('.opcion-joya').forEach(opcion => {
+  document.querySelectorAll('.opcion[data-tipo]').forEach(opcion => {
     opcion.addEventListener('click', function() {
-      document.querySelectorAll('.opcion-joya').forEach(o => o.classList.remove('seleccionada'));
+      document.querySelectorAll('.opcion[data-tipo]').forEach(o => o.classList.remove('seleccionada'));
       this.classList.add('seleccionada');
 
       datosPersonalizacion.tipoJoya = this.getAttribute('data-tipo');
       datosPersonalizacion.precioDije = 0;
       datosPersonalizacion.dije = null;
+      actualizarPrecio();
 
-      document.getElementById('paso-2').style.display = 'block';
-      document.getElementById('paso-3').style.display = 'none';
-
-      const contenedorDijes = document.getElementById('dijes-container');
+      const contenedorDijes = document.getElementById('opciones-dijes');
       contenedorDijes.innerHTML = '';
 
       Object.entries(dijesDisponibles).forEach(([clave, valor]) => {
@@ -71,64 +88,112 @@ document.addEventListener('DOMContentLoaded', function() {
         opcion.setAttribute('data-dije', clave);
 
         opcion.innerHTML = `
-          <img src="/assets/images/dijes/${clave}.jpg" alt="${valor.nombre}" class="opcion-img" onerror="this.src='/assets/images/logo.png'">
+          <div class="opcion-img">
+            <img src="/assets/images/dijes/${clave}.jpg" alt="${valor.nombre}" style="width:40px;height:40px;object-fit:contain" onerror="this.src='/assets/images/logo.png'">
+          </div>
           <h4>${valor.nombre}</h4>
           <p>${valor.precio > 0 ? '+ $' + valor.precio.toLocaleString() : 'Incluido'}</p>
         `;
 
         opcion.addEventListener('click', function() {
-          document.querySelectorAll('#paso-2 .opcion').forEach(o => o.classList.remove('seleccionada'));
+          document.querySelectorAll('#opciones-dijes .opcion').forEach(o => o.classList.remove('seleccionada'));
           this.classList.add('seleccionada');
 
           datosPersonalizacion.dije = clave;
           datosPersonalizacion.precioDije = valor.precio;
           actualizarPrecio();
-
-          document.getElementById('paso-3').style.display = 'block';
         });
 
         contenedorDijes.appendChild(opcion);
       });
-
-      document.getElementById('info-balines').style.display = 'block';
-      actualizarPrecio();
     });
   });
 
-  document.getElementById('cantidad-balines')?.addEventListener('input', function() {
-    datosPersonalizacion.cantidadBalines = parseInt(this.value) || 0;
-    document.getElementById('cantidad-balines-valor').textContent = this.value;
-    actualizarPrecio();
-  });
-
-  document.querySelectorAll('.opcion-color').forEach(opcion => {
+  document.querySelectorAll('.opcion[data-color]').forEach(opcion => {
     opcion.addEventListener('click', function() {
-      document.querySelectorAll('.opcion-color').forEach(o => o.classList.remove('seleccionada'));
+      document.querySelectorAll('.opcion[data-color]').forEach(o => o.classList.remove('seleccionada'));
       this.classList.add('seleccionada');
       datosPersonalizacion.colorHilo = this.getAttribute('data-color');
     });
   });
 
-  document.getElementById('agregar-carrito-perso')?.addEventListener('click', async function() {
+  document.getElementById('disminuir-balines')?.addEventListener('click', function() {
+    const input = document.getElementById('cantidad-balines');
+    let val = parseInt(input.value) || 4;
+    if (val > 4) {
+      val -= 2;
+      input.value = val;
+      datosPersonalizacion.cantidadBalines = val;
+      actualizarPrecio();
+    }
+  });
+
+  document.getElementById('aumentar-balines')?.addEventListener('click', function() {
+    const input = document.getElementById('cantidad-balines');
+    let val = parseInt(input.value) || 4;
+    if (val < 10) {
+      val += 2;
+      input.value = val;
+      datosPersonalizacion.cantidadBalines = val;
+      actualizarPrecio();
+    }
+  });
+
+  document.getElementById('cantidad-balines')?.addEventListener('input', function() {
+    datosPersonalizacion.cantidadBalines = parseInt(this.value) || 4;
+    actualizarPrecio();
+  });
+
+  // Step navigation
+  document.getElementById('siguiente-paso-1')?.addEventListener('click', function(e) {
+    e.preventDefault();
     if (!datosPersonalizacion.tipoJoya) {
-      alert('Por favor selecciona un tipo de joya.');
+      document.getElementById('error-paso-1').style.display = 'block';
       return;
     }
+    document.getElementById('error-paso-1').style.display = 'none';
+    mostrarPaso(2);
+  });
 
-    if (!isAuthenticated()) {
-      showLoginModal();
+  document.getElementById('siguiente-paso-2')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    mostrarPaso(3);
+  });
+
+  document.getElementById('siguiente-paso-3')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    if (!datosPersonalizacion.colorHilo) {
+      document.getElementById('error-paso-3').style.display = 'block';
       return;
     }
+    document.getElementById('error-paso-3').style.display = 'none';
+    mostrarPaso(4);
+  });
 
+  document.getElementById('siguiente-paso-4')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    const val = datosPersonalizacion.cantidadBalines;
+    if (val < 4 || val > 10 || val % 2 !== 0) {
+      document.getElementById('error-paso-4').style.display = 'block';
+      return;
+    }
+    document.getElementById('error-paso-4').style.display = 'none';
+    actualizarResumen();
+    mostrarPaso(5);
+  });
+
+  document.getElementById('anterior-paso-2')?.addEventListener('click', function(e) { e.preventDefault(); mostrarPaso(1); });
+  document.getElementById('anterior-paso-3')?.addEventListener('click', function(e) { e.preventDefault(); mostrarPaso(2); });
+  document.getElementById('anterior-paso-4')?.addEventListener('click', function(e) { e.preventDefault(); mostrarPaso(3); });
+  document.getElementById('anterior-paso-5')?.addEventListener('click', function(e) { e.preventDefault(); mostrarPaso(4); });
+
+  function guardarProductoParaCompra() {
     const tipo = datosPersonalizacion.tipoJoya;
-    const imagen = tipo === 'pulsera' ? '/assets/images/pulsera icono.png' : '/assets/images/anillo icono.png';
-    const nombre = tipo === 'pulsera' ? 'Pulsera Personalizada' : 'Anillo Personalizado';
-
     const item = {
       id: 'personalizado-' + Date.now(),
-      nombre: nombre,
+      nombre: tipo === 'pulsera' ? 'Pulsera Personalizada' : 'Anillo Personalizado',
       precio: datosPersonalizacion.total,
-      imagen: imagen,
+      imagen: tipo === 'pulsera' ? '/assets/images/pulsera icono.png' : '/assets/images/anillo icono.png',
       personalizacion: {
         tipo: datosPersonalizacion.tipoJoya,
         dije: datosPersonalizacion.dije,
@@ -136,9 +201,24 @@ document.addEventListener('DOMContentLoaded', function() {
         balines: datosPersonalizacion.cantidadBalines
       }
     };
-
     localStorage.setItem('productoParaComprar', JSON.stringify(item));
-    alert('¡Producto personalizado listo!');
+  }
+
+  document.getElementById('agregar-al-carrito')?.addEventListener('click', async function() {
+    if (!isAuthenticated()) {
+      showLoginModal();
+      return;
+    }
+    guardarProductoParaCompra();
+    alert('¡Producto personalizado agregado al carrito!');
+  });
+
+  document.getElementById('proceder-pago-personalizado')?.addEventListener('click', function() {
+    if (!isAuthenticated()) {
+      showLoginModal();
+      return;
+    }
+    guardarProductoParaCompra();
     window.location.href = 'checkout.html';
   });
 });

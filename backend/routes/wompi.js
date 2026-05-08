@@ -21,7 +21,7 @@ router.get('/transaction/:id', requireAuth, asyncHandler(async (req, res) => {
 }));
 
 router.post('/webhook', asyncHandler(async (req, res) => {
-  const result = await wompiService.handleWebhook(req.body);
+  const result = await wompiService.handleWebhook(req.body, req.headers);
   return res.json(result);
 }));
 

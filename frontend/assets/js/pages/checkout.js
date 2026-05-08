@@ -1,8 +1,3 @@
-import { getCurrentUser, getCart, getAddresses, addAddress, createOrder } from '../services/api.js';
-import { wompiClient } from '../services/wompi-client.js';
-import { loadSharedHeader } from '../components/header-loader.js';
-import { initAuth } from '../services/auth.js';
-
 document.addEventListener('DOMContentLoaded', async function() {
   loadSharedHeader();
   initAuth();
@@ -36,7 +31,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   let usuario = null;
   try {
-    usuario = await getCurrentUser();
+    usuario = await fetchCurrentUser();
   } catch (err) {
     resumenPedido.innerHTML = '<p>Error al cargar tus datos. Por favor intenta nuevamente.</p>';
     return;
@@ -152,10 +147,11 @@ document.addEventListener('DOMContentLoaded', async function() {
 
       const orden = await createOrder({
         address_id: addressId,
-        payment_method: 'wompi'
+        payment_method: 'wompi',
+        keepCart: true
       });
 
-      const reference = `ORD-${orden.id}`;
+      const reference = orden.numero_pedido;
       const transaction = await wompiClient.createTransaction(
         monto,
         reference,
@@ -164,6 +160,11 @@ document.addEventListener('DOMContentLoaded', async function() {
       );
 
       if (transaction.redirect_url) {
+        localStorage.setItem('wompiPendingOrder', JSON.stringify({
+          orderId: orden.id,
+          reference,
+          amount: monto
+        }));
         window.location.href = transaction.redirect_url;
         return;
       }

@@ -1,4 +1,4 @@
-export async function loadSharedHeader() {
+async function loadSharedHeader() {
   const root = document.getElementById('header-root');
   if (!root) return;
 
@@ -34,3 +34,5 @@ function updateActiveNavLink() {
     }
   });
 }
+
+window.loadSharedHeader = loadSharedHeader;

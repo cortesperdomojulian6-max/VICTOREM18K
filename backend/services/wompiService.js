@@ -81,7 +81,25 @@ async function getTransaction(transactionId) {
   return { success: true, transaction: transaction.data, status: transaction.data.status };
 }
 
-async function handleWebhook(body) {
+const crypto = require('crypto');
+
+const WOMPI_EVENTS_SECRET = process.env.WOMPI_EVENTS_SECRET || '';
+
+function verifyWebhookSignature(body, signature) {
+  if (!WOMPI_EVENTS_SECRET || !signature) return true;
+  const calculated = crypto
+    .createHmac('sha256', WOMPI_EVENTS_SECRET)
+    .update(JSON.stringify(body))
+    .digest('hex');
+  return crypto.timingSafeEqual(Buffer.from(calculated), Buffer.from(signature));
+}
+
+async function handleWebhook(body, headers) {
+  const signature = headers['x-wompi-signature'];
+  if (!verifyWebhookSignature(body, signature)) {
+    throw new ForbiddenError('Firma de webhook inválida');
+  }
+
   const { event, data } = body;
 
   if (event === 'transaction.updated') {
@@ -91,10 +109,29 @@ async function handleWebhook(body) {
     if (status === 'APPROVED') orderStatus = 'confirmado';
     else if (status === 'DECLINED' || status === 'VOIDED') orderStatus = 'cancelado';
 
-    await db.query(
-      'UPDATE orders SET estado = $1, metodo_pago = $2 WHERE numero_pedido = $3',
-      [orderStatus, 'wompi', reference]
+    const orderResult = await db.query(
+      'SELECT id, user_id, total FROM orders WHERE numero_pedido = $1',
+      [reference]
     );
+
+    if (orderResult.rows.length > 0) {
+      const order = orderResult.rows[0];
+
+      await db.query(
+        'UPDATE orders SET estado = $1, wompi_transaction_id = $2 WHERE id = $3',
+        [orderStatus, id, order.id]
+      );
+
+      await db.query(
+        `INSERT INTO payments (order_id, provider, transaction_id, status, amount, currency, raw_response)
+         VALUES ($1, 'wompi', $2, $3, $4, 'COP', $5)`,
+        [order.id, id, status, order.total, JSON.stringify(data)]
+      );
+
+      if (status === 'APPROVED') {
+        await db.query('DELETE FROM cart_items WHERE user_id = $1', [order.user_id]);
+      }
+    }
   }
 
   return { received: true };

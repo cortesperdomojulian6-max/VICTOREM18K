@@ -8,7 +8,7 @@ function hideElement(id) {
   if (el) el.style.display = 'none';
 }
 
-export async function register(formData) {
+async function register(formData) {
   const res = await fetch('/api/auth/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -17,7 +17,7 @@ export async function register(formData) {
   return res;
 }
 
-export async function login(formData) {
+async function login(formData) {
   const res = await fetch('/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -26,11 +26,11 @@ export async function login(formData) {
   return res;
 }
 
-export function isAuthenticated() {
+function isAuthenticated() {
   return !!localStorage.getItem('token');
 }
 
-export function getCurrentUser() {
+function getCurrentUser() {
   try {
     return JSON.parse(localStorage.getItem('currentUser') || 'null');
   } catch {
@@ -38,7 +38,7 @@ export function getCurrentUser() {
   }
 }
 
-export function updateAuthNav() {
+function updateAuthNav() {
   const authNav = document.getElementById('auth-nav');
   if (!authNav) return;
 
@@ -56,8 +56,8 @@ export function updateAuthNav() {
   }
 }
 
-export function showLoginModal() { showElement('loginModal'); }
-export function showRegisterModal() { showElement('registerModal'); }
+function showLoginModal() { showElement('loginModal'); }
+function showRegisterModal() { showElement('registerModal'); }
 
 function logout() {
   localStorage.removeItem('token');
@@ -161,8 +161,17 @@ function attachAuthFormEvents() {
   if (closeRegister) closeRegister.addEventListener('click', () => hideElement('registerModal'));
 }
 
-export function initAuth() {
+function initAuth() {
   attachAuthEvents();
   attachAuthFormEvents();
   updateAuthNav();
 }
+
+window.register = register;
+window.login = login;
+window.isAuthenticated = isAuthenticated;
+window.getCurrentUser = getCurrentUser;
+window.updateAuthNav = updateAuthNav;
+window.showLoginModal = showLoginModal;
+window.showRegisterModal = showRegisterModal;
+window.initAuth = initAuth;

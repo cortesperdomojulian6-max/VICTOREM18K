@@ -1,7 +1,7 @@
 const db = require('../db');
 const { ValidationError, NotFoundError, ForbiddenError } = require('./errors');
 
-async function createOrder(userId, { address_id, payment_method }) {
+async function createOrder(userId, { address_id, payment_method, keepCart } = {}) {
   if (!address_id || !payment_method) {
     throw new ValidationError('address_id y payment_method requeridos');
   }
@@ -37,7 +37,9 @@ async function createOrder(userId, { address_id, payment_method }) {
     [orderId, userId]
   );
 
-  await db.query('DELETE FROM cart_items WHERE user_id = $1', [userId]);
+  if (!keepCart) {
+    await db.query('DELETE FROM cart_items WHERE user_id = $1', [userId]);
+  }
 
   return orderResult.rows[0];
 }
