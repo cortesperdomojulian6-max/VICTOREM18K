@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         descripcion: p.description,
         precio: `$${Number(p.price).toLocaleString('es-CO')}`,
         precioNumerico: Number(p.price),
-        imagen: p.image_url || '/assets/images/placeholder.jpg',
+        imagen: p.image_url ? p.image_url.replace(/^imagenes\//, '/assets/images/') : '/assets/images/placeholder.jpg',
         categoria: p.category || 'pulseras',
         caracteristicas: p.features || []
     }));
