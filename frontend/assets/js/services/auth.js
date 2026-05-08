@@ -44,9 +44,22 @@ function updateAuthNav() {
 
   const user = getCurrentUser();
   if (isAuthenticated() && user) {
+    const inicial = (user.name || 'U').charAt(0).toUpperCase();
     authNav.innerHTML = `
-      <span class="auth-welcome">Hola, ${user.name}</span>
-      <button id="logoutButton" class="auth-nav-btn">Cerrar sesión</button>
+      <div class="user-menu">
+        <button class="user-menu-btn">
+          <span class="user-avatar">${inicial}</span>
+          <span class="user-name">${user.name}</span>
+          <span class="user-arrow">&#9662;</span>
+        </button>
+        <div class="user-dropdown">
+          <a href="miperfil.html">Mi Perfil</a>
+          <a href="miperfil.html#pedidos">Mis Pedidos</a>
+          <a href="miperfil.html#carrito">Mi Carrito</a>
+          <div class="dropdown-divider"></div>
+          <a href="#" id="logoutButton" class="dropdown-logout">Cerrar sesión</a>
+        </div>
+      </div>
     `;
   } else {
     authNav.innerHTML = `
