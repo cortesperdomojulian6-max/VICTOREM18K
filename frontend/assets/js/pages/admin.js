@@ -1,5 +1,5 @@
-document.addEventListener('DOMContentLoaded', function() {
-  loadSharedHeader();
+document.addEventListener('DOMContentLoaded', async function() {
+  await loadSharedHeader();
   initAuth();
   fetchUsers();
 });
