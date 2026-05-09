@@ -122,11 +122,17 @@ function attachAuthFormEvents() {
   const registerError = document.getElementById('registerError');
   const registerSuccess = document.getElementById('registerSuccess');
 
+  function showMsg(el, msg) {
+    if (!el) return;
+    el.textContent = msg;
+    el.style.display = msg ? 'block' : 'none';
+  }
+
   if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (registerError) registerError.textContent = '';
-      if (registerSuccess) registerSuccess.textContent = '';
+      showMsg(registerError, '');
+      showMsg(registerSuccess, '');
 
       const name = document.getElementById('registerName').value.trim();
       const email = document.getElementById('registerEmail').value.trim();
@@ -134,7 +140,7 @@ function attachAuthFormEvents() {
       const confirm = document.getElementById('registerConfirmPassword').value;
 
       if (password !== confirm) {
-        if (registerError) registerError.textContent = 'Las contraseñas no coinciden.';
+        showMsg(registerError, 'Las contraseñas no coinciden.');
         return;
       }
 
@@ -144,14 +150,14 @@ function attachAuthFormEvents() {
         if (res.status === 201) {
           localStorage.setItem('token', data.token);
           localStorage.setItem('currentUser', JSON.stringify({ id: data.id, name: data.name, email: data.email }));
-          if (registerSuccess) registerSuccess.textContent = 'Registro exitoso.';
+          showMsg(registerSuccess, 'Registro exitoso. Redirigiendo...');
           updateAuthNav();
-          setTimeout(() => hideElement('registerModal'), 800);
+          setTimeout(() => hideElement('registerModal'), 1200);
         } else {
-          if (registerError) registerError.textContent = data.error || 'Error en el registro.';
+          showMsg(registerError, data.error || 'Error en el registro.');
         }
       } catch {
-        if (registerError) registerError.textContent = 'Error al conectar con el servidor.';
+        showMsg(registerError, 'Error al conectar con el servidor.');
       }
     });
   }
@@ -162,7 +168,7 @@ function attachAuthFormEvents() {
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (loginError) loginError.textContent = '';
+      showMsg(loginError, '');
 
       const email = document.getElementById('loginEmail').value.trim();
       const password = document.getElementById('loginPassword').value;
@@ -176,10 +182,10 @@ function attachAuthFormEvents() {
           updateAuthNav();
           hideElement('loginModal');
         } else {
-          if (loginError) loginError.textContent = data.error || 'Login fallido.';
+          showMsg(loginError, data.error || 'Login fallido.');
         }
       } catch {
-        if (loginError) loginError.textContent = 'Error al conectar con el servidor.';
+        showMsg(loginError, 'Error al conectar con el servidor.');
       }
     });
   }
