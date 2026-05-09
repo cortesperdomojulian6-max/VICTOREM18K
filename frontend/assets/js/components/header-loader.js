@@ -35,23 +35,4 @@ function updateActiveNavLink() {
   });
 }
 
-function initMobileMenu() {
-  const toggle = document.getElementById('menu-toggle');
-  const nav = document.getElementById('main-nav');
-  if (!toggle || !nav) return;
-
-  toggle.addEventListener('click', function() {
-    this.classList.toggle('open');
-    nav.classList.toggle('open');
-  });
-
-  nav.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => {
-      toggle.classList.remove('open');
-      nav.classList.remove('open');
-    });
-  });
-}
-
 window.loadSharedHeader = loadSharedHeader;
-window.initMobileMenu = initMobileMenu;

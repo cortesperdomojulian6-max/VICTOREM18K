@@ -1,4 +1,5 @@
 function initCarousel() {
+  if (window.innerWidth < 768) return;
   const track = document.getElementById('carousel-track');
   const prevBtn = document.getElementById('carousel-prev');
   const nextBtn = document.getElementById('carousel-next');
@@ -52,7 +53,6 @@ function initScrollReveal() {
 
 document.addEventListener('DOMContentLoaded', async function() {
   await loadSharedHeader();
-  initMobileMenu();
   initAuth();
   initCarousel();
   initScrollReveal();
