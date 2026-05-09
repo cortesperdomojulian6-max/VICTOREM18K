@@ -638,6 +638,10 @@ nav ul li .cart-btn svg { width: 20px; height: 20px; }
 
 /* ───── Section titles ───── */
 .section { padding: 100px 0; }
+.section-alt { background: var(--cream); }
+.section-dark { background: var(--dark); color: var(--white); }
+.section-dark .section-title { color: var(--white); }
+.section-dark .section-title::after { background: var(--primary); }
 
 .section-title {
   text-align: center;
@@ -735,6 +739,23 @@ nav ul li .cart-btn svg { width: 20px; height: 20px; }
 
 .card-acciones { display: flex; gap: 8px; flex-wrap: wrap; }
 .card-acciones .btn { flex: 1; min-width: 100px; padding: 10px 16px; font-size: 12px; }
+
+.card .btn-detalle {
+  background: transparent;
+  border: 1.5px solid var(--primary);
+  color: var(--primary);
+  padding: 10px 24px;
+  font-size: 11px;
+  letter-spacing: 1.2px;
+  width: 100%;
+}
+
+.card .btn-detalle:hover {
+  background: var(--primary);
+  color: var(--dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212,175,55,0.2);
+}
 
 /* ───── Buttons ───── */
 .btn {
