@@ -49,9 +49,15 @@ app.use((req, res, next) => {
   next();
 });
 
-// Verificar BD sin bloquear
+// Verificar BD y migraciones
 (async () => {
-  try { await db.query('SELECT 1'); console.log('BD conectada'); } catch (e) { console.error('BD error:', e.message); }
+  try {
+    await db.query('SELECT 1');
+    await db.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT');
+    console.log('BD conectada');
+  } catch (e) {
+    console.error('BD error:', e.message);
+  }
 })();
 
 // ============ RUTAS API ============

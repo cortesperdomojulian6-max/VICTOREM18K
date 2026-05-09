@@ -8,18 +8,37 @@ function getProfile(user) {
     name: user.name,
     email: user.email,
     role: user.role,
+    avatar_url: user.avatar_url || null,
     registration_date: user.registration_date
   };
 }
 
-async function updateProfile(userId, { name }) {
-  if (!name) {
+async function updateProfile(userId, { name, avatar_url }) {
+  if (!name && avatar_url === undefined) {
     throw new ValidationError('Nombre requerido');
   }
 
+  const fields = [];
+  const values = [];
+  let paramIndex = 1;
+
+  if (name) {
+    fields.push(`name = $${paramIndex++}`);
+    values.push(name.trim());
+  }
+  if (avatar_url !== undefined) {
+    fields.push(`avatar_url = $${paramIndex++}`);
+    values.push(avatar_url);
+  }
+
+  if (fields.length === 0) {
+    throw new ValidationError('No hay campos para actualizar');
+  }
+
+  values.push(userId);
   const result = await db.query(
-    'UPDATE users SET name = $1 WHERE id = $2 RETURNING id, name, email, role',
-    [name.trim(), userId]
+    `UPDATE users SET ${fields.join(', ')} WHERE id = $${paramIndex} RETURNING id, name, email, role, avatar_url`,
+    values
   );
 
   return result.rows[0];

@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', async function() {
   await loadSharedHeader();
+  initMobileMenu();
   initAuth();
 
   const resumenPedido = document.getElementById('resumen-pedido');

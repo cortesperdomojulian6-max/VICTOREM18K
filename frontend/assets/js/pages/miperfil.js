@@ -2,6 +2,7 @@ let seccionActiva = 'carrito';
 
 document.addEventListener('DOMContentLoaded', async function() {
   await loadSharedHeader();
+  initMobileMenu();
   initAuth();
 
   const perfilContenido = document.getElementById('perfil-contenido');
@@ -30,12 +31,15 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
   const iniciales = usuario.name.split(' ').map(n => n[0]).join('').toUpperCase();
+  const avatarImg = usuario.avatar_url || '';
 
   perfilContenido.innerHTML = `
     <div class="perfil-container">
       <div class="perfil-sidebar">
         <div class="perfil-avatar">
-          <div class="avatar">${iniciales}</div>
+          ${avatarImg ? `<img src="${avatarImg}" alt="Avatar" class="avatar-img">` : `<div class="avatar">${iniciales}</div>`}
+          <button class="btn-change-avatar" id="btn-change-avatar">Cambiar foto</button>
+          <input type="file" id="avatar-input" accept="image/*" style="display:none">
           <h3>${usuario.name}</h3>
           <p>${usuario.email}</p>
           <p>Miembro desde: ${new Date(usuario.created_at).toLocaleDateString('es-CO')}</p>
@@ -383,5 +387,32 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   document.getElementById('btn-finalizar-compra')?.addEventListener('click', () => {
     window.location.href = 'checkout.html';
+  });
+
+  document.getElementById('btn-change-avatar')?.addEventListener('click', () => {
+    document.getElementById('avatar-input')?.click();
+  });
+
+  document.getElementById('avatar-input')?.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert('La imagen no puede superar 2MB');
+      return;
+    }
+
+    try {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const base64 = event.target.result;
+        await updateProfile({ name: usuario.name, avatar_url: base64 });
+        alert('Foto de perfil actualizada');
+        window.location.reload();
+      };
+      reader.readAsDataURL(file);
+    } catch {
+      alert('Error al subir la foto');
+    }
   });
 });
