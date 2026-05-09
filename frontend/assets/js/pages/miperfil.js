@@ -198,20 +198,28 @@ document.addEventListener('DOMContentLoaded', async function() {
       }
 
       lista.innerHTML = `
-        <table class="carrito-tabla">
-          <thead><tr><th>Producto</th><th>Precio</th><th>Cantidad</th><th>Subtotal</th><th>Acciones</th></tr></thead>
-          <tbody>
-            ${items.map(item => `
-              <tr>
-                <td>${item.name}</td>
-                <td>$${Number(item.price).toLocaleString('es-CO')}</td>
-                <td><input type="number" min="1" value="${item.cantidad}" class="qty-input" data-item="${item.id}"></td>
-                <td>$${Number(item.subtotal).toLocaleString('es-CO')}</td>
-                <td><button class="btn-remove" data-item="${item.id}">Eliminar</button></td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
+        <div class="cart-table-wrap">
+          <table class="cart-table">
+            <thead><tr><th>Producto</th><th>Precio</th><th>Cantidad</th><th>Subtotal</th><th></th></tr></thead>
+            <tbody>
+              ${items.map(item => `
+                <tr>
+                  <td><strong>${item.name}</strong></td>
+                  <td>$${Number(item.price).toLocaleString('es-CO')}</td>
+                  <td>
+                    <div class="cart-qty">
+                      <button class="qty-minus" data-item="${item.id}">−</button>
+                      <input type="number" min="1" value="${item.cantidad}" class="qty-input" data-item="${item.id}">
+                      <button class="qty-plus" data-item="${item.id}">+</button>
+                    </div>
+                  </td>
+                  <td>$${Number(item.subtotal).toLocaleString('es-CO')}</td>
+                  <td><button class="cart-remove" data-item="${item.id}">✕</button></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
       `;
 
       document.getElementById('total-carrito').textContent = `$${total.toLocaleString('es-CO')}`;
@@ -228,11 +236,41 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
       });
 
-      document.querySelectorAll('.btn-remove').forEach(btn => {
+      document.querySelectorAll('.qty-minus').forEach(btn => {
         btn.addEventListener('click', async (e) => {
           const itemId = e.target.getAttribute('data-item');
-          await removeFromCart(itemId);
-          cargarCarrito();
+          const input = document.querySelector(`.qty-input[data-item="${itemId}"]`);
+          if (input) {
+            const val = parseInt(input.value) || 1;
+            if (val > 1) {
+              input.value = val - 1;
+              await updateCartItem(itemId, val - 1);
+              cargarCarrito();
+            }
+          }
+        });
+      });
+
+      document.querySelectorAll('.qty-plus').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const itemId = e.target.getAttribute('data-item');
+          const input = document.querySelector(`.qty-input[data-item="${itemId}"]`);
+          if (input) {
+            const val = parseInt(input.value) || 1;
+            input.value = val + 1;
+            await updateCartItem(itemId, val + 1);
+            cargarCarrito();
+          }
+        });
+      });
+
+      document.querySelectorAll('.cart-remove').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const itemId = e.target.getAttribute('data-item');
+          if (confirm('¿Eliminar este producto del carrito?')) {
+            await removeFromCart(itemId);
+            cargarCarrito();
+          }
         });
       });
     } catch {

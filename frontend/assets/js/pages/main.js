@@ -1,6 +1,60 @@
+function initCarousel() {
+  const track = document.getElementById('carousel-track');
+  const prevBtn = document.getElementById('carousel-prev');
+  const nextBtn = document.getElementById('carousel-next');
+  const dotsContainer = document.getElementById('carousel-dots');
+  if (!track || !prevBtn || !nextBtn || !dotsContainer) return;
+
+  const slides = track.querySelectorAll('.carousel-slide');
+  if (slides.length === 0) return;
+
+  let currentIndex = 0;
+
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', `Ir a slide ${i + 1}`);
+    dot.addEventListener('click', () => goToSlide(i));
+    dotsContainer.appendChild(dot);
+  });
+
+  function goToSlide(index) {
+    currentIndex = index;
+    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+    dotsContainer.querySelectorAll('.carousel-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === currentIndex);
+    });
+  }
+
+  prevBtn.addEventListener('click', () => {
+    goToSlide(currentIndex > 0 ? currentIndex - 1 : slides.length - 1);
+  });
+
+  nextBtn.addEventListener('click', () => {
+    goToSlide(currentIndex < slides.length - 1 ? currentIndex + 1 : 0);
+  });
+}
+
+function initScrollReveal() {
+  const revealEls = document.querySelectorAll('.reveal');
+  if (revealEls.length === 0) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.15 });
+
+  revealEls.forEach(el => observer.observe(el));
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
   await loadSharedHeader();
   initAuth();
+  initCarousel();
+  initScrollReveal();
 
   document.querySelectorAll('.btn-detalle').forEach(btn => {
     btn.addEventListener('click', function() {
