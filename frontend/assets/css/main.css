@@ -451,6 +451,14 @@ nav ul li .cart-btn svg { width: 20px; height: 20px; }
   margin: 0 8px;
 }
 
+.hero-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 30px;
+  flex-wrap: wrap;
+}
+
 /* ───── Scroll reveal ───── */
 .reveal {
   opacity: 0;
@@ -1134,10 +1142,13 @@ footer {
   .hero .hero-sub { font-size: 16px; letter-spacing: 2px; }
   .hero p { font-size: 14px; }
   .hero-logo { max-width: 100px; }
+  .hero-actions { flex-direction: column; align-items: center; gap: 12px; }
+  .hero-actions .btn { width: 100%; max-width: 280px; margin: 0; }
   .section { padding: 64px 0; }
   .section-title { font-size: 28px; }
   .productos { grid-template-columns: 1fr; gap: 20px; }
   .card-img { height: 240px; }
+  .card .btn { width: 100%; }
   .carousel-container { overflow: visible; }
   .carousel-track { display: grid; grid-template-columns: 1fr; gap: 24px; transform: none !important; }
   .carousel-slide { min-width: auto; padding: 0; display: grid; grid-template-columns: 1fr; gap: 24px; }
@@ -1145,7 +1156,6 @@ footer {
   .carousel-dots { display: none; }
   .testimonios { grid-template-columns: 1fr; gap: 20px; }
   .testimonio { padding: 28px 24px; }
-  .btn { display: block; margin: 10px auto; width: 80%; max-width: 250px; padding: 12px 20px; }
   .footer-content { grid-template-columns: 1fr; gap: 32px; }
   .auth-form { padding: 30px 20px; margin: 20px; }
   .modal-header { padding: 16px 20px; }
@@ -1153,6 +1163,7 @@ footer {
   .modal-info h2 { font-size: 22px; }
   .modal-precio { font-size: 24px; }
   .modal-acciones { flex-direction: column; }
+  .modal-acciones .btn { width: 100%; margin: 0; }
   .auth-modal > .auth-form { padding: 32px 24px; margin: 16px; }
 }
 
@@ -1165,6 +1176,7 @@ footer {
   .hero h1 { font-size: 28px; letter-spacing: 3px; }
   .hero .hero-sub { font-size: 14px; }
   .hero-logo { max-width: 80px; }
+  .hero-actions .btn { max-width: 240px; font-size: 11px; padding: 10px 16px; }
   .section-title { font-size: 24px; }
   .card-img { height: 200px; }
   .card-content { padding: 16px; }
@@ -1172,7 +1184,7 @@ footer {
   .price { font-size: 18px; }
   .carousel-track { gap: 20px; }
   .carousel-slide { gap: 20px; }
-  .btn { width: 90%; padding: 10px 16px; font-size: 11px; }
+  .modal-acciones .btn { font-size: 11px; padding: 10px 16px; }
   .user-menu-btn { font-size: 13px; padding: 4px 8px 4px 4px; }
   .user-name { max-width: 80px; font-size: 12px; }
   .user-dropdown { min-width: 200px; }
