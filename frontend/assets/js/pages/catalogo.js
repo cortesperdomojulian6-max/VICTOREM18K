@@ -133,6 +133,7 @@ function cerrarModal() {
 
 document.addEventListener('DOMContentLoaded', async function() {
   await loadSharedHeader();
+  initMobileMenu();
   initAuth();
 
   productosContainer = document.getElementById('lista-productos');
