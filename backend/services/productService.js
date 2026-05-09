@@ -3,8 +3,10 @@ const { ValidationError, NotFoundError } = require('./errors');
 
 async function getAllProducts() {
   const result = await db.query(
-    `SELECT id, name, description, price, image_url, category_id, active, created_at
-     FROM products WHERE active = true ORDER BY created_at DESC`
+    `SELECT p.id, p.name, p.description, p.price, p.image_url, p.category_id, c.slug as category, p.active, p.created_at
+     FROM products p
+     LEFT JOIN categories c ON c.id = p.category_id
+     WHERE p.active = true ORDER BY p.created_at DESC`
   );
   return result.rows;
 }
@@ -12,8 +14,10 @@ async function getAllProducts() {
 async function getProductById(id) {
   const productId = parseInt(id, 10);
   const result = await db.query(
-    `SELECT id, name, description, price, image_url, category_id, active, created_at
-     FROM products WHERE id = $1`,
+    `SELECT p.id, p.name, p.description, p.price, p.image_url, p.category_id, c.slug as category, p.active, p.created_at
+     FROM products p
+     LEFT JOIN categories c ON c.id = p.category_id
+     WHERE p.id = $1`,
     [productId]
   );
   if (result.rows.length === 0) {
