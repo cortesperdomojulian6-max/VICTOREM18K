@@ -8,17 +8,16 @@
 -- CATEGORÍAS
 -- ============================================================
 INSERT INTO categories (name, slug, description) VALUES
-    ('Pulseras',  'pulseras',  'Pulseras artesanales en balinería'),
-    ('Anillos',   'anillos',   'Anillos con diseños exclusivos'),
-    ('Manillas',  'manillas',  'Manillas únicas de edición limitada'),
-    ('Collares',  'collares',  'Collares y cadenas');
+    ('Pulsos',   'pulsos',   'Pulsos artesanales en balinería'),
+    ('Anillos',  'anillos',  'Anillos con diseños exclusivos'),
+    ('Manillas', 'manillas', 'Manillas únicas de edición limitada');
 
 -- ============================================================
 -- PRODUCTOS (12 piezas iniciales)
 -- ============================================================
 INSERT INTO products (category_id, name, description, price, image_url, features, stock) VALUES
     (
-        (SELECT id FROM categories WHERE slug = 'pulseras'),
+        (SELECT id FROM categories WHERE slug = 'pulsos'),
         'Pulsera Clásica Dorada',
         'Elegante pulsera con diseño tradicional en balinería y acabado dorado de alta calidad. Perfecta para ocasiones formales y uso diario.',
         125000,
@@ -27,7 +26,7 @@ INSERT INTO products (category_id, name, description, price, image_url, features
         20
     ),
     (
-        (SELECT id FROM categories WHERE slug = 'pulseras'),
+        (SELECT id FROM categories WHERE slug = 'pulsos'),
         'Pulsera Van Cleef Dorada',
         'Diseño contemporáneo con balinería de diferentes tamaños y acabado plateado brillante. Ideal para quienes buscan un estilo moderno y sofisticado.',
         165000,
@@ -36,7 +35,7 @@ INSERT INTO products (category_id, name, description, price, image_url, features
         15
     ),
     (
-        (SELECT id FROM categories WHERE slug = 'pulseras'),
+        (SELECT id FROM categories WHERE slug = 'pulsos'),
         'Pulsera Van Cleef Negra',
         'Edición especial con balinería de alta gama y detalles únicos en acabado dorado rosa. Una pieza exclusiva para ocasiones especiales.',
         150000,
@@ -45,7 +44,7 @@ INSERT INTO products (category_id, name, description, price, image_url, features
         10
     ),
     (
-        (SELECT id FROM categories WHERE slug = 'pulseras'),
+        (SELECT id FROM categories WHERE slug = 'pulsos'),
         'Pulsera Van Cleef Roja',
         'Diseño vanguardista con patrones geométricos en acabado negro mate resistente. Para quienes buscan un estilo urbano y contemporáneo.',
         150000,

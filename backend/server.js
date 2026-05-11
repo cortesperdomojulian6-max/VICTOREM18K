@@ -54,6 +54,7 @@ app.use((req, res, next) => {
   try {
     await db.query('SELECT 1');
     await db.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT');
+    await db.query("UPDATE categories SET name = 'Pulsos', slug = 'pulsos' WHERE slug = 'pulseras'");
     console.log('BD conectada');
   } catch (e) {
     console.error('BD error:', e.message);
