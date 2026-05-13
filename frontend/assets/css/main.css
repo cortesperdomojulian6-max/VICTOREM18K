@@ -41,6 +41,8 @@ img { max-width: 100%; height: auto; display: block; }
 .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
 
 /* ───── Header ───── */
+#header-root { min-height: 60px; background: var(--dark); }
+
 header {
   background-color: var(--dark);
   color: var(--white);

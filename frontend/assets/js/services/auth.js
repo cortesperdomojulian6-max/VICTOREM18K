@@ -272,6 +272,17 @@ function esc(str) {
 
 window.esc = esc;
 window.showToast = showToast;
+
+document.addEventListener('DOMContentLoaded', function() {
+  const footers = document.querySelectorAll('footer');
+  footers.forEach(f => {
+    f.querySelectorAll('p').forEach(p => {
+      if (p.textContent.includes('2024 Victorem') || p.textContent.includes('2025 Victorem')) {
+        p.textContent = p.textContent.replace(/20\d{2} Victorem/, `${new Date().getFullYear()} Victorem`);
+      }
+    });
+  });
+});
 window.register = register;
 window.login = login;
 window.isAuthenticated = isAuthenticated;

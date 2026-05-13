@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://victorem.vercel.app/sitemap.xml
