@@ -23,6 +23,8 @@ Thumbs.db
 dist/
 build/
 coverage/
+.next/
+*.tsbuildinfo
 
 # Python Virtual Environment
 .venv/

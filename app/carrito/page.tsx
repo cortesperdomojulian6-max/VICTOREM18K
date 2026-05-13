@@ -1,0 +1,203 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Trash2, Minus, Plus, ShoppingBag, ArrowRight } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { api, ApiError } from '@/lib/api'
+import { formatPrice } from '@/lib/utils'
+import { motion } from 'framer-motion'
+import { toast } from 'sonner'
+import type { CartItem as CartItemType } from '@/types'
+
+export default function CarritoPage() {
+  const router = useRouter()
+  const [items, setItems] = useState<CartItemType[]>([])
+  const [total, setTotal] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [updating, setUpdating] = useState<number | null>(null)
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      toast.error('Debes iniciar sesión para ver tu carrito')
+      router.push('/')
+      return
+    }
+    loadCart()
+  }, [router])
+
+  const loadCart = async () => {
+    try {
+      const data = await api.get<{ items: CartItemType[]; total: number }>('/cart')
+      setItems(data.items || [])
+      setTotal(data.total || 0)
+    } catch {
+      setItems([])
+      setTotal(0)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const updateQuantity = async (itemId: number, newQty: number) => {
+    if (newQty < 1) return
+    setUpdating(itemId)
+    try {
+      await api.put(`/cart/items/${itemId}`, { quantity: newQty })
+      await loadCart()
+      const count = items.reduce((acc, it) => acc + (it.id === itemId ? newQty - it.cantidad : 0), 0)
+      const currentCount = Number(localStorage.getItem('cartCount') || '0')
+      localStorage.setItem('cartCount', String(Math.max(0, currentCount + count)))
+      window.dispatchEvent(new CustomEvent('cartUpdated'))
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : 'Error al actualizar')
+    } finally {
+      setUpdating(null)
+    }
+  }
+
+  const removeItem = async (itemId: number) => {
+    setUpdating(itemId)
+    try {
+      await api.delete(`/cart/items/${itemId}`)
+      await loadCart()
+      const currentCount = Number(localStorage.getItem('cartCount') || '0')
+      localStorage.setItem('cartCount', String(Math.max(0, currentCount - 1)))
+      window.dispatchEvent(new CustomEvent('cartUpdated'))
+      toast.success('Producto eliminado del carrito')
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : 'Error al eliminar')
+    } finally {
+      setUpdating(null)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="container-main py-20">
+        <div className="animate-pulse max-w-3xl mx-auto space-y-4">
+          <div className="h-8 bg-pearl/60 w-48" />
+          <div className="h-48 bg-pearl/60" />
+          <div className="h-48 bg-pearl/60" />
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <div className="bg-ebony/90">
+        <div className="container-main py-14 md:py-20">
+          <nav className="flex items-center gap-2 text-xs uppercase tracking-wider text-white/40 mb-6">
+            <a href="/" className="hover:text-gold-400 transition-colors">Inicio</a>
+            <span>/</span>
+            <span className="text-white/80">Carrito</span>
+          </nav>
+          <h1 className="font-heading text-3xl md:text-5xl font-light text-white tracking-[0.08em]">
+            Tu Carrito
+          </h1>
+        </div>
+      </div>
+
+      <div className="container-main py-10">
+        {items.length === 0 ? (
+          <div className="text-center py-20 max-w-md mx-auto">
+            <ShoppingBag className="size-16 text-pearl mx-auto mb-6" />
+            <h2 className="font-heading text-2xl font-medium text-ebony mb-3">
+              Carrito Vacío
+            </h2>
+            <p className="text-sm text-stone mb-8">
+              Aún no has agregado productos a tu carrito. Explora nuestro catálogo y encuentra la pieza perfecta para ti.
+            </p>
+            <Button onClick={() => router.push('/catalogo')}>
+              Explorar Catálogo <ArrowRight className="size-4 ml-2" />
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <div className="lg:col-span-2 space-y-4">
+              {items.map((item, i) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  className={`bg-white p-6 border border-black/4 flex items-center gap-6 ${
+                    updating === item.id ? 'opacity-50 pointer-events-none' : ''
+                  }`}
+                >
+                  <div className="size-20 bg-cream shrink-0 flex items-center justify-center overflow-hidden">
+                    {item.image_url ? (
+                      <img src={item.image_url} alt={item.name} className="size-full object-cover" />
+                    ) : (
+                      <ShoppingBag className="size-6 text-stone" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-heading text-base font-medium text-ebony truncate">{item.name}</p>
+                    <p className="text-sm text-gold-400 font-semibold mt-1">{formatPrice(Number(item.price))}</p>
+                  </div>
+                  <div className="flex items-center gap-1 border border-pearl">
+                    <button
+                      onClick={() => updateQuantity(item.id, item.cantidad - 1)}
+                      disabled={item.cantidad <= 1}
+                      className="size-9 flex items-center justify-center text-stone hover:text-ebony hover:bg-cream transition-colors disabled:opacity-30"
+                      aria-label="Reducir cantidad"
+                    >
+                      <Minus className="size-3.5" />
+                    </button>
+                    <span className="w-10 text-center text-sm font-medium text-ebony">{item.cantidad}</span>
+                    <button
+                      onClick={() => updateQuantity(item.id, item.cantidad + 1)}
+                      className="size-9 flex items-center justify-center text-stone hover:text-ebony hover:bg-cream transition-colors"
+                      aria-label="Aumentar cantidad"
+                    >
+                      <Plus className="size-3.5" />
+                    </button>
+                  </div>
+                  <p className="text-sm font-semibold text-gold-400 min-w-[80px] text-right">
+                    {formatPrice(Number(item.price) * item.cantidad)}
+                  </p>
+                  <button
+                    onClick={() => removeItem(item.id)}
+                    className="size-9 flex items-center justify-center text-stone hover:text-red-500 hover:bg-red-50 transition-all shrink-0"
+                    aria-label="Eliminar producto"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
+                </motion.div>
+              ))}
+            </div>
+
+            <div>
+              <div className="bg-white p-8 border border-black/4 sticky top-24">
+                <h2 className="font-heading text-xl font-medium text-ebony mb-6 pb-3 border-b border-gold-400/30">
+                  Resumen
+                </h2>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between text-stone">
+                    <span>Subtotal</span>
+                    <span className="font-medium text-ebony">{formatPrice(total)}</span>
+                  </div>
+                  <div className="flex justify-between text-stone">
+                    <span>Envío</span>
+                    <span className="font-medium text-ebony">$10.000</span>
+                  </div>
+                  <div className="pt-3 border-t border-pearl flex justify-between font-heading text-xl font-semibold text-gold-400">
+                    <span>Total</span>
+                    <span>{formatPrice(total + 10000)}</span>
+                  </div>
+                </div>
+                <Button className="w-full mt-6" size="lg" onClick={() => router.push('/checkout')}>
+                  Finalizar Compra <ArrowRight className="size-4 ml-2" />
+                </Button>
+                <p className="text-xs text-stone text-center mt-3">Envío: $10.000 a todo Colombia</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  )
+}
