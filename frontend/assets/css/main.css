@@ -505,6 +505,8 @@ nav ul li .cart-btn svg { width: 20px; height: 20px; }
   position: relative;
   overflow: hidden;
   margin: 0 -4px;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
 }
 
 .carousel-track {
