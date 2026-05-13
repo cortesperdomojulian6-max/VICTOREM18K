@@ -514,11 +514,9 @@ nav ul li .cart-btn svg { width: 20px; height: 20px; }
 }
 
 .carousel-slide {
-  min-width: 100%;
+  flex: 0 0 33.333%;
+  max-width: 33.333%;
   padding: 0 4px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 30px;
 }
 
 .carousel-btn {
@@ -1223,7 +1221,6 @@ footer {
   .header-container { flex-wrap: wrap; gap: 12px; }
   nav ul { flex-wrap: wrap; justify-content: center; gap: 4px; }
   .hero h1 { font-size: 44px; }
-  .carousel-slide { gap: 24px; }
   .productos { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
   .testimonios { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
   .footer-content { gap: 32px; }
@@ -1252,7 +1249,7 @@ footer {
   .card .btn { width: 100%; }
   .carousel-container { overflow: hidden; }
   .carousel-track { display: flex; gap: 0; }
-  .carousel-slide { min-width: 100%; padding: 0; display: grid; grid-template-columns: 1fr; gap: 20px; }
+  .carousel-slide { flex: 0 0 100%; max-width: 100%; padding: 0; }
   .carousel-btn { display: none; }
   .carousel-dots { display: flex; }
   .testimonios { grid-template-columns: 1fr; gap: 20px; }
@@ -1283,7 +1280,7 @@ footer {
   .card-content { padding: 16px; }
   .card h3 { font-size: 17px; }
   .price { font-size: 18px; }
-  .carousel-slide { gap: 16px; }
+
   .modal-acciones .btn { font-size: 11px; padding: 10px 16px; }
   .user-menu-btn { font-size: 13px; padding: 4px 8px 4px 4px; }
   .user-name { max-width: 80px; font-size: 12px; }
