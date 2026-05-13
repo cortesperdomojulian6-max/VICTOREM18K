@@ -16,6 +16,12 @@ async function apiRequest(endpoint, options = {}) {
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('currentUser');
+      window.location.href = '/';
+      throw new Error('Sesión expirada');
+    }
     const error = await response.json();
     throw new Error(error.error || 'Error en la petición');
   }

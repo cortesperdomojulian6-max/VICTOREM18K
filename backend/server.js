@@ -18,6 +18,7 @@ const HOST = process.env.HOST || '0.0.0.0';
 const CORS_ORIGIN = process.env.CORS_ORIGIN;
 if (!CORS_ORIGIN) {
   console.error('❌ CORS_ORIGIN no está definido en .env');
+  process.exit(1);
 }
 
 app.use(helmet({
@@ -26,7 +27,7 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://checkout.wompi.co"],
+      scriptSrc: ["'self'", "'sha256-QNtKrV9sWX/UJDXaors8nPiZLLBV9W95zkIGJ631wnY='", "https://checkout.wompi.co"],
       imgSrc: ["'self'", "data:", "blob:"],
       connectSrc: ["'self'"],
     },
@@ -57,8 +58,8 @@ app.use('/api/', limiter);
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);

@@ -272,6 +272,7 @@ function esc(str) {
 
 window.esc = esc;
 window.showToast = showToast;
+window.updateCartBadge = updateCartBadge;
 
 document.addEventListener('DOMContentLoaded', function() {
   const footers = document.querySelectorAll('footer');

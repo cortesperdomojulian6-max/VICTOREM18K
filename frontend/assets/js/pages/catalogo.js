@@ -81,6 +81,7 @@ function renderizarCatalogo(lista) {
             try {
                 await addToCart(id, 1);
                 showToast('Producto agregado al carrito', 'success');
+                updateCartBadge();
             } catch {
                 showToast('Error al agregar al carrito', 'error');
             }
@@ -219,6 +220,7 @@ document.addEventListener('DOMContentLoaded', async function() {
       try {
         await addToCart(parseInt(id), 1);
         showToast('Producto agregado al carrito', 'success');
+        updateCartBadge();
       } catch {
         showToast('Error al agregar al carrito', 'error');
       }

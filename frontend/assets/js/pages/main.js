@@ -197,6 +197,7 @@ document.addEventListener('DOMContentLoaded', async function() {
       try {
         await addToCart(parseInt(id), 1);
         showToast('Producto agregado al carrito', 'success');
+        updateCartBadge();
       } catch {
         showToast('Error al agregar al carrito', 'error');
       }

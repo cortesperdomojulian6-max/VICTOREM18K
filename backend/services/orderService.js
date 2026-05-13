@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const db = require('../db');
 const { ValidationError, NotFoundError, ForbiddenError } = require('./errors');
 
@@ -19,11 +20,13 @@ async function createOrder(userId, { address_id, payment_method, keepCart } = {}
     throw new ValidationError('Carrito vacío');
   }
 
+  const numero_pedido = 'VM-' + Date.now().toString(36) + '-' + crypto.randomBytes(3).toString('hex');
+
   const orderResult = await db.query(
     `INSERT INTO orders (user_id, total, address_id, metodo_pago, numero_pedido, estado)
-     VALUES ($1, $2, $3, $4, 'ORD-' || LPAD(CAST((random() * 1000000) AS INT)::TEXT, 6, '0'), 'pendiente')
+     VALUES ($1, $2, $3, $4, $5, 'pendiente')
      RETURNING id, user_id, total, numero_pedido, estado, fecha`,
-    [userId, total, address_id, payment_method]
+    [userId, total, address_id, payment_method, numero_pedido]
   );
 
   const orderId = orderResult.rows[0].id;
