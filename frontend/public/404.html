@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Página no encontrada - Victorem">
+  <meta name="robots" content="noindex, nofollow">
+  <title>404 - Página no encontrada | Victorem</title>
+  <link rel="icon" type="image/x-icon" href="/assets/images/logo.png">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <style>
+    .error-404 {
+      min-height: 60vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 24px;
+    }
+    .error-404-content {
+      max-width: 500px;
+    }
+    .error-404-code {
+      font-family: var(--font-heading);
+      font-size: 120px;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1;
+      margin-bottom: 8px;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .error-404 h1 {
+      font-family: var(--font-heading);
+      font-size: 28px;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .error-404 p {
+      color: var(--text-light);
+      font-size: 15px;
+      line-height: 1.7;
+      margin-bottom: 32px;
+    }
+    .error-404 .btn {
+      display: inline-block;
+      padding: 14px 36px;
+      background: var(--gold-gradient);
+      color: var(--dark);
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .error-404 .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(212, 175, 55, 0.3);
+    }
+    .error-404-links {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .error-404-links a {
+      color: var(--primary);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 500;
+      border-bottom: 1px solid transparent;
+      transition: var(--transition);
+    }
+    .error-404-links a:hover {
+      border-bottom-color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+  <div id="header-root"></div>
+
+  <section class="error-404">
+    <div class="error-404-content">
+      <div class="error-404-code">404</div>
+      <h1>Página no encontrada</h1>
+      <p>La página que buscas no existe o ha sido movida. Verifica la URL o vuelve al inicio para encontrar lo que necesitas.</p>
+      <a href="index.html" class="btn">Volver al inicio</a>
+      <div class="error-404-links">
+        <a href="catalogo.html">Catálogo</a>
+        <a href="personalizacion.html">Personaliza</a>
+        <a href="contacto.html">Contacto</a>
+      </div>
+    </div>
+  </section>
+
+  <div id="footer-root"></div>
+
+  <script src="/assets/js/services/api.js"></script>
+  <script src="/assets/js/services/auth.js"></script>
+  <script src="/assets/js/services/wompi-client.js"></script>
+  <script src="/assets/js/components/header-loader.js"></script>
+  <script src="/assets/js/pages/main.js"></script>
+  <script src="/assets/js/components/footer-loader.js"></script>
+  <script>loadSharedFooter();</script>
+</body>
+</html>
