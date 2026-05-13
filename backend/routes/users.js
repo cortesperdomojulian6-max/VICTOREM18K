@@ -9,6 +9,11 @@ router.get('/me', requireAuth, (req, res) => {
   return res.json(userService.getProfile(req.user));
 });
 
+// GET /profile — alias used by the frontend (auth.tsx, miperfil, checkout)
+router.get('/profile', requireAuth, (req, res) => {
+  return res.json(userService.getProfile(req.user));
+});
+
 router.put('/profile', requireAuth, asyncHandler(async (req, res) => {
   const result = await userService.updateProfile(req.user.id, req.body);
   return res.json(result);

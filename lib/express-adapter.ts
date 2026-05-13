@@ -18,6 +18,10 @@ export function createExpressHandler(app: RequestListener) {
         ? Buffer.from(await request.arrayBuffer())
         : undefined
 
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+      || request.headers.get('x-real-ip')
+      || '127.0.0.1'
+
     const req = Object.assign(new Readable({
       read() {
         if (bodyBuffer) this.push(bodyBuffer)
@@ -27,16 +31,19 @@ export function createExpressHandler(app: RequestListener) {
       method: request.method,
       url: url.pathname + url.search,
       headers: Object.fromEntries(request.headers.entries()),
-      socket: { setTimeout: () => {} },
+      ip,
+      socket: { setTimeout: () => {}, destroy: () => {} },
       connection: { setTimeout: () => {} },
     })
 
     const chunks: Buffer[] = []
     const responseHeaders: Record<string, string | string[]> = {}
+    let resolvePromise: (() => void) | null = null
 
     const serverRes = {
       statusCode: 200,
       statusMessage: 'OK',
+      headersSent: false,
 
       writeHead(status: number, ...args: unknown[]) {
         serverRes.statusCode = status
@@ -46,6 +53,7 @@ export function createExpressHandler(app: RequestListener) {
             Object.assign(responseHeaders, last)
           }
         }
+        serverRes.headersSent = true
         return this
       },
 
@@ -54,8 +62,10 @@ export function createExpressHandler(app: RequestListener) {
         return true
       },
 
-      end(_chunk?: unknown) {
-        if (_chunk !== null && _chunk !== undefined) chunks.push(toBuffer(_chunk))
+      end(chunk?: unknown) {
+        if (chunk !== null && chunk !== undefined) chunks.push(toBuffer(chunk))
+        serverRes.headersSent = true
+        if (resolvePromise) resolvePromise()
         return this
       },
 
@@ -66,16 +76,12 @@ export function createExpressHandler(app: RequestListener) {
 
       getHeaders() { return responseHeaders },
       getHeader(name: string) { return responseHeaders[name] },
+      hasHeader(name: string) { return name in responseHeaders },
       removeHeader(name: string) { delete responseHeaders[name] },
     }
 
     await new Promise<void>((resolve, reject) => {
-      serverRes.end = (chunk?: unknown) => {
-        if (chunk !== null && chunk !== undefined) chunks.push(toBuffer(chunk))
-        resolve()
-        return serverRes
-      }
-
+      resolvePromise = resolve
       try {
         app(req as never, serverRes as never)
       } catch (err) {
@@ -90,3 +96,4 @@ export function createExpressHandler(app: RequestListener) {
     })
   }
 }
+

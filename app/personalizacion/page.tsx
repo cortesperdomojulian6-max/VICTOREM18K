@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Check, ArrowRight, ArrowLeft, ShoppingBag, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { api } from '@/lib/api'
 import { formatPrice } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
@@ -95,18 +96,43 @@ export default function PersonalizacionPage() {
     }
   }
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      window.dispatchEvent(new CustomEvent('openAuth'))
+      return
+    }
+
     const typeLabel = jewelType === 'pulsera' ? 'Pulsera' : 'Anillo'
     const dijeLabel = DIJES.find((d) => d.name === dije)?.label || ''
     const colorLabel = COLORS.find((c) => c.value === color)?.label || ''
 
-    const existing = localStorage.getItem('cartCount')
-    const count = existing ? Number(existing) + 1 : 1
-    localStorage.setItem('cartCount', String(count))
-    window.dispatchEvent(new CustomEvent('cartUpdated'))
+    try {
+      const products = await api.get<{ id: number; name: string }[]>('/products')
+      const custom = products.find((p) => p.name === 'Joya Personalizada' || p.name.toLowerCase().includes('personalizada'))
+      if (!custom) { toast.error('Error: Producto personalizado no configurado'); return }
 
-    toast.success(`${typeLabel} personalizada agregada al carrito`)
-    router.push('/checkout')
+      await api.post('/cart/items', { product_id: custom.id, quantity: 1 })
+
+      const existing = localStorage.getItem('cartCount')
+      const count = existing ? Number(existing) + 1 : 1
+      localStorage.setItem('cartCount', String(count))
+
+      localStorage.setItem('personalizacion', JSON.stringify({
+        type: jewelType,
+        dije,
+        color,
+        balines,
+        total,
+        fecha: new Date().toISOString(),
+      }))
+
+      window.dispatchEvent(new CustomEvent('cartUpdated'))
+      toast.success(`${typeLabel} personalizada agregada al carrito`)
+      router.push('/checkout')
+    } catch {
+      toast.error('Error al agregar al carrito')
+    }
   }
 
   const renderStep = () => {

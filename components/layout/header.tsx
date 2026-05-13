@@ -21,20 +21,35 @@ export function Header() {
   const [cartCount, setCartCount] = useState(0)
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]))
-        setUser({ name: payload.name || 'Usuario', email: payload.email })
-      } catch { /* ignore */ }
+    const loadUser = () => {
+      const token = localStorage.getItem('token')
+      if (token) {
+        try {
+          const stored = localStorage.getItem('user')
+          if (stored) {
+            const parsed = JSON.parse(stored)
+            setUser({ name: parsed.name || 'Usuario', email: parsed.email || '' })
+          } else {
+            const payload = JSON.parse(atob(token.split('.')[1]))
+            setUser({ name: payload.name || 'Usuario', email: payload.email })
+          }
+        } catch { /* ignore */ }
+      } else {
+        setUser(null)
+      }
     }
     const updateCart = () => {
       const count = localStorage.getItem('cartCount')
       setCartCount(count ? Number(count) : 0)
     }
+    loadUser()
     updateCart()
+    window.addEventListener('authChange', loadUser)
     window.addEventListener('cartUpdated', updateCart)
-    return () => window.removeEventListener('cartUpdated', updateCart)
+    return () => {
+      window.removeEventListener('authChange', loadUser)
+      window.removeEventListener('cartUpdated', updateCart)
+    }
   }, [])
 
   const isActive = (href: string) => {

@@ -53,11 +53,15 @@ export interface User {
   id: number
   name: string
   email: string
+  role?: string
   avatar_url: string | null
-  created_at: string
+  registration_date: string
 }
 
 export interface AuthResponse {
+  id: number
+  name: string
+  email: string
+  role: string
   token: string
-  user: User
 }

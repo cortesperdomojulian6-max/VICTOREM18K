@@ -51,7 +51,7 @@ function ProfileTab({ user, onUpdate }: { user: UserType; onUpdate: () => void }
         </span>
         <div>
           <p className="font-heading text-lg font-medium text-ebony">{user.name}</p>
-          <p className="text-xs text-stone">Miembro desde {new Date(user.created_at).toLocaleDateString('es-CO', { year: 'numeric', month: 'long' })}</p>
+          <p className="text-xs text-stone">Miembro desde {new Date(user.registration_date).toLocaleDateString('es-CO', { year: 'numeric', month: 'long' })}</p>
         </div>
       </div>
 

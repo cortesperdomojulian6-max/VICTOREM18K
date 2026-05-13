@@ -48,3 +48,6 @@ env/
 *.db
 
 .vercel
+
+# Test files with secrets
+_test_login.js

@@ -12,6 +12,7 @@ const rateLimit = require('express-rate-limit');
 const db = require('./db');
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
@@ -63,6 +64,12 @@ app.use((req, res, next) => {
     await db.query('SELECT 1');
     await db.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT');
     await db.query("UPDATE categories SET name = 'Pulsos', slug = 'pulsos' WHERE slug = 'pulseras'");
+    await db.query(`
+      INSERT INTO products (category_id, name, description, price, image_url, stock, active)
+      SELECT id, 'Joya Personalizada', 'Joya personalizada creada por ti en nuestro configurador', 0, '/assets/images/personalizado.jpg', 9999, true
+      FROM categories WHERE slug = 'pulsos'
+      WHERE NOT EXISTS (SELECT 1 FROM products WHERE name = 'Joya Personalizada')
+    `);
     console.log('BD conectada');
   } catch (e) {
     console.error('BD error:', e.message);
@@ -126,8 +133,9 @@ app.use((req, res) => {
 });
 
 // ============ INICIAR SERVIDOR ============
-// En Vercel no se llama app.listen(), la plataforma lo maneja como serverless
-if (!process.env.VERCEL) {
+// Solo escuchar cuando se ejecuta directamente (node backend/server.js),
+// NO cuando es importado por Next.js como módulo.
+if (require.main === module && !process.env.VERCEL) {
   const server = app.listen(PORT, HOST, () => {
     console.log('═══════════════════════════════════════════════════════');
     console.log('   ✅ VICTOREM - Servidor iniciado');

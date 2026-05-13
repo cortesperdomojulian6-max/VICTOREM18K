@@ -32,7 +32,7 @@ async function getStats() {
       (SELECT COUNT(*)::int FROM users) AS total_usuarios,
       (SELECT COUNT(*)::int FROM products WHERE active = true) AS total_productos,
       (SELECT COUNT(*)::int FROM orders) AS total_pedidos,
-      (SELECT COALESCE(SUM(total), 0)::float FROM orders WHERE estado = 'pagado') AS ingresos
+      (SELECT COALESCE(SUM(total), 0)::float FROM orders WHERE estado IN ('confirmado', 'pagado', 'enviado', 'entregado')) AS ingresos
   `);
   return stats.rows[0];
 }

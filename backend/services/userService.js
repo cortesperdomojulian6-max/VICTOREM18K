@@ -13,9 +13,9 @@ function getProfile(user) {
   };
 }
 
-async function updateProfile(userId, { name, avatar_url }) {
-  if (!name && avatar_url === undefined) {
-    throw new ValidationError('Nombre requerido');
+async function updateProfile(userId, { name, email, avatar_url }) {
+  if (!name && avatar_url === undefined && email === undefined) {
+    throw new ValidationError('No hay campos para actualizar');
   }
 
   const fields = [];
@@ -26,6 +26,11 @@ async function updateProfile(userId, { name, avatar_url }) {
     const sanitized = name.trim().replace(/<[^>]*>/g, '').substring(0, 100);
     fields.push(`name = $${paramIndex++}`);
     values.push(sanitized);
+  }
+  if (email !== undefined) {
+    const trimmed = email.trim().toLowerCase();
+    fields.push(`email = $${paramIndex++}`);
+    values.push(trimmed);
   }
   if (avatar_url !== undefined) {
     fields.push(`avatar_url = $${paramIndex++}`);

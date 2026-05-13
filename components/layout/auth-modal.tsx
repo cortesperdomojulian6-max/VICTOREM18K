@@ -55,13 +55,14 @@ export function AuthModal() {
         })
       }
 
-      const data = await api.post<{ token: string; user: { name: string; email: string } }>(
+      const data = await api.post<{ id: number; name: string; email: string; role: string; token: string }>(
         '/auth/login',
         { email: form.email, password: form.password },
       )
 
-      localStorage.setItem('token', data.token)
-      localStorage.setItem('user', JSON.stringify(data.user))
+      const { token, ...userData } = data
+      localStorage.setItem('token', token)
+      localStorage.setItem('user', JSON.stringify(userData))
       window.dispatchEvent(new CustomEvent('authChange'))
       window.dispatchEvent(new CustomEvent('cartUpdated'))
       close()

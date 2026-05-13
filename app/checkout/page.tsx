@@ -36,6 +36,17 @@ export default function CheckoutPage() {
   })
   const [errors, setErrors] = useState<Partial<FormState>>({})
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null)
+  const [wompiLoaded, setWompiLoaded] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !(window as any).wompiClient && !wompiLoaded) {
+      const script = document.createElement('script')
+      script.src = '/assets/js/services/wompi-client.js'
+      script.async = true
+      script.onload = () => setWompiLoaded(true)
+      document.body.appendChild(script)
+    }
+  }, [wompiLoaded])
 
   useEffect(() => {
     const token = localStorage.getItem('token')
