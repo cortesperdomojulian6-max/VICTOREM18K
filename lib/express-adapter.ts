@@ -32,42 +32,41 @@ export function createExpressHandler(app: RequestListener) {
     })
 
     const chunks: Buffer[] = []
-    let statusCode = 200
-    let responseHeaders: Record<string, string | string[]> = {}
+    const responseHeaders: Record<string, string | string[]> = {}
 
     const serverRes = {
       statusCode: 200,
       statusMessage: 'OK',
 
-      writeHead: (status: number, ...args: unknown[]) => {
-        statusCode = status
+      writeHead(status: number, ...args: unknown[]) {
+        serverRes.statusCode = status
         if (args.length > 0) {
           const last = args[args.length - 1]
           if (typeof last === 'object' && last !== null) {
-            responseHeaders = last as Record<string, string | string[]>
+            Object.assign(responseHeaders, last)
           }
         }
-        return serverRes
+        return this
       },
 
-      write: (chunk: unknown) => {
+      write(chunk: unknown) {
         if (chunk !== null && chunk !== undefined) chunks.push(toBuffer(chunk))
         return true
       },
 
-      end: (_chunk?: unknown) => {
+      end(_chunk?: unknown) {
         if (_chunk !== null && _chunk !== undefined) chunks.push(toBuffer(_chunk))
-        return serverRes
+        return this
       },
 
-      setHeader: (name: string, value: string | string[]) => {
+      setHeader(name: string, value: string | string[]) {
         responseHeaders[name] = value
-        return serverRes
+        return this
       },
 
-      getHeaders: () => responseHeaders,
-      getHeader: (name: string) => responseHeaders[name],
-      removeHeader: (name: string) => { delete responseHeaders[name] },
+      getHeaders() { return responseHeaders },
+      getHeader(name: string) { return responseHeaders[name] },
+      removeHeader(name: string) { delete responseHeaders[name] },
     }
 
     await new Promise<void>((resolve, reject) => {
@@ -86,7 +85,7 @@ export function createExpressHandler(app: RequestListener) {
 
     const buffer = Buffer.concat(chunks)
     return new NextResponse(buffer.length > 0 ? new Uint8Array(buffer) : null, {
-      status: statusCode,
+      status: serverRes.statusCode,
       headers: responseHeaders as Record<string, string>,
     })
   }
