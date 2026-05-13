@@ -567,6 +567,14 @@ nav ul li .cart-btn svg { width: 20px; height: 20px; }
   margin-top: 32px;
 }
 
+.carousel-counter {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  color: var(--text-light);
+  letter-spacing: 2px;
+  font-weight: 400;
+}
+
 .carousel-dot {
   width: 24px;
   height: 2px;
@@ -1253,7 +1261,8 @@ footer {
   .carousel-track { display: flex; gap: 0; }
   .carousel-slide { flex: 0 0 100%; max-width: 100%; padding: 0; }
   .carousel-btn { display: none; }
-  .carousel-dots { display: flex; }
+  .carousel-dots { display: flex; margin-top: 20px; }
+  .carousel-counter { font-size: 14px; }
   .testimonios { grid-template-columns: 1fr; gap: 20px; }
   .testimonio { padding: 28px 24px; }
   .footer-content { grid-template-columns: 1fr; gap: 32px; }
@@ -1282,7 +1291,7 @@ footer {
   .card-content { padding: 16px; }
   .card h3 { font-size: 17px; }
   .price { font-size: 18px; }
-
+  .carousel-counter { font-size: 13px; }
   .modal-acciones .btn { font-size: 11px; padding: 10px 16px; }
   .user-menu-btn { font-size: 13px; padding: 4px 8px 4px 4px; }
   .user-name { max-width: 80px; font-size: 12px; }
