@@ -251,7 +251,7 @@ export default function CheckoutPage() {
 
               <div className="flex justify-between font-heading text-xl font-semibold text-gold-400 pt-4 border-t-2 border-pearl">
                 <span>Total</span>
-                <span>{formatPrice(total)}</span>
+                <span>{formatPrice(total + 10000)}</span>
               </div>
 
               <Button

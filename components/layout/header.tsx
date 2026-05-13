@@ -29,9 +29,6 @@ export function Header() {
           if (stored) {
             const parsed = JSON.parse(stored)
             setUser({ name: parsed.name || 'Usuario', email: parsed.email || '' })
-          } else {
-            const payload = JSON.parse(atob(token.split('.')[1]))
-            setUser({ name: payload.name || 'Usuario', email: payload.email })
           }
         } catch { /* ignore */ }
       } else {

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { api, ApiError } from '@/lib/api'
 import { toast } from 'sonner'
 
 export default function ContactoPage() {
@@ -13,11 +14,16 @@ export default function ContactoPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    // Simulated — in production, send to API or email service
-    await new Promise((r) => setTimeout(r, 1000))
-    toast.success('Mensaje enviado. Te responderemos pronto.')
-    setForm({ name: '', email: '', message: '' })
-    setLoading(false)
+    try {
+      await api.post('/contact', form)
+      toast.success('Mensaje enviado. Te responderemos pronto.')
+      setForm({ name: '', email: '', message: '' })
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : 'Error al enviar el mensaje'
+      toast.error(msg)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

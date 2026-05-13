@@ -23,12 +23,23 @@ if (process.env.NODE_ENV !== 'production' && !process.env.CORS_ORIGIN && !proces
 }
 
 app.use(helmet({
-  contentSecurityPolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+      imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
+      connectSrc: ["'self'"],
+      frameSrc: ["'none'"],
+      objectSrc: ["'none'"],
+    },
+  },
 }));
 app.use(helmet.hsts({ maxAge: 31536000, includeSubDomains: true, preload: true }));
 
 app.use(cors({
-  origin: CORS_ORIGIN === '*' ? true : CORS_ORIGIN,
+  origin: CORS_ORIGIN === '*' ? process.env.VERCEL_URL ? ['https://victorem.co', `https://${process.env.VERCEL_URL}`] : 'http://localhost:3000' : CORS_ORIGIN,
   credentials: true
 }));
 
@@ -58,18 +69,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// Verificar BD y migraciones
+// Verificar conexión a BD
 (async () => {
   try {
     await db.query('SELECT 1');
-    await db.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT');
-    await db.query("UPDATE categories SET name = 'Pulsos', slug = 'pulsos' WHERE slug = 'pulseras'");
-    await db.query(`
-      INSERT INTO products (category_id, name, description, price, image_url, stock, active)
-      SELECT id, 'Joya Personalizada', 'Joya personalizada creada por ti en nuestro configurador', 0, '/assets/images/personalizado.jpg', 9999, true
-      FROM categories WHERE slug = 'pulsos'
-      WHERE NOT EXISTS (SELECT 1 FROM products WHERE name = 'Joya Personalizada')
-    `);
     console.log('BD conectada');
   } catch (e) {
     console.error('BD error:', e.message);
@@ -84,7 +87,8 @@ app.use('/api/cart',      require('./routes/cart'));
 app.use('/api/orders',    require('./routes/orders'));
 app.use('/api/addresses', require('./routes/addresses'));
 app.use('/api/users',     require('./routes/users'));
-app.use('/api/wompi',     require('./routes/wompi')); // Pasarela de pagos
+// app.use('/api/contact',   require('./routes/contact'));
+app.use('/api/wompi',     require('./routes/wompi')); // Deshabilitado: pasarela Wompi
 
 // Health check
 app.get('/api/health', async (req, res) => {
