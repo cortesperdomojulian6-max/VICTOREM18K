@@ -11,8 +11,6 @@ import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import type { CartItem, Address, User } from '@/types'
 
-type PaymentMethod = 'wompi' | 'transferencia'
-
 interface FormState {
   nombre: string
   apellido: string
@@ -30,23 +28,11 @@ export default function CheckoutPage() {
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('wompi')
   const [form, setForm] = useState<FormState>({
     nombre: '', apellido: '', direccion: '', ciudad: '', departamento: '', telefono: '',
   })
   const [errors, setErrors] = useState<Partial<FormState>>({})
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null)
-  const [wompiLoaded, setWompiLoaded] = useState(false)
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !(window as any).wompiClient && !wompiLoaded) {
-      const script = document.createElement('script')
-      script.src = '/assets/js/services/wompi-client.js'
-      script.async = true
-      script.onload = () => setWompiLoaded(true)
-      document.body.appendChild(script)
-    }
-  }, [wompiLoaded])
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -120,48 +106,16 @@ export default function CheckoutPage() {
         addressId = newAddr.id
       }
 
-      if (paymentMethod === 'wompi') {
-        const order = await api.post<{ id: number; numero_pedido: string }>('/orders', {
-          address_id: addressId,
-          payment_method: 'wompi',
-          keepCart: true,
-        })
-
-        if (typeof window !== 'undefined' && (window as any).wompiClient) {
-          const wompi = (window as any).wompiClient
-          if (!wompi.initialized) await wompi.init()
-
-          const transaction = await wompi.createTransaction(
-            total,
-            order.numero_pedido,
-            user?.email,
-            order.id,
-          )
-
-          if (transaction.redirect_url) {
-            localStorage.setItem('wompiPendingOrder', JSON.stringify({
-              orderId: order.id,
-              reference: order.numero_pedido,
-              amount: total,
-            }))
-            window.location.href = transaction.redirect_url
-            return
-          }
-        }
-
-        toast.success('Pago procesado. Revisa tu correo.')
-        localStorage.removeItem('productoParaComprar')
-        router.push('/miperfil')
-        return
-      }
-
       await api.post('/orders', {
         address_id: addressId,
         payment_method: 'transferencia',
+        keepCart: false,
       })
 
       localStorage.removeItem('productoParaComprar')
-      toast.success('Pedido confirmado. Te contactaremos para coordinar el pago.')
+      localStorage.removeItem('cartCount')
+      window.dispatchEvent(new CustomEvent('cartUpdated'))
+      toast.success('Pedido confirmado. Te contactaremos para coordinar el pago por Nequi.')
       router.push('/miperfil')
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : 'Error al procesar la compra'
@@ -243,55 +197,25 @@ export default function CheckoutPage() {
               className="bg-white p-8 shadow-sm border border-black/4"
             >
               <h2 className="font-heading text-xl font-medium text-ebony mb-6 pb-3 border-b border-gold-400/30">
-                Método de Pago
+                Pago por Nequi
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <button
-                  onClick={() => setPaymentMethod('wompi')}
-                  className={`flex items-center gap-3 p-4 border-2 transition-all text-left ${
-                    paymentMethod === 'wompi'
-                      ? 'border-gold-400 bg-gold-400/5'
-                      : 'border-pearl hover:border-gold-400'
-                  }`}
-                >
-                  <CreditCard className="size-6 text-gold-400 shrink-0" />
+              <div className="bg-cream p-6 text-sm space-y-3">
+                <div className="flex items-center gap-3">
+                  <Building2 className="size-8 text-gold-400 shrink-0" />
                   <div>
-                    <p className="text-sm font-semibold text-ebony">Wompi</p>
-                    <p className="text-xs text-stone">Tarjeta, Nequi, Bancolombia, PSE</p>
+                    <p className="font-semibold text-ebony">Nequi</p>
+                    <p className="text-xs text-stone">Transferencia directa desde la app Nequi</p>
                   </div>
-                </button>
-                <button
-                  onClick={() => setPaymentMethod('transferencia')}
-                  className={`flex items-center gap-3 p-4 border-2 transition-all text-left ${
-                    paymentMethod === 'transferencia'
-                      ? 'border-gold-400 bg-gold-400/5'
-                      : 'border-pearl hover:border-gold-400'
-                  }`}
-                >
-                  <Building2 className="size-6 text-gold-400 shrink-0" />
-                  <div>
-                    <p className="text-sm font-semibold text-ebony">Transferencia Nequi</p>
-                    <p className="text-xs text-stone">Transferencia directa</p>
-                  </div>
-                </button>
-              </div>
-
-              {paymentMethod === 'wompi' && (
-                <div className="bg-cream p-4 text-sm text-stone space-y-2">
-                  <p className="flex items-center gap-2">✅ Paga de forma segura con tu tarjeta, Nequi, Bancolombia o PSE.</p>
-                  <p className="font-semibold text-ebony">Serás redirigido a la plataforma segura de Wompi.</p>
-                  <p className="text-xs text-silver">No almacenamos datos de tu tarjeta. Wompi procesa el pago de forma segura.</p>
                 </div>
-              )}
-
-              {paymentMethod === 'transferencia' && (
-                <div className="bg-cream p-4 text-sm text-stone space-y-1">
-                  <p>Para completar tu compra, realiza una transferencia a:</p>
-                  <p className="font-semibold text-ebony">Banco: Nequi — Cuenta: 3107875531</p>
+                <div className="border-t border-gold-400/20 pt-3 mt-3 space-y-1">
+                  <p>Para completar tu compra:</p>
+                  <p className="font-semibold text-ebony text-base">Cuenta: 310 787 5531</p>
                   <p className="text-xs text-silver">Titular: Julian Cortes</p>
-                  <p className="text-xs text-stone mt-2">Envía el comprobante a info@victorem.co</p>
+                  <p className="text-xs text-stone mt-2">
+                    Envía el comprobante de pago a <span className="font-semibold">info@victorem.co</span> para confirmar tu pedido.
+                  </p>
                 </div>
-              )}
+              </div>
             </motion.div>
           </div>
 
@@ -336,13 +260,13 @@ export default function CheckoutPage() {
                 loading={submitting}
                 onClick={handleSubmit}
               >
-                {paymentMethod === 'wompi' ? 'Realizar Pago' : 'Confirmar Pedido'}
+                Confirmar Pedido
               </Button>
 
               <div className="grid grid-cols-2 gap-2 mt-5 pt-4 border-t border-pearl">
                 {[
                   { icon: Lock, text: 'Pago Seguro (SSL)' },
-                  { icon: CreditCard, text: 'Nequi · Bancolombia · PSE' },
+                  { icon: CreditCard, text: 'Nequi · Transferencia' },
                   { icon: ShieldCheck, text: 'Compra Protegida' },
                   { icon: Truck, text: 'Envíos a Colombia' },
                 ].map((item) => (

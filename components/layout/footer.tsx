@@ -81,7 +81,7 @@ export function Footer() {
 
         <div className="mt-12 pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex flex-wrap gap-2">
-            {['NEQUI', 'BANCOLOMBIA', 'PSE'].map((method) => (
+            {['NEQUI'].map((method) => (
               <span key={method} className="px-3 py-1.5 text-[0.625rem] font-semibold tracking-wider bg-white/5 text-silver border border-white/5">
                 {method}
               </span>

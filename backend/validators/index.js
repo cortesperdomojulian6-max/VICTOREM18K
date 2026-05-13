@@ -62,7 +62,7 @@ function validateOrder(data) {
   if (!data.address_id || !Number.isInteger(Number(data.address_id)) || Number(data.address_id) <= 0) {
     errors.address_id = 'address_id requerido y debe ser un número positivo';
   }
-  const validMethods = ['wompi', 'transferencia'];
+  const validMethods = ['transferencia'];
   if (!data.payment_method || !validMethods.includes(data.payment_method)) {
     errors.payment_method = `payment_method debe ser uno de: ${validMethods.join(', ')}`;
   }
