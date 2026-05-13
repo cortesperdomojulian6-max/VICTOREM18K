@@ -10,16 +10,21 @@ const nextConfig: NextConfig = {
     ],
   },
   async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/:path*`,
-      },
+    const rewrites = [
       {
         source: '/images/:path*',
         destination: '/assets/images/:path*',
       },
     ]
+
+    if (process.env.NODE_ENV === 'development') {
+      rewrites.push({
+        source: '/api/:path*',
+        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/:path*`,
+      })
+    }
+
+    return rewrites
   },
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
