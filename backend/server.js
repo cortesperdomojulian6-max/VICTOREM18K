@@ -15,28 +15,19 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
-const CORS_ORIGIN = process.env.CORS_ORIGIN;
-if (!CORS_ORIGIN) {
-  console.error('❌ CORS_ORIGIN no está definido en .env');
-  process.exit(1);
+const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
+
+if (process.env.NODE_ENV !== 'production' && !process.env.CORS_ORIGIN && !process.env.VERCEL) {
+  console.warn('⚠️  CORS_ORIGIN no definido. Usando "*" en desarrollo.');
 }
 
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      scriptSrc: ["'self'", "'sha256-QNtKrV9sWX/UJDXaors8nPiZLLBV9W95zkIGJ631wnY='", "https://checkout.wompi.co"],
-      imgSrc: ["'self'", "data:", "blob:"],
-      connectSrc: ["'self'"],
-    },
-  },
+  contentSecurityPolicy: false,
 }));
 app.use(helmet.hsts({ maxAge: 31536000, includeSubDomains: true, preload: true }));
 
 app.use(cors({
-  origin: CORS_ORIGIN,
+  origin: CORS_ORIGIN === '*' ? true : CORS_ORIGIN,
   credentials: true
 }));
 
@@ -98,10 +89,10 @@ app.get('/api/health', async (req, res) => {
   res.json({ ok: true, message: 'API viva', db: dbOk, time: new Date().toISOString() });
 });
 
-// ----------------- Frontend (archivos estáticos) -----------------
-app.use(express.static(path.join(__dirname, '../frontend/public')));
-app.use('/assets', express.static(path.join(__dirname, '../frontend/assets')));
-app.use('/components', express.static(path.join(__dirname, '../frontend/components')));
+// ----------------- Frontend (archivos estáticos - fallback local) -----------------
+if (!process.env.VERCEL) {
+  app.use(express.static(path.join(__dirname, '../public')));
+}
 
 // ============ MANEJADOR DE ERRORES ============
 const { AppError } = require('./services/errors');

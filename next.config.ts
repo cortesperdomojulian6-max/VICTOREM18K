@@ -1,5 +1,4 @@
 import type { NextConfig } from 'next'
-import path from 'path'
 
 const nextConfig: NextConfig = {
   output: 'standalone',
@@ -18,12 +17,8 @@ const nextConfig: NextConfig = {
         destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/:path*`,
       },
       {
-        source: '/assets/:path*',
-        destination: '/frontend_old/assets/:path*',
-      },
-      {
         source: '/images/:path*',
-        destination: '/frontend_old/assets/images/:path*',
+        destination: '/assets/images/:path*',
       },
     ]
   },
