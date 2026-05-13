@@ -83,10 +83,15 @@ async function getTransaction(transactionId) {
 
 const crypto = require('crypto');
 
-const WOMPI_EVENTS_SECRET = process.env.WOMPI_EVENTS_SECRET || '';
+const WOMPI_EVENTS_SECRET = process.env.WOMPI_EVENTS_SECRET;
 
 function verifyWebhookSignature(body, signature) {
-  if (!WOMPI_EVENTS_SECRET || !signature) return true;
+  if (!WOMPI_EVENTS_SECRET) {
+    throw new Error('WOMPI_EVENTS_SECRET no está configurado');
+  }
+  if (!signature) {
+    return false;
+  }
   const calculated = crypto
     .createHmac('sha256', WOMPI_EVENTS_SECRET)
     .update(JSON.stringify(body))

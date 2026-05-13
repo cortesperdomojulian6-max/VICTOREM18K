@@ -214,6 +214,28 @@ function attachAuthFormEvents() {
   if (closeRegister) closeRegister.addEventListener('click', () => hideElement('registerModal'));
 }
 
+async function updateCartBadge() {
+  const badge = document.getElementById('cart-badge');
+  if (!badge) return;
+  if (!isAuthenticated()) {
+    badge.style.display = 'none';
+    return;
+  }
+  try {
+    const datos = await getCart();
+    const items = datos.items || [];
+    const count = items.reduce((sum, i) => sum + (i.cantidad || i.quantity || 0), 0);
+    if (count > 0) {
+      badge.textContent = count > 99 ? '99+' : count;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  } catch {
+    badge.style.display = 'none';
+  }
+}
+
 function initCart() {
   const cartIcon = document.getElementById('cart-icon');
   if (cartIcon) {
@@ -226,6 +248,7 @@ function initCart() {
       window.location.href = 'miperfil.html#carrito';
     });
   }
+  updateCartBadge();
 }
 
 function initAuth() {
@@ -235,6 +258,19 @@ function initAuth() {
   initCart();
 }
 
+function esc(str) {
+  if (str == null) return '';
+  return String(str).replace(/[&<>"']/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    if (m === '"') return '&quot;';
+    if (m === "'") return '&#39;';
+    return m;
+  });
+}
+
+window.esc = esc;
 window.showToast = showToast;
 window.register = register;
 window.login = login;

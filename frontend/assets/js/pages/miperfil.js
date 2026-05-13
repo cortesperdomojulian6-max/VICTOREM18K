@@ -31,20 +31,24 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   const iniciales = usuario.name.split(' ').map(n => n[0]).join('').toUpperCase();
   const avatarImg = usuario.avatar_url || '';
+  const fechaMiembro = new Date(usuario.created_at).toLocaleDateString('es-CO');
 
-  perfilContenido.innerHTML = `
-    <div class="perfil-container">
+  function buildProfileHTML() {
+    const container = document.createElement('div');
+    container.className = 'perfil-container';
+
+    container.innerHTML = `
       <div class="perfil-sidebar">
         <div class="perfil-avatar">
-          ${avatarImg ? `<img src="${avatarImg}" alt="Avatar" class="avatar-img">` : `<div class="avatar">${iniciales}</div>`}
+          ${avatarImg ? `<img src="${esc(avatarImg)}" alt="Avatar" class="avatar-img">` : `<div class="avatar">${esc(iniciales)}</div>`}
           <button class="btn-change-avatar" id="btn-change-avatar">Cambiar foto</button>
           <input type="file" id="avatar-input" accept="image/*" style="display:none">
-          <h3>${usuario.name}</h3>
-          <p>${usuario.email}</p>
-          <p>Miembro desde: ${new Date(usuario.created_at).toLocaleDateString('es-CO')}</p>
+          <h3>${esc(usuario.name)}</h3>
+          <p>${esc(usuario.email)}</p>
+          <p>Miembro desde: ${esc(fechaMiembro)}</p>
         </div>
         <ul class="perfil-nav">
-          <li><a href="#" class="nav-link" data-seccion="informacion">Información Personal</a></li>
+          <li><a href="#" class="nav-link" data-seccion="informacion">Informaci\u00f3n Personal</a></li>
           <li><a href="#" class="nav-link" data-seccion="direcciones">Direcciones</a></li>
           <li><a href="#" class="nav-link" data-seccion="pedidos">Mis Pedidos</a></li>
           <li><a href="#" class="nav-link" data-seccion="carrito">Carrito de Compras</a></li>
@@ -53,15 +57,15 @@ document.addEventListener('DOMContentLoaded', async function() {
       </div>
       <div class="perfil-content">
         <div id="informacion" class="perfil-seccion" style="display:none;">
-          <h3>Información Personal</h3>
+          <h3>Informaci\u00f3n Personal</h3>
           <form id="form-info-personal">
             <div class="form-group">
               <label for="nombre">Nombre</label>
-              <input type="text" id="nombre" value="${usuario.name}" required>
+              <input type="text" id="nombre" value="${esc(usuario.name)}" required>
             </div>
             <div class="form-group">
               <label>Email</label>
-              <input type="email" value="${usuario.email}" disabled style="opacity:0.6;">
+              <input type="email" value="${esc(usuario.email)}" disabled style="opacity:0.6;">
             </div>
             <button type="submit" class="btn">Guardar Cambios</button>
           </form>
@@ -70,7 +74,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         <div id="direcciones" class="perfil-seccion" style="display:none;">
           <h3>Mis Direcciones</h3>
           <div id="lista-direcciones"></div>
-          <button id="btn-nueva-direccion" class="btn btn-outline" style="margin-top:16px;">+ Agregar Dirección</button>
+          <button id="btn-nueva-direccion" class="btn btn-outline" style="margin-top:16px;">+ Agregar Direcci\u00f3n</button>
           <div id="form-nueva-direccion" style="display:none; margin-top:16px;">
             <form id="form-direccion">
               <div class="form-group">
@@ -78,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 <input type="text" name="destinatario" required>
               </div>
               <div class="form-group">
-                <label for="dir-direccion">Dirección</label>
+                <label for="dir-direccion">Direcci\u00f3n</label>
                 <input type="text" name="direccion" required>
               </div>
               <div class="form-group">
@@ -90,10 +94,10 @@ document.addEventListener('DOMContentLoaded', async function() {
                 <input type="text" name="departamento" required>
               </div>
               <div class="form-group">
-                <label for="dir-telefono">Teléfono</label>
+                <label for="dir-telefono">Tel\u00e9fono</label>
                 <input type="tel" name="telefono" required>
               </div>
-              <button type="submit" class="btn">Guardar Dirección</button>
+              <button type="submit" class="btn">Guardar Direcci\u00f3n</button>
               <button type="button" id="btn-cancelar-dir" class="btn btn-outline">Cancelar</button>
             </form>
           </div>
@@ -117,26 +121,30 @@ document.addEventListener('DOMContentLoaded', async function() {
           <h3>Seguridad</h3>
           <form id="form-cambiar-password">
             <div class="form-group">
-              <label for="old_password">Contraseña Actual</label>
+              <label for="old_password">Contrase\u00f1a Actual</label>
               <input type="password" id="old_password" required>
             </div>
             <div class="form-group">
-              <label for="new_password">Nueva Contraseña</label>
+              <label for="new_password">Nueva Contrase\u00f1a</label>
               <input type="password" id="new_password" required minlength="6">
             </div>
             <div class="form-group">
-              <label for="confirm_password">Confirmar Nueva Contraseña</label>
+              <label for="confirm_password">Confirmar Nueva Contrase\u00f1a</label>
               <input type="password" id="confirm_password" required>
             </div>
-            <button type="submit" class="btn">Cambiar Contraseña</button>
+            <button type="submit" class="btn">Cambiar Contrase\u00f1a</button>
           </form>
           <div style="margin-top:30px; padding-top:20px; border-top:1px solid #eee;">
             <button id="btn-eliminar-cuenta" class="btn btn-danger">Eliminar mi Cuenta</button>
           </div>
         </div>
       </div>
-    </div>
-  `;
+    `;
+    return container;
+  }
+
+  perfilContenido.innerHTML = '';
+  perfilContenido.appendChild(buildProfileHTML());
 
   if (window.location.hash) {
     seccionActiva = window.location.hash.substring(1);
@@ -171,15 +179,15 @@ document.addEventListener('DOMContentLoaded', async function() {
     try {
       const pedidos = await getOrders();
       if (pedidos.length === 0) {
-        lista.innerHTML = '<p>No hay pedidos aún.</p>';
+        lista.textContent = 'No hay pedidos aún.';
         return;
       }
       lista.innerHTML = pedidos.map(p => `
         <div class="pedido-item">
-          <h4>Pedido #${p.id}</h4>
-          <p>Estado: <strong>${p.estado}</strong></p>
-          <p>Total: <strong>$${p.total?.toLocaleString('es-CO')}</strong></p>
-          <p>Fecha: ${new Date(p.fecha).toLocaleDateString('es-CO')}</p>
+          <h4>Pedido #${esc(p.id)}</h4>
+          <p>Estado: <strong>${esc(p.estado)}</strong></p>
+          <p>Total: <strong>$${esc(p.total?.toLocaleString('es-CO'))}</strong></p>
+          <p>Fecha: ${esc(new Date(p.fecha).toLocaleDateString('es-CO'))}</p>
         </div>
       `).join('');
     } catch {
@@ -207,17 +215,17 @@ document.addEventListener('DOMContentLoaded', async function() {
             <tbody>
               ${items.map(item => `
                 <tr>
-                  <td><strong>${item.name}</strong></td>
-                  <td>$${Number(item.price).toLocaleString('es-CO')}</td>
+                  <td><strong>${esc(item.name)}</strong></td>
+                  <td>$${esc(Number(item.price).toLocaleString('es-CO'))}</td>
                   <td>
                     <div class="cart-qty">
-                      <button class="qty-minus" data-item="${item.id}">−</button>
-                      <input type="number" min="1" value="${item.cantidad}" class="qty-input" data-item="${item.id}">
-                      <button class="qty-plus" data-item="${item.id}">+</button>
+                      <button class="qty-minus" data-item="${esc(item.id)}">−</button>
+                      <input type="number" min="1" value="${esc(item.cantidad)}" class="qty-input" data-item="${esc(item.id)}">
+                      <button class="qty-plus" data-item="${esc(item.id)}">+</button>
                     </div>
                   </td>
-                  <td>$${Number(item.subtotal).toLocaleString('es-CO')}</td>
-                  <td><button class="cart-remove" data-item="${item.id}">✕</button></td>
+                  <td>$${esc(Number(item.subtotal).toLocaleString('es-CO'))}</td>
+                  <td><button class="cart-remove" data-item="${esc(item.id)}">✕</button></td>
                 </tr>
               `).join('')}
             </tbody>
@@ -291,11 +299,11 @@ document.addEventListener('DOMContentLoaded', async function() {
       }
       lista.innerHTML = direcciones.map(dir => `
         <div class="direccion-item">
-          <p><strong>${dir.destinatario}</strong></p>
-          <p>${dir.direccion}</p>
-          <p>${dir.ciudad}, ${dir.departamento}</p>
-          <p>Teléfono: ${dir.telefono}</p>
-          <button class="btn-delete-dir" data-dir="${dir.id}">Eliminar</button>
+          <p><strong>${esc(dir.destinatario)}</strong></p>
+          <p>${esc(dir.direccion)}</p>
+          <p>${esc(dir.ciudad)}, ${esc(dir.departamento)}</p>
+          <p>Tel\u00e9fono: ${esc(dir.telefono)}</p>
+          <button class="btn-delete-dir" data-dir="${esc(dir.id)}">Eliminar</button>
         </div>
       `).join('');
 

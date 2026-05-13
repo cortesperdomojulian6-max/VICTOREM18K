@@ -45,7 +45,7 @@ async function updateAddress(userId, addressId, fields) {
 
   values.push(addressId, userId);
   const query = `UPDATE addresses
-                 SET ${updates.join(', ')}, updated_at = NOW()
+                 SET ${updates.join(', ')}
                  WHERE id = $${paramIndex} AND user_id = $${paramIndex + 1}
                  RETURNING id, alias, destinatario, ciudad, departamento, direccion, telefono`;
 

@@ -150,7 +150,13 @@ document.addEventListener('DOMContentLoaded', async function() {
         document.getElementById('modal-precio').textContent = p.precio;
         document.getElementById('modal-imagen').src = p.imagen;
         document.getElementById('modal-descripcion').textContent = p.descripcion;
-        document.getElementById('modal-caracteristicas').innerHTML = (p.caracteristicas || []).map(c => `<li>${c}</li>`).join('');
+        const ul = document.getElementById('modal-caracteristicas');
+        ul.innerHTML = '';
+        (p.caracteristicas || []).forEach(c => {
+          const li = document.createElement('li');
+          li.textContent = c;
+          ul.appendChild(li);
+        });
         modal.dataset.productoId = id;
         modal.style.display = 'flex';
       } else {

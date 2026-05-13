@@ -21,18 +21,45 @@ function renderizarCatalogo(lista) {
         const card = document.createElement('div');
         card.className = 'card';
 
-        card.innerHTML = `
-            <img src="${producto.imagen}" alt="${producto.nombre}" class="card-img">
-            <div class="card-content">
-                <h3>${producto.nombre}</h3>
-                <p>${producto.descripcion}</p>
-                <p class="price">${producto.precio}</p>
-                <div class="card-acciones">
-                    <button class="btn btn-detalle" data-producto="${producto.id}">Ver Detalles</button>
-                    <button class="btn btn-outline btn-agregar-carrito" data-producto="${producto.id}">Agregar al Carrito</button>
-                </div>
-            </div>
-        `;
+        const img = document.createElement('img');
+        img.src = producto.imagen;
+        img.alt = esc(producto.nombre);
+        img.className = 'card-img';
+        card.appendChild(img);
+
+        const content = document.createElement('div');
+        content.className = 'card-content';
+
+        const h3 = document.createElement('h3');
+        h3.textContent = producto.nombre;
+        content.appendChild(h3);
+
+        const desc = document.createElement('p');
+        desc.textContent = producto.descripcion;
+        content.appendChild(desc);
+
+        const price = document.createElement('p');
+        price.className = 'price';
+        price.textContent = producto.precio;
+        content.appendChild(price);
+
+        const acciones = document.createElement('div');
+        acciones.className = 'card-acciones';
+
+        const btnDetalle = document.createElement('button');
+        btnDetalle.className = 'btn btn-detalle';
+        btnDetalle.textContent = 'Ver Detalles';
+        btnDetalle.setAttribute('data-producto', producto.id);
+        acciones.appendChild(btnDetalle);
+
+        const btnCarrito = document.createElement('button');
+        btnCarrito.className = 'btn btn-outline btn-agregar-carrito';
+        btnCarrito.textContent = 'Agregar al Carrito';
+        btnCarrito.setAttribute('data-producto', producto.id);
+        acciones.appendChild(btnCarrito);
+
+        content.appendChild(acciones);
+        card.appendChild(content);
 
         productosContainer.appendChild(card);
     });
@@ -120,8 +147,12 @@ function abrirModal(id) {
     modalImagen.alt = producto.nombre;
     modalDescripcion.textContent = producto.descripcion;
 
-    modalCaracteristicas.innerHTML = (producto.caracteristicas || [])
-        .map(c => `<li>${c}</li>`).join('');
+    modalCaracteristicas.innerHTML = '';
+    (producto.caracteristicas || []).forEach(c => {
+        const li = document.createElement('li');
+        li.textContent = c;
+        modalCaracteristicas.appendChild(li);
+    });
 
     modal.dataset.productoId = id;
     modal.style.display = 'flex';
