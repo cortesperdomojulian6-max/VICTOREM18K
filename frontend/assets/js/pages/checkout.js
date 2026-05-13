@@ -130,11 +130,11 @@ document.addEventListener('DOMContentLoaded', async function() {
       localStorage.removeItem('pedidoActual');
       localStorage.removeItem('productoParaComprar');
 
-      alert(`¡Compra confirmada! Tu pedido #${orden.numero_pedido} ha sido creado.`);
+      showToast(`Pedido #${orden.numero_pedido} confirmado`, 'success');
       window.location.href = 'miperfil.html';
 
     } catch (err) {
-      alert('Error al procesar la compra: ' + err.message);
+      showToast('Error al procesar la compra', 'error');
       console.error('Error:', err);
     }
   }
@@ -169,14 +169,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         return;
       }
 
-      alert('¡Pago procesado! Por favor revisa tu correo para detalles.');
+      showToast('Pago procesado. Revisa tu correo', 'success');
       localStorage.removeItem('pedidoActual');
       localStorage.removeItem('productoParaComprar');
       window.location.href = 'miperfil.html';
 
     } catch (err) {
       console.error('Error en Wompi:', err);
-      alert('Error procesando pago con Wompi: ' + err.message);
+      showToast('Error procesando pago', 'error');
     }
   }
 

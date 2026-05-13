@@ -318,9 +318,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     const nombre = document.getElementById('nombre').value;
     try {
       await updateProfile({ name: nombre });
-      alert('Perfil actualizado correctamente');
+      showToast('Perfil actualizado', 'success');
     } catch {
-      alert('Error al actualizar perfil');
+      showToast('Error al actualizar perfil', 'error');
     }
   });
 
@@ -330,15 +330,15 @@ document.addEventListener('DOMContentLoaded', async function() {
     const newPwd = document.getElementById('new_password').value;
     const confirmPwd = document.getElementById('confirm_password').value;
     if (newPwd !== confirmPwd) {
-      alert('Las contraseñas no coinciden');
+      showToast('Las contraseñas no coinciden', 'error');
       return;
     }
     try {
       await changePassword(oldPwd, newPwd);
-      alert('Contraseña cambiada correctamente');
+      showToast('Contraseña cambiada', 'success');
       document.getElementById('form-cambiar-password').reset();
     } catch (err) {
-      alert('Error: ' + (err.message || 'No se pudo cambiar la contraseña'));
+      showToast(err.message || 'Error al cambiar contraseña', 'error');
     }
   });
 
@@ -348,10 +348,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         await deleteAccount();
         localStorage.removeItem('token');
         localStorage.removeItem('currentUser');
-        alert('Cuenta eliminada. Redirigiendo...');
+        showToast('Cuenta eliminada', 'success');
         window.location.href = 'index.html';
       } catch {
-        alert('Error al eliminar cuenta');
+        showToast('Error al eliminar cuenta', 'error');
       }
     }
   });
@@ -375,12 +375,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         departamento: formData.get('departamento'),
         telefono: formData.get('telefono')
       });
-      alert('Dirección agregada correctamente');
+      showToast('Dirección agregada', 'success');
       document.getElementById('form-nueva-direccion').style.display = 'none';
       document.getElementById('form-direccion').reset();
       cargarDirecciones();
     } catch {
-      alert('Error al agregar dirección');
+      showToast('Error al agregar dirección', 'error');
     }
   });
 
@@ -397,7 +397,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (!file) return;
 
     if (file.size > 2 * 1024 * 1024) {
-      alert('La imagen no puede superar 2MB');
+      showToast('La imagen no puede superar 2MB', 'error');
       return;
     }
 
@@ -406,12 +406,12 @@ document.addEventListener('DOMContentLoaded', async function() {
       reader.onload = async (event) => {
         const base64 = event.target.result;
         await updateProfile({ name: usuario.name, avatar_url: base64 });
-        alert('Foto de perfil actualizada');
+        showToast('Foto de perfil actualizada', 'success');
         window.location.reload();
       };
       reader.readAsDataURL(file);
     } catch {
-      alert('Error al subir la foto');
+      showToast('Error al subir la foto', 'error');
     }
   });
 });

@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', async function() {
       return;
     }
     guardarProductoParaCompra();
-    alert('¡Producto personalizado agregado al carrito!');
+    showToast('Producto personalizado agregado al carrito', 'success');
   });
 
   document.getElementById('proceder-pago-personalizado')?.addEventListener('click', function() {

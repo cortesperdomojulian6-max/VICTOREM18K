@@ -942,6 +942,52 @@ input[type="button"]:hover, input[type="submit"]:hover {
   box-shadow: 0 0 0 3px rgba(212,175,55,0.08);
 }
 
+/* ───── Toast ───── */
+.toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  padding: 14px 24px;
+  background: var(--dark);
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  animation: toastIn 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  max-width: 380px;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toast.toast-success { border-left: 3px solid #16a34a; }
+.toast.toast-error { border-left: 3px solid #e74c3c; }
+.toast.toast-info { border-left: 3px solid var(--primary); }
+
+.toast.toast-out {
+  animation: toastOut 0.3s ease both;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(40px); }
+}
+
 /* ───── Messages ───── */
 .error-message {
   color: #e74c3c;
@@ -1204,11 +1250,11 @@ footer {
   .productos { grid-template-columns: 1fr; gap: 20px; }
   .card-img { height: 240px; }
   .card .btn { width: 100%; }
-  .carousel-container { overflow: visible; }
-  .carousel-track { display: grid; grid-template-columns: 1fr; gap: 24px; transform: none !important; }
-  .carousel-slide { min-width: auto; padding: 0; display: grid; grid-template-columns: 1fr; gap: 24px; }
+  .carousel-container { overflow: hidden; }
+  .carousel-track { display: flex; gap: 0; }
+  .carousel-slide { min-width: 100%; padding: 0; display: grid; grid-template-columns: 1fr; gap: 20px; }
   .carousel-btn { display: none; }
-  .carousel-dots { display: none; }
+  .carousel-dots { display: flex; }
   .testimonios { grid-template-columns: 1fr; gap: 20px; }
   .testimonio { padding: 28px 24px; }
   .footer-content { grid-template-columns: 1fr; gap: 32px; }
@@ -1237,8 +1283,7 @@ footer {
   .card-content { padding: 16px; }
   .card h3 { font-size: 17px; }
   .price { font-size: 18px; }
-  .carousel-track { gap: 20px; }
-  .carousel-slide { gap: 20px; }
+  .carousel-slide { gap: 16px; }
   .modal-acciones .btn { font-size: 11px; padding: 10px 16px; }
   .user-menu-btn { font-size: 13px; padding: 4px 8px 4px 4px; }
   .user-name { max-width: 80px; font-size: 12px; }

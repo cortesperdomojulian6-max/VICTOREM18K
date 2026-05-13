@@ -48,9 +48,9 @@ async function onDelete(e) {
     const res = await fetch('/api/admin/users/' + id, { method: 'DELETE' });
     if (!res.ok) throw new Error('Error ' + res.status);
     await res.json();
-    alert('Usuario eliminado.');
+        showToast('Usuario eliminado', 'success');
     fetchUsers();
   } catch (err) {
-    alert('Error borrando usuario: ' + err.message);
+        showToast('Error al eliminar usuario', 'error');
   }
 }

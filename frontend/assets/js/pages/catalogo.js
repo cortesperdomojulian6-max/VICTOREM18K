@@ -47,14 +47,14 @@ function renderizarCatalogo(lista) {
         btn.addEventListener('click', async function() {
             const id = parseInt(this.getAttribute('data-producto'));
             if (!isAuthenticated()) {
-                alert('Por favor, inicia sesión para agregar al carrito.');
+                showToast('Inicia sesión para agregar al carrito', 'info');
                 return;
             }
             try {
                 await addToCart(id, 1);
-                alert('Producto agregado al carrito.');
+                showToast('Producto agregado al carrito', 'success');
             } catch {
-                alert('Error al agregar al carrito.');
+                showToast('Error al agregar al carrito', 'error');
             }
         });
     });
@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         precio: `$${Number(p.price).toLocaleString('es-CO')}`,
         precioNumerico: Number(p.price),
         imagen: p.image_url ? p.image_url.replace(/^imagenes\//, '/assets/images/') : '/assets/images/placeholder.jpg',
-        categoria: p.category || 'pulseras',
+        categoria: p.category || 'pulsos',
         caracteristicas: p.features || []
     }));
     productosFiltrados = [...todosLosProductos];
@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   document.getElementById('comprar-ahora')?.addEventListener('click', function() {
     if (!isAuthenticated()) {
-      alert('Por favor, inicia sesión para comprar.');
+      showToast('Inicia sesión para comprar', 'info');
       return;
     }
     const id = modal.dataset.productoId;
@@ -179,16 +179,16 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   document.getElementById('agregar-carrito-modal')?.addEventListener('click', async function() {
     if (!isAuthenticated()) {
-      alert('Por favor, inicia sesión para agregar al carrito.');
+      showToast('Inicia sesión para agregar al carrito', 'info');
       return;
     }
     const id = modal.dataset.productoId;
     if (id) {
       try {
         await addToCart(parseInt(id), 1);
-        alert('Producto agregado al carrito.');
+        showToast('Producto agregado al carrito', 'success');
       } catch {
-        alert('Error al agregar al carrito.');
+        showToast('Error al agregar al carrito', 'error');
       }
     }
   });

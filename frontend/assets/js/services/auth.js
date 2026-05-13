@@ -1,3 +1,21 @@
+function showToast(msg, type) {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'toast-container';
+    document.body.appendChild(container);
+  }
+  const t = document.createElement('div');
+  t.className = 'toast toast-' + (type || 'info');
+  t.textContent = msg;
+  container.appendChild(t);
+  setTimeout(() => {
+    t.classList.add('toast-out');
+    setTimeout(() => t.remove(), 300);
+  }, 3000);
+}
+
 function showElement(id) {
   const el = document.getElementById(id);
   if (el) el.style.display = 'flex';
@@ -201,7 +219,7 @@ function initCart() {
   if (cartIcon) {
     cartIcon.addEventListener('click', function() {
       if (!isAuthenticated()) {
-        alert('Por favor, inicia sesión para ver tu carrito.');
+        showToast('Inicia sesión para ver tu carrito', 'info');
         showLoginModal();
         return;
       }
@@ -217,6 +235,7 @@ function initAuth() {
   initCart();
 }
 
+window.showToast = showToast;
 window.register = register;
 window.login = login;
 window.isAuthenticated = isAuthenticated;

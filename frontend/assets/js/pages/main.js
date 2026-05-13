@@ -1,5 +1,4 @@
 function initCarousel() {
-  if (window.innerWidth < 768) return;
   const track = document.getElementById('carousel-track');
   const prevBtn = document.getElementById('carousel-prev');
   const nextBtn = document.getElementById('carousel-next');
@@ -34,6 +33,36 @@ function initCarousel() {
   nextBtn.addEventListener('click', () => {
     goToSlide(currentIndex < slides.length - 1 ? currentIndex + 1 : 0);
   });
+
+  let startX = 0;
+  let isDragging = false;
+
+  track.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+    isDragging = true;
+  }, { passive: true });
+
+  track.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    const diff = startX - e.touches[0].clientX;
+    const offset = -currentIndex * 100 - (diff / track.offsetWidth) * 100;
+    track.style.transition = 'none';
+    track.style.transform = `translateX(${offset}%)`;
+  }, { passive: true });
+
+  track.addEventListener('touchend', (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    const diff = startX - e.changedTouches[0].clientX;
+    track.style.transition = '';
+    if (Math.abs(diff) > 60) {
+      if (diff > 0 && currentIndex < slides.length - 1) goToSlide(currentIndex + 1);
+      else if (diff < 0 && currentIndex > 0) goToSlide(currentIndex - 1);
+      else goToSlide(currentIndex);
+    } else {
+      goToSlide(currentIndex);
+    }
+  }, { passive: true });
 }
 
 function initScrollReveal() {
@@ -56,6 +85,22 @@ document.addEventListener('DOMContentLoaded', async function() {
   initAuth();
   initCarousel();
   initScrollReveal();
+
+  try {
+    const productos = await getProducts();
+    window.__productos = productos.map(p => ({
+      id: p.id,
+      nombre: p.name,
+      descripcion: p.description,
+      precio: `$${Number(p.price).toLocaleString('es-CO')}`,
+      precioNumerico: Number(p.price),
+      imagen: p.image_url ? p.image_url.replace(/^imagenes\//, '/assets/images/') : '/assets/images/placeholder.jpg',
+      categoria: p.category || 'pulsos',
+      caracteristicas: p.features || []
+    }));
+  } catch (e) {
+    window.__productos = [];
+  }
 
   document.querySelectorAll('.btn-detalle').forEach(btn => {
     btn.addEventListener('click', function() {
@@ -92,7 +137,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   document.getElementById('comprar-ahora')?.addEventListener('click', function() {
     if (!isAuthenticated()) {
-      alert('Por favor, inicia sesión para comprar.');
+      showToast('Inicia sesión para comprar', 'info');
       showLoginModal();
       return;
     }
@@ -103,7 +148,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   document.getElementById('agregar-carrito-modal')?.addEventListener('click', async function() {
     if (!isAuthenticated()) {
-      alert('Por favor, inicia sesión para agregar al carrito.');
+      showToast('Inicia sesión para agregar al carrito', 'info');
       showLoginModal();
       return;
     }
@@ -112,9 +157,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (id) {
       try {
         await addToCart(parseInt(id), 1);
-        alert('Producto agregado al carrito.');
+        showToast('Producto agregado al carrito', 'success');
       } catch {
-        alert('Error al agregar al carrito.');
+        showToast('Error al agregar al carrito', 'error');
       }
     }
   });
