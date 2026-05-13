@@ -227,5 +227,9 @@ document.addEventListener('DOMContentLoaded', async function() {
   document.getElementById('aplicar-filtros')?.addEventListener('click', aplicarFiltros);
   document.getElementById('limpiar-filtros')?.addEventListener('click', limpiarFiltros);
   document.getElementById('ordenar')?.addEventListener('change', aplicarOrden);
-  document.getElementById('busqueda')?.addEventListener('input', aplicarFiltros);
+  let debounceTimer;
+  document.getElementById('busqueda')?.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(aplicarFiltros, 300);
+  });
 });
