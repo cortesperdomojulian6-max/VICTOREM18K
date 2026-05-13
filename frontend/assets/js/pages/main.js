@@ -15,25 +15,35 @@ function initCarousel() {
 
   function createDots() {
     dotsContainer.innerHTML = '';
-    const count = isMobile() ? slides.length : Math.ceil(slides.length / 3);
-    for (let i = 0; i < count; i++) {
-      const dot = document.createElement('button');
-      dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
-      dot.setAttribute('aria-label', `Ir a slide ${i + 1}`);
-      dot.addEventListener('click', () => {
-        const idx = isMobile() ? i : i * 3;
-        goToSlide(Math.min(idx, slides.length - 1));
-      });
-      dotsContainer.appendChild(dot);
+    if (isMobile()) {
+      const counter = document.createElement('span');
+      counter.className = 'carousel-counter';
+      counter.id = 'carousel-counter';
+      counter.textContent = `1 / ${slides.length}`;
+      dotsContainer.appendChild(counter);
+    } else {
+      const count = Math.ceil(slides.length / 3);
+      for (let i = 0; i < count; i++) {
+        const dot = document.createElement('button');
+        dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+        dot.setAttribute('aria-label', `Ir a slide ${i + 1}`);
+        dot.addEventListener('click', () => goToSlide(i * 3));
+        dotsContainer.appendChild(dot);
+      }
     }
   }
 
   function goToSlide(index) {
     currentIndex = Math.min(index, maxIndex);
     track.style.transform = `translateX(-${currentIndex * slidePercent()}%)`;
-    const dots = dotsContainer.querySelectorAll('.carousel-dot');
-    const activeDot = isMobile() ? currentIndex : Math.floor(currentIndex / 3);
-    dots.forEach((d, i) => d.classList.toggle('active', i === activeDot));
+    if (isMobile()) {
+      const counter = document.getElementById('carousel-counter');
+      if (counter) counter.textContent = `${currentIndex + 1} / ${slides.length}`;
+    } else {
+      const dots = dotsContainer.querySelectorAll('.carousel-dot');
+      const activeDot = Math.floor(currentIndex / 3);
+      dots.forEach((d, i) => d.classList.toggle('active', i === activeDot));
+    }
   }
 
   function nextSlide() {
