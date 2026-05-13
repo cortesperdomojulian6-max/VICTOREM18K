@@ -70,10 +70,10 @@ document.addEventListener('DOMContentLoaded', async function() {
   resumenPedido.innerHTML = cartItems.map(item => `
     <div class="resumen-producto">
       <div class="resumen-info">
-        <div class="resumen-nombre">${item.name}</div>
-        <div class="resumen-detalles">Cantidad: ${item.cantidad || item.quantity}</div>
+        <div class="resumen-nombre">${esc(item.name)}</div>
+        <div class="resumen-detalles">Cantidad: ${esc(item.cantidad || item.quantity)}</div>
       </div>
-      <div class="resumen-precio">$${(item.price * (item.cantidad || item.quantity)).toLocaleString('es-CO')}</div>
+      <div class="resumen-precio">$${esc((item.price * (item.cantidad || item.quantity)).toLocaleString('es-CO'))}</div>
     </div>
   `).join('');
 
@@ -103,6 +103,9 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
   async function procesarPago() {
+    if (btnPagar.disabled) return;
+    btnPagar.disabled = true;
+    btnPagar.textContent = 'Procesando...';
     try {
       let addressId = document.direccionSeleccionada?.id;
 

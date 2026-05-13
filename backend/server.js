@@ -15,10 +15,16 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
+const CORS_ORIGIN = process.env.CORS_ORIGIN;
+if (!CORS_ORIGIN) {
+  console.error('❌ CORS_ORIGIN no está definido en .env');
+}
+
 app.use(helmet());
+app.use(helmet.hsts({ maxAge: 31536000, includeSubDomains: true, preload: true }));
 
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
+  origin: CORS_ORIGIN,
   credentials: true
 }));
 
@@ -34,7 +40,6 @@ const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
   message: 'Demasiados intentos de login, intenta en 15 minutos',
-  skipSuccessfulRequests: true,
 });
 
 app.use('/api/', limiter);
