@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 
 export function AuthModal() {
   const [open, setOpen] = useState(false)
@@ -42,23 +43,26 @@ export function AuthModal() {
     setLoading(true)
 
     try {
+      let data: { id: number; name: string; email: string; role: string; token: string }
+
       if (mode === 'register') {
         if (form.password !== form.confirmPassword) {
           setError('Las contraseñas no coinciden')
           setLoading(false)
           return
         }
-        await api.post('/auth/register', {
-          name: form.name,
-          email: form.email,
-          password: form.password,
-        })
+        data = await api.post<{ id: number; name: string; email: string; role: string; token: string }>(
+          '/auth/register',
+          { name: form.name, email: form.email, password: form.password },
+        )
+        toast.success(`¡Bienvenido, ${data.name}! Cuenta creada con éxito.`)
+      } else {
+        data = await api.post<{ id: number; name: string; email: string; role: string; token: string }>(
+          '/auth/login',
+          { email: form.email, password: form.password },
+        )
+        toast.success(`Bienvenido de nuevo, ${data.name}.`)
       }
-
-      const data = await api.post<{ id: number; name: string; email: string; role: string; token: string }>(
-        '/auth/login',
-        { email: form.email, password: form.password },
-      )
 
       const { token, ...userData } = data
       localStorage.setItem('token', token)
