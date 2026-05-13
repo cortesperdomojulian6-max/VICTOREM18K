@@ -2,6 +2,7 @@ const express = require('express');
 const asyncHandler = require('../middleware/asyncHandler');
 const productService = require('../services/productService');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
+const { validateProduct } = require('../validators');
 
 const router = express.Router();
 
@@ -16,6 +17,8 @@ router.get('/:id', asyncHandler(async (req, res) => {
 }));
 
 router.post('/', requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+  const err = validateProduct(req.body);
+  if (err) return res.status(400).json({ error: 'Datos inválidos', details: err });
   const product = await productService.createProduct(req.body);
   return res.status(201).json(product);
 }));

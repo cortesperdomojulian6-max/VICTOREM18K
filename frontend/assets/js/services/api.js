@@ -17,6 +17,19 @@ async function apiRequest(endpoint, options = {}) {
 
   if (!response.ok) {
     if (response.status === 401) {
+      try {
+        const refreshRes = await fetch('/api/auth/refresh', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+        });
+        if (refreshRes.ok) {
+          const { token: newToken } = await refreshRes.json();
+          localStorage.setItem('token', newToken);
+          headers['Authorization'] = `Bearer ${newToken}`;
+          const retryRes = await fetch(`/api${endpoint}`, { ...options, headers });
+          if (retryRes.ok) return retryRes.json();
+        }
+      } catch {}
       localStorage.removeItem('token');
       localStorage.removeItem('currentUser');
       window.location.href = '/';

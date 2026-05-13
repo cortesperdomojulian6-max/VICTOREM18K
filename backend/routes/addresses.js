@@ -2,6 +2,7 @@ const express = require('express');
 const asyncHandler = require('../middleware/asyncHandler');
 const addressService = require('../services/addressService');
 const { requireAuth } = require('../middleware/auth');
+const { validateAddress } = require('../validators');
 
 const router = express.Router();
 
@@ -11,6 +12,8 @@ router.get('/', requireAuth, asyncHandler(async (req, res) => {
 }));
 
 router.post('/', requireAuth, asyncHandler(async (req, res) => {
+  const err = validateAddress(req.body);
+  if (err) return res.status(400).json({ error: 'Datos inválidos', details: err });
   const address = await addressService.createAddress(req.user.id, req.body);
   return res.status(201).json(address);
 }));

@@ -27,8 +27,8 @@ function render(users) {
     const dateText = isNaN(d.getTime()) ? '' : d.toLocaleString();
     tr.innerHTML = `
       <td>${u.id}</td>
-      <td>${escapeHtml(u.name || '')}</td>
-      <td>${escapeHtml(u.email || '')}</td>
+      <td>${esc(u.name || '')}</td>
+      <td>${esc(u.email || '')}</td>
       <td>${dateText}</td>
       <td><button data-id="${u.id}" class="del">Borrar</button></td>
     `;
@@ -37,9 +37,7 @@ function render(users) {
   document.querySelectorAll('button.del').forEach(btn => btn.addEventListener('click', onDelete));
 }
 
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));
-}
+/* escapeHtml replaced by global esc() from auth.js */
 
 async function onDelete(e) {
   const id = e.currentTarget.dataset.id;

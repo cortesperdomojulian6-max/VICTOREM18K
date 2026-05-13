@@ -16,6 +16,12 @@ router.post('/items', requireAuth, asyncHandler(async (req, res) => {
   return res.status(201).json(item);
 }));
 
+router.put('/items/:id', requireAuth, asyncHandler(async (req, res) => {
+  const { quantity } = req.body;
+  const result = await cartService.updateItem(req.user.id, req.params.id, quantity);
+  return res.json(result);
+}));
+
 router.delete('/items/:id', requireAuth, asyncHandler(async (req, res) => {
   const result = await cartService.removeItem(req.user.id, req.params.id);
   return res.json(result);

@@ -40,6 +40,20 @@ async function addItem(userId, product_id, quantity) {
   return result.rows[0];
 }
 
+async function updateItem(userId, itemId, quantity) {
+  if (!quantity || quantity < 1) {
+    throw new ValidationError('Cantidad debe ser mayor a 0');
+  }
+  const result = await db.query(
+    'UPDATE cart_items SET cantidad = $1 WHERE id = $2 AND user_id = $3 RETURNING *',
+    [quantity, itemId, userId]
+  );
+  if (result.rowCount === 0) {
+    throw new NotFoundError('Item no encontrado');
+  }
+  return result.rows[0];
+}
+
 async function removeItem(userId, itemId) {
   const result = await db.query(
     'DELETE FROM cart_items WHERE id = $1 AND user_id = $2 RETURNING id',
@@ -58,4 +72,4 @@ async function clearCart(userId) {
   return { ok: true, count: result.rowCount };
 }
 
-module.exports = { getCart, addItem, removeItem, clearCart };
+module.exports = { getCart, addItem, updateItem, removeItem, clearCart };

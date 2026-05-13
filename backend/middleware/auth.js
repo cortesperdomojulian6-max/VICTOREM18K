@@ -36,7 +36,7 @@ async function requireAuth(req, res, next) {
     }
 
     const result = await db.query(
-      'SELECT id, name, email, role, registration_date FROM users WHERE id = $1',
+      'SELECT id, name, email, role, registration_date, avatar_url FROM users WHERE id = $1',
       [payload.id]
     );
 

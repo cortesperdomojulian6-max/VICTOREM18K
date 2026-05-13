@@ -73,4 +73,9 @@ function getMe(user) {
   };
 }
 
-module.exports = { register, login, getMe };
+function refreshToken(user) {
+  const { signToken } = require('../middleware/auth');
+  return signToken(user);
+}
+
+module.exports = { register, login, getMe, refreshToken };

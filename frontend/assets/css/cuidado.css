@@ -1,195 +1,131 @@
-/* Estilos específicos para la página de Cuidado de Joyas */
 .cuidado-hero {
   background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/assets/images/AnilloDiseñoExclusivo.jpg') center/cover no-repeat;
-  color: #fff;
+  color: var(--white);
   text-align: center;
-  padding: 80px 20px;
+  padding: 100px 20px;
 }
 
 .cuidado-hero h1 {
-  font-size: 3rem;
-  margin-bottom: 15px;
-  font-weight: 700;
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  margin-bottom: 16px;
+  font-weight: 600;
 }
 
 .cuidado-hero p {
-  font-size: 1.2rem;
-  opacity: 0.9;
+  font-size: 1.15rem;
+  opacity: 0.85;
+  max-width: 640px;
+  margin: 0 auto;
 }
 
 .cuidado-content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 60px 20px;
+  padding: 80px 24px;
 }
 
 .cuidado-intro {
   text-align: center;
-  margin-bottom: 60px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  padding: 40px;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  margin-bottom: 64px;
 }
 
 .cuidado-intro h2 {
-  color: #d4af37;
-  font-size: 2.5rem;
-  margin-bottom: 20px;
-  position: relative;
+  font-family: var(--font-heading);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 16px;
 }
 
 .cuidado-intro h2::after {
   content: '';
   display: block;
-  width: 80px;
-  height: 3px;
-  background: linear-gradient(90deg, #d4af37, #b8941f);
-  margin: 15px auto;
+  width: 60px;
+  height: 2px;
+  background: var(--gold-gradient);
+  margin: 16px auto 0;
 }
 
 .cuidado-intro p {
-  font-size: 1.2rem;
-  color: #555;
-  line-height: 1.8;
-  max-width: 800px;
+  color: var(--text-light);
+  max-width: 720px;
   margin: 0 auto;
+  line-height: 1.8;
 }
 
 .cuidado-tips {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 30px;
-  margin-bottom: 60px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 64px;
 }
 
 .tip {
-  background: #fff;
-  border-radius: 15px;
-  padding: 40px 30px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  transition: all 0.3s ease;
-  border: 1px solid #f0f0f0;
-  position: relative;
-  overflow: hidden;
-}
-
-.tip::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #d4af37, #b8941f);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.tip:hover::before {
-  opacity: 1;
+  background: var(--white);
+  padding: 32px 24px;
+  border: 1px solid #e8e8e8;
+  transition: var(--transition);
 }
 
 .tip:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
 }
 
 .tip-icon {
-  width: 80px;
-  height: 80px;
-  background: linear-gradient(135deg, #d4af37, #b8941f);
-  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  background: var(--gold-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 20px;
-  font-size: 2rem;
-  color: #fff;
-  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+  font-size: 1.5rem;
+  color: var(--dark);
 }
 
 .tip h3 {
-  color: #333;
-  font-size: 1.5rem;
-  margin-bottom: 15px;
-  text-align: center;
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
   font-weight: 600;
+  text-align: center;
+  margin-bottom: 12px;
+  color: var(--text);
 }
 
 .tip p {
-  color: #666;
+  color: var(--text-light);
   line-height: 1.7;
   text-align: center;
-  margin: 0;
+  font-size: 0.95rem;
 }
 
 .cuidado-nota {
-  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-  border: 2px solid #d4af37;
-  border-radius: 15px;
+  background: var(--cream);
   padding: 40px;
   text-align: center;
-  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
-  margin-top: 40px;
+  border: 1px solid var(--primary-light);
 }
 
 .cuidado-nota h3 {
-  color: #d4af37;
-  font-size: 1.8rem;
-  margin-bottom: 20px;
-  font-weight: 700;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+  color: var(--primary-dark);
 }
 
 .cuidado-nota p {
-  font-size: 1.1rem;
-  color: #856404;
+  color: var(--text);
+  max-width: 700px;
+  margin: 0 auto;
   line-height: 1.8;
-  margin: 0;
-  font-weight: 500;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
-  .cuidado-hero h1 {
-    font-size: 2.5rem;
-  }
-
-  .cuidado-intro h2 {
-    font-size: 2rem;
-  }
-
-  .cuidado-tips {
-    grid-template-columns: 1fr;
-  }
-
-  .tip {
-    padding: 30px 20px;
-  }
-
-  .tip h3 {
-    font-size: 1.3rem;
-  }
-
-  .cuidado-nota {
-    padding: 30px 20px;
-  }
-}
-
-@media (max-width: 480px) {
-  .cuidado-hero {
-    padding: 60px 20px;
-  }
-
-  .cuidado-hero h1 {
-    font-size: 2rem;
-  }
-
-  .cuidado-intro {
-    padding: 30px 20px;
-  }
-
-  .cuidado-intro h2 {
-    font-size: 1.8rem;
-  }
+  .cuidado-hero { padding: 64px 20px; }
+  .cuidado-content { padding: 48px 20px; }
+  .cuidado-tips { grid-template-columns: 1fr; }
+  .tip { padding: 24px 20px; }
+  .cuidado-nota { padding: 32px 20px; }
 }
