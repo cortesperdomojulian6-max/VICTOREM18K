@@ -1,11 +1,9 @@
 {
   "version": 2,
-  "buildCommand": "npx next build",
-  "outputDirectory": ".next",
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/index.js"
+      "dest": "api/index.js"
     },
     {
       "src": "/(.*)",
