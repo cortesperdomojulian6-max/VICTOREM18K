@@ -43,13 +43,14 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   if (productoParaComprar) {
     const producto = JSON.parse(productoParaComprar);
+    const cantidad = producto.cantidad || 1;
     cartItems = [{
       name: producto.nombre,
       price: producto.precio,
-      quantity: producto.cantidad,
-      subtotal: producto.precio * producto.cantidad
+      quantity: cantidad,
+      subtotal: producto.precio * cantidad
     }];
-    total = producto.precio * producto.cantidad;
+    total = producto.precio * cantidad;
   } else {
     try {
       const datos = await getCart();
@@ -183,7 +184,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
   }
 
-  let metodoPagoSeleccionado = 'transferencia';
+  let metodoPagoSeleccionado = 'wompi';
   metodoPagoOpciones.forEach(opcion => {
     opcion.addEventListener('click', function() {
       metodoPagoOpciones.forEach(o => o.classList.remove('seleccionado'));

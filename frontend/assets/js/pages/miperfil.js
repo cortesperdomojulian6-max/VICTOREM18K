@@ -303,7 +303,10 @@ document.addEventListener('DOMContentLoaded', async function() {
           <p>${esc(dir.direccion)}</p>
           <p>${esc(dir.ciudad)}, ${esc(dir.departamento)}</p>
           <p>Tel\u00e9fono: ${esc(dir.telefono)}</p>
-          <button class="btn-delete-dir" data-dir="${esc(dir.id)}">Eliminar</button>
+          <div class="direccion-acciones">
+            <button class="btn-edit-dir" data-dir='${esc(JSON.stringify(dir))}'>Editar</button>
+            <button class="btn-delete-dir" data-dir="${esc(dir.id)}">Eliminar</button>
+          </div>
         </div>
       `).join('');
 
@@ -316,9 +319,83 @@ document.addEventListener('DOMContentLoaded', async function() {
           }
         });
       });
+
+      document.querySelectorAll('.btn-edit-dir').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const dir = JSON.parse(e.target.getAttribute('data-dir'));
+          mostrarFormularioEdicion(dir);
+        });
+      });
     } catch {
       lista.innerHTML = '<p>Error al cargar direcciones.</p>';
     }
+  }
+
+  function mostrarFormularioEdicion(dir) {
+    const lista = document.getElementById('lista-direcciones');
+    const editFormDiv = document.getElementById('form-editar-direccion') || (function() {
+      const d = document.createElement('div');
+      d.id = 'form-editar-direccion';
+      d.style.display = 'none';
+      d.style.marginTop = '16px';
+      d.innerHTML = `
+        <form id="form-editar-dir">
+          <div class="form-group">
+            <label>Destinatario</label>
+            <input type="text" name="destinatario" required>
+          </div>
+          <div class="form-group">
+            <label>Direcci\u00f3n</label>
+            <input type="text" name="direccion" required>
+          </div>
+          <div class="form-group">
+            <label>Ciudad</label>
+            <input type="text" name="ciudad" required>
+          </div>
+          <div class="form-group">
+            <label>Departamento</label>
+            <input type="text" name="departamento" required>
+          </div>
+          <div class="form-group">
+            <label>Tel\u00e9fono</label>
+            <input type="tel" name="telefono" required>
+          </div>
+          <button type="submit" class="btn">Guardar Cambios</button>
+          <button type="button" id="btn-cancelar-editar-dir" class="btn btn-outline">Cancelar</button>
+        </form>
+      `;
+      d.querySelector('#form-editar-dir').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        try {
+          await updateAddress(dir.id, {
+            destinatario: fd.get('destinatario'),
+            direccion: fd.get('direccion'),
+            ciudad: fd.get('ciudad'),
+            departamento: fd.get('departamento'),
+            telefono: fd.get('telefono')
+          });
+          showToast('Direcci\u00f3n actualizada', 'success');
+          d.style.display = 'none';
+          cargarDirecciones();
+        } catch {
+          showToast('Error al actualizar direcci\u00f3n', 'error');
+        }
+      });
+      d.querySelector('#btn-cancelar-editar-dir').addEventListener('click', () => {
+        d.style.display = 'none';
+      });
+      lista.parentNode.insertBefore(d, lista.nextSibling);
+      return d;
+    })();
+
+    editFormDiv.querySelector('[name="destinatario"]').value = dir.destinatario || '';
+    editFormDiv.querySelector('[name="direccion"]').value = dir.direccion || '';
+    editFormDiv.querySelector('[name="ciudad"]').value = dir.ciudad || '';
+    editFormDiv.querySelector('[name="departamento"]').value = dir.departamento || '';
+    editFormDiv.querySelector('[name="telefono"]').value = dir.telefono || '';
+    editFormDiv.style.display = 'block';
+    editFormDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   document.getElementById('form-info-personal')?.addEventListener('submit', async (e) => {

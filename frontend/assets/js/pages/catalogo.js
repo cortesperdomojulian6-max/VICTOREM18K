@@ -25,6 +25,7 @@ function renderizarCatalogo(lista) {
         img.src = producto.imagen;
         img.alt = esc(producto.nombre);
         img.className = 'card-img';
+        img.loading = 'lazy';
         card.appendChild(img);
 
         const content = document.createElement('div');

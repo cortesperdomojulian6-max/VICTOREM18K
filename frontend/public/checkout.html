@@ -81,47 +81,21 @@
         <div class="form-section">
           <h3>Método de Pago</h3>
           <div class="metodo-pago-opciones">
-            <div class="metodo-pago-opcion" data-metodo="tarjeta">
-              <div class="metodo-pago-icono">💳</div>
-              <div>Tarjeta de Crédito</div>
-            </div>
-            <div class="metodo-pago-opcion" data-metodo="wompi">
+            <div class="metodo-pago-opcion seleccionado" data-metodo="wompi">
               <div class="metodo-pago-icono">💎</div>
-              <div>Wompi (Recomendado)</div>
+              <div>Wompi (Tarjeta, Nequi, Bancolombia, PSE)</div>
             </div>
             <div class="metodo-pago-opcion" data-metodo="transferencia">
               <div class="metodo-pago-icono">🏦</div>
-              <div>Transferencia</div>
+              <div>Transferencia Nequi</div>
             </div>
           </div>
 
           <!-- Detalles de Wompi -->
-          <div class="detalles-tarjeta" id="detalles-wompi">
-            <p>✅ Pagos seguros con Wompi</p>
-            <p>Acepta tarjetas de crédito, débito y billeteras digitales.</p>
-            <p><strong>Tu pago será redirigido a la plataforma segura de Wompi.</strong></p>
-          </div>
-
-          <!-- Detalles de tarjeta -->
-          <div class="detalles-tarjeta" id="detalles-tarjeta">
-            <div class="form-group">
-              <label for="numero-tarjeta">Número de Tarjeta</label>
-              <input type="text" id="numero-tarjeta" placeholder="1234 5678 9012 3456">
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="fecha-expiracion">Fecha de Expiración</label>
-                <input type="text" id="fecha-expiracion" placeholder="MM/AA">
-              </div>
-              <div class="form-group">
-                <label for="cvv">CVV</label>
-                <input type="text" id="cvv" placeholder="123">
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="nombre-tarjeta">Nombre en la Tarjeta</label>
-              <input type="text" id="nombre-tarjeta">
-            </div>
+          <div class="detalles-tarjeta activo" id="detalles-wompi">
+            <p style="margin-bottom: 8px;">&#9989; Paga de forma segura con tu tarjeta, Nequi, Bancolombia o PSE.</p>
+            <p style="margin-bottom: 8px;"><strong>Serás redirigido a la plataforma segura de Wompi.</strong></p>
+            <p style="color: var(--text-light); font-size: 0.9em;">No almacenamos datos de tu tarjeta. Wompi procesa el pago de forma segura.</p>
           </div>
 
           <!-- Detalles de transferencia -->

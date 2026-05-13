@@ -194,6 +194,7 @@ document.addEventListener('DOMContentLoaded', async function() {
       nombre: tipo === 'pulsera' ? 'Pulsera Personalizada' : 'Anillo Personalizado',
       precio: datosPersonalizacion.total,
       imagen: tipo === 'pulsera' ? '/assets/images/pulsera icono.png' : '/assets/images/anillo icono.png',
+      cantidad: 1,
       personalizacion: {
         tipo: datosPersonalizacion.tipoJoya,
         dije: datosPersonalizacion.dije,
