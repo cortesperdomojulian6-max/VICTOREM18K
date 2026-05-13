@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             <img src="/assets/images/dijes/${clave}.jpg" alt="${valor.nombre}" style="width:40px;height:40px;object-fit:contain" onerror="this.src='/assets/images/logo.png'">
           </div>
           <h4>${valor.nombre}</h4>
-          <p>${valor.precio > 0 ? '+ $' + valor.precio.toLocaleString() : 'Incluido'}</p>
+          <p>${valor.precio > 0 ? '+ $' + valor.precio.toLocaleString() : '$0'}</p>
         `;
 
         opcion.addEventListener('click', function() {

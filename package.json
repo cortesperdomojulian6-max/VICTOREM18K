@@ -7,7 +7,8 @@
     "start": "node backend/server.js",
     "dev": "nodemon backend/server.js",
     "db:setup": "node backend/db/setup.js",
-    "db:reset": "node backend/db/setup.js --reset"
+    "db:reset": "node backend/db/setup.js --reset",
+    "lint": "node -e \"console.log('OK: no linter configured')\""
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

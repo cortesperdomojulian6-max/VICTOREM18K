@@ -104,6 +104,14 @@ nav ul li a:hover::after { transform: scaleX(1); }
 
 nav ul li a:hover { color: var(--primary); background: transparent; }
 
+nav ul li a.nav-active,
+nav ul li a.nav-active:hover { color: #d4af37; }
+nav ul li a.nav-active::after { transform: scaleX(1); }
+
+.logo-link { display: flex; align-items: center; text-decoration: none; color: inherit; }
+
+.header-skeleton { min-height: 60px; background: var(--dark); }
+
 /* ───── Cart button ───── */
 nav ul li .cart-btn {
   display: flex;

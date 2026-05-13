@@ -2,6 +2,8 @@ async function loadSharedHeader() {
   const root = document.getElementById('header-root');
   if (!root) return;
 
+  root.innerHTML = '<div class="header-skeleton"><div class="container" style="display:flex;align-items:center;height:70px;gap:16px"><div class="skeleton-line" style="width:120px;height:32px"></div><div class="skeleton-line" style="width:300px;height:16px;margin-left:auto"></div></div></div>';
+
   try {
     const response = await fetch('/components/shared-header.html');
     if (!response.ok) {
@@ -30,7 +32,7 @@ function updateActiveNavLink() {
 
   document.querySelectorAll('#header-root nav a').forEach(link => {
     if (link.textContent.trim() === activeText) {
-      link.style.color = '#d4af37';
+      link.classList.add('nav-active');
     }
   });
 }

@@ -23,8 +23,9 @@ async function updateProfile(userId, { name, avatar_url }) {
   let paramIndex = 1;
 
   if (name) {
+    const sanitized = name.trim().replace(/<[^>]*>/g, '').substring(0, 100);
     fields.push(`name = $${paramIndex++}`);
-    values.push(name.trim());
+    values.push(sanitized);
   }
   if (avatar_url !== undefined) {
     fields.push(`avatar_url = $${paramIndex++}`);
