@@ -57,6 +57,21 @@ function validateRegister(body) {
   return null;
 }
 
+function validateOrder(data) {
+  const errors = {};
+  if (!data.address_id || !Number.isInteger(Number(data.address_id)) || Number(data.address_id) <= 0) {
+    errors.address_id = 'address_id requerido y debe ser un número positivo';
+  }
+  const validMethods = ['wompi', 'transferencia'];
+  if (!data.payment_method || !validMethods.includes(data.payment_method)) {
+    errors.payment_method = `payment_method debe ser uno de: ${validMethods.join(', ')}`;
+  }
+  if (data.keepCart !== undefined && typeof data.keepCart !== 'boolean') {
+    errors.keepCart = 'keepCart debe ser booleano';
+  }
+  return Object.keys(errors).length ? errors : null;
+}
+
 module.exports = {
   validateEmail,
   validatePassword,
@@ -64,5 +79,6 @@ module.exports = {
   validateAddress,
   validateProduct,
   validateLogin,
-  validateRegister
+  validateRegister,
+  validateOrder
 };

@@ -13,10 +13,13 @@
   <meta property="og:type" content="website">
     <meta property="og:locale" content="es_CO">
   <meta name="twitter:card" content="summary_large_image">
+    <meta name="theme-color" content="#0d0d0d">
   <meta property="og:url" content="https://victorem.vercel.app/catalogo">
   <link rel="canonical" href="https://victorem.vercel.app/catalogo">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="/assets/images/logo.png" as="image">
+    <link rel="preload" href="/assets/images/textura.png" as="image">
   <title>Catálogo de Joyas Artesanales - Victorem</title>
   <link rel="icon" type="image/x-icon" href="/assets/images/logo.png">
   <link rel="stylesheet" href="/assets/css/main.css">
@@ -49,14 +52,22 @@
   <div id="header-root"></div>
 
   <!-- Hero Section -->
-  <section class="hero"
-    style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/assets/images/textura.png') center/cover no-repeat;">
+  <section class="hero">
     <div class="container">
       <h1>Nuestro Catálogo</h1>
       <p>Cada pieza es una obra maestra única, creada con la más fina técnica artesanal y materiales de la más alta
         calidad.</p>
     </div>
   </section>
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb">
+    <div class="container">
+      <a href="index.html">Inicio</a>
+      <span class="breadcrumb-sep">/</span>
+      <span>Catálogo</span>
+    </div>
+  </nav>
 
   <!-- Filtros y búsqueda -->
   <section class="filtros">

@@ -89,8 +89,13 @@ app.use('/api/users',     require('./routes/users'));
 app.use('/api/wompi',     require('./routes/wompi')); // Pasarela de pagos
 
 // Health check
-app.get('/api/health', (req, res) => {
-  res.json({ ok: true, message: 'API viva', time: new Date().toISOString() });
+app.get('/api/health', async (req, res) => {
+  let dbOk = false;
+  try {
+    await db.query('SELECT 1');
+    dbOk = true;
+  } catch (_) { /* DB may be down */ }
+  res.json({ ok: true, message: 'API viva', db: dbOk, time: new Date().toISOString() });
 });
 
 // ----------------- Frontend (archivos estáticos) -----------------

@@ -13,10 +13,13 @@
   <meta property="og:type" content="website">
     <meta property="og:locale" content="es_CO">
   <meta name="twitter:card" content="summary_large_image">
+    <meta name="theme-color" content="#0d0d0d">
   <meta property="og:url" content="https://victorem.vercel.app/checkout">
   <link rel="canonical" href="https://victorem.vercel.app/checkout">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="/assets/images/logo.png" as="image">
+    <link rel="preload" href="/assets/images/textura.png" as="image">
   <title>Checkout - Finalizar Compra - Victorem</title>
   <link rel="icon" type="image/x-icon" href="/assets/images/logo.png">
   <link rel="stylesheet" href="/assets/css/main.css">
@@ -28,13 +31,23 @@
   <div id="header-root"></div>
 
   <!-- Hero Section -->
-  <section class="hero"
-    style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/assets/images/textura.png') center/cover no-repeat;">
+  <section class="hero">
     <div class="container">
       <h1>Finalizar Compra</h1>
       <p>Completa tus datos para procesar tu pedido.</p>
     </div>
   </section>
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb">
+    <div class="container">
+      <a href="index.html">Inicio</a>
+      <span class="breadcrumb-sep">/</span>
+      <a href="catalogo.html">Catálogo</a>
+      <span class="breadcrumb-sep">/</span>
+      <span>Checkout</span>
+    </div>
+  </nav>
 
   <!-- Contenido del Checkout -->
   <section class="checkout">
@@ -98,9 +111,9 @@
 
           <!-- Detalles de Wompi -->
           <div class="detalles-tarjeta activo" id="detalles-wompi">
-            <p style="margin-bottom: 8px;">&#9989; Paga de forma segura con tu tarjeta, Nequi, Bancolombia o PSE.</p>
-            <p style="margin-bottom: 8px;"><strong>Serás redirigido a la plataforma segura de Wompi.</strong></p>
-            <p style="color: var(--text-light); font-size: 0.9em;">No almacenamos datos de tu tarjeta. Wompi procesa el pago de forma segura.</p>
+            <p class="checkout-pago-seguro">&#9989; Paga de forma segura con tu tarjeta, Nequi, Bancolombia o PSE.</p>
+            <p class="checkout-pago-redirect"><strong>Serás redirigido a la plataforma segura de Wompi.</strong></p>
+            <p class="checkout-pago-disclaimer">No almacenamos datos de tu tarjeta. Wompi procesa el pago de forma segura.</p>
           </div>
 
           <!-- Detalles de transferencia -->
@@ -123,7 +136,7 @@
           <p>Tu pedido ha sido procesado exitosamente.</p>
           <p>Recibirás un correo de confirmación en breve.</p>
           <p><strong>Número de pedido: #VM-<span id="numero-pedido"></span></strong></p>
-          <a href="index.html" class="btn" style="margin-top: 20px;">Volver al Inicio</a>
+          <a href="index.html" class="btn">Volver al Inicio</a>
         </div>
       </div>
 
@@ -140,6 +153,24 @@
         <div class="resumen-total">
           <span>Total:</span>
           <span id="total-pedido">$0</span>
+        </div>
+        <div class="trust-badges">
+          <div class="trust-badge">
+            <span class="trust-icon">🔒</span>
+            <span>Pago Seguro (SSL)</span>
+          </div>
+          <div class="trust-badge">
+            <span class="trust-icon">💳</span>
+            <span>Nequi · Bancolombia · PSE</span>
+          </div>
+          <div class="trust-badge">
+            <span class="trust-icon">🛡️</span>
+            <span>Compra Protegida Wompi</span>
+          </div>
+          <div class="trust-badge">
+            <span class="trust-icon">📦</span>
+            <span>Envíos a toda Colombia</span>
+          </div>
         </div>
       </div>
     </div>

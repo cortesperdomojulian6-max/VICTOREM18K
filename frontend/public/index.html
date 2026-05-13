@@ -12,10 +12,13 @@
   <meta property="og:type" content="website">
     <meta property="og:locale" content="es_CO">
   <meta name="twitter:card" content="summary_large_image">
+    <meta name="theme-color" content="#0d0d0d">
   <meta property="og:url" content="https://victorem.vercel.app">
   <link rel="canonical" href="https://victorem.vercel.app">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="/assets/images/logo.png" as="image">
+    <link rel="preload" href="/assets/images/textura.png" as="image">
   <title>Victorem - Joyas Artesanales en Balinería</title>
   <link rel="icon" type="image/x-icon" href="/assets/images/logo.png">
   <link rel="stylesheet" href="/assets/css/main.css">
@@ -200,6 +203,21 @@
     </div>
   </section>
 
+  <!-- Newsletter -->
+  <section class="section section-newsletter">
+    <div class="container">
+      <div class="newsletter-content">
+        <h2 class="section-title">Mantente Inspirado</h2>
+        <p>Recibe novedades, colecciones exclusivas y ofertas especiales directamente en tu correo.</p>
+        <form class="newsletter-form" id="newsletter-form">
+          <input type="email" id="newsletter-email" placeholder="Tu correo electrónico" required>
+          <button type="submit" class="btn">Suscribirme</button>
+        </form>
+        <p class="newsletter-message" id="newsletter-message"></p>
+      </div>
+    </div>
+  </section>
+
   <!-- Footer -->
   <div id="footer-root"></div>
 
@@ -235,6 +253,27 @@
     </div>
   </div>
 
+  <script>
+    (function() {
+      var emailInput = document.getElementById('newsletter-email');
+      var form = document.getElementById('newsletter-form');
+      var msg = document.getElementById('newsletter-message');
+      if (emailInput && form) {
+        var saved = localStorage.getItem('victorem_newsletter_email');
+        if (saved) { emailInput.value = saved; msg.textContent = 'Ya estás suscrita con ' + saved; }
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          var email = emailInput.value.trim();
+          if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            localStorage.setItem('victorem_newsletter_email', email);
+            msg.textContent = 'Gracias por suscribirte. Pronto recibirás novedades.';
+            emailInput.disabled = true;
+            form.querySelector('button').disabled = true;
+          }
+        });
+      }
+    })();
+  </script>
   <script src="/assets/js/services/api.js"></script>
   <script src="/assets/js/services/auth.js"></script>
   <script src="/assets/js/services/wompi-client.js"></script>
