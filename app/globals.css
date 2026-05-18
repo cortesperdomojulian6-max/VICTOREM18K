@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   /* Brand */
   --color-gold-50: #fdf8e8;
@@ -63,6 +65,7 @@
 
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 4rem;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -73,6 +76,12 @@
     line-height: 1.7;
     color: var(--color-iron);
     background-color: var(--color-snow);
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  .dark body {
+    color: var(--color-snow);
+    background-color: var(--color-ebony);
   }
 
   h1, h2, h3, h4, h5, h6 {

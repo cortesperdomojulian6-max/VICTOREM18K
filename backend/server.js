@@ -9,6 +9,7 @@ const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
 const db = require('./db');
 
 const app = express();
@@ -63,6 +64,7 @@ app.use('/api/auth/register', authLimiter);
 
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+app.use(cookieParser());
 
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
@@ -87,8 +89,10 @@ app.use('/api/cart',      require('./routes/cart'));
 app.use('/api/orders',    require('./routes/orders'));
 app.use('/api/addresses', require('./routes/addresses'));
 app.use('/api/users',     require('./routes/users'));
-// app.use('/api/contact',   require('./routes/contact'));
-app.use('/api/wompi',     require('./routes/wompi')); // Deshabilitado: pasarela Wompi
+app.use('/api/contact',   require('./routes/contact'));
+app.use('/api/newsletter', require('./routes/newsletter'));
+app.use('/api/wompi',     require('./routes/wompi'));
+app.use('/api/config',    require('./routes/config'));
 
 // Health check
 app.get('/api/health', async (req, res) => {

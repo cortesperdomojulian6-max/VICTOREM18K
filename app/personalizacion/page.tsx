@@ -2,12 +2,26 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { Check, ArrowRight, ArrowLeft, ShoppingBag, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
 import { formatPrice } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
+import { Confetti } from '@/components/ui/confetti'
+import dynamic from 'next/dynamic'
+import { useAuthStore } from '@/store/useAuthStore'
+import { useCartStore } from '@/store/useCartStore'
+
+const JewelryViewer = dynamic(() => import('@/components/personalizacion/JewelryViewer'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full min-h-[400px] relative rounded-xl overflow-hidden bg-gradient-to-b from-stone-100 to-white border border-pearl flex items-center justify-center">
+      <div className="animate-spin rounded-full size-8 border-b-2 border-gold-400" />
+    </div>
+  )
+})
 
 type JewelType = 'pulsera' | 'anillo'
 type DijeName = 'estrella' | 'corazon' | 'media-luna' | 'cruz' | 'mariposa' | 'hoja' | 'infinito' | 'aru'
@@ -16,6 +30,7 @@ interface Dije {
   name: DijeName
   label: string
   price: number
+  image?: string
 }
 
 const DIJES: Dije[] = [
@@ -26,7 +41,7 @@ const DIJES: Dije[] = [
   { name: 'mariposa', label: 'Mariposa', price: 20000 },
   { name: 'hoja', label: 'Hoja', price: 18000 },
   { name: 'infinito', label: 'Infinito', price: 20000 },
-  { name: 'aru', label: 'ARU', price: 25000 },
+  { name: 'aru', label: 'ARU', price: 25000, image: '/assets/images/dijes/van-cleef.jpg' },
 ]
 
 const COLORS = [
@@ -36,11 +51,7 @@ const COLORS = [
   { name: 'black', label: 'Negro', value: '#1a1a1a' },
 ]
 
-const BASE_PRICES: Record<JewelType, number> = {
-  pulsera: 80000,
-  anillo: 50000,
-}
-
+const BASE_PRICES: Record<JewelType, number> = { pulsera: 80000, anillo: 50000 }
 const BALIN_PRICE = 5000
 
 const STEPS = [
@@ -72,6 +83,8 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
   )
 }
 
+// JewelPreview removed in favor of JewelryViewer
+
 export default function PersonalizacionPage() {
   const router = useRouter()
   const [step, setStep] = useState(0)
@@ -79,6 +92,9 @@ export default function PersonalizacionPage() {
   const [dije, setDije] = useState<DijeName | null>(null)
   const [color, setColor] = useState<string | null>(null)
   const [balines, setBalines] = useState<number>(6)
+  const [showConfetti, setShowConfetti] = useState(false)
+  const { isAuthenticated } = useAuthStore()
+  const { addItem } = useCartStore()
 
   const basePrice = jewelType ? BASE_PRICES[jewelType] : 0
   const dijePrice = dije ? DIJES.find((d) => d.name === dije)?.price || 0 : 0
@@ -97,39 +113,27 @@ export default function PersonalizacionPage() {
   }
 
   const handleAddToCart = async () => {
-    const token = localStorage.getItem('token')
-    if (!token) {
+    if (!isAuthenticated) {
       window.dispatchEvent(new CustomEvent('openAuth'))
       return
     }
 
     const typeLabel = jewelType === 'pulsera' ? 'Pulsera' : 'Anillo'
-    const dijeLabel = DIJES.find((d) => d.name === dije)?.label || ''
-    const colorLabel = COLORS.find((c) => c.value === color)?.label || ''
 
     try {
       const products = await api.get<{ id: number; name: string }[]>('/products')
       const custom = products.find((p) => p.name === 'Joya Personalizada' || p.name.toLowerCase().includes('personalizada'))
       if (!custom) { toast.error('Error: Producto personalizado no configurado'); return }
 
-      await api.post('/cart/items', { product_id: custom.id, quantity: 1 })
-
-      const existing = localStorage.getItem('cartCount')
-      const count = existing ? Number(existing) + 1 : 1
-      localStorage.setItem('cartCount', String(count))
+      await addItem(custom.id, 1)
 
       localStorage.setItem('personalizacion', JSON.stringify({
-        type: jewelType,
-        dije,
-        color,
-        balines,
-        total,
-        fecha: new Date().toISOString(),
+        type: jewelType, dije, color, balines, total, fecha: new Date().toISOString(),
       }))
 
-      window.dispatchEvent(new CustomEvent('cartUpdated'))
+      setShowConfetti(true)
       toast.success(`${typeLabel} personalizada agregada al carrito`)
-      router.push('/checkout')
+      setTimeout(() => router.push('/checkout'), 1200)
     } catch {
       toast.error('Error al agregar al carrito')
     }
@@ -140,6 +144,9 @@ export default function PersonalizacionPage() {
       case 0:
         return (
           <div>
+            <div className="mb-6">
+              <JewelryViewer type={jewelType} dije={dije} color={COLORS.find((c) => c.value === color)?.value || null} balines={balines} />
+            </div>
             <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Selecciona el tipo de joya</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {(['pulsera', 'anillo'] as const).map((type) => (
@@ -147,11 +154,14 @@ export default function PersonalizacionPage() {
                   key={type}
                   onClick={() => setJewelType(type)}
                   className={`p-8 border-2 text-center transition-all ${
-                    jewelType === type
-                      ? 'border-gold-400 bg-gold-400/5 shadow-md'
-                      : 'border-pearl hover:border-gold-400 bg-white'
+                    jewelType === type ? 'border-gold-400 bg-gold-400/5 shadow-md' : 'border-pearl hover:border-gold-400 bg-white'
                   }`}
                 >
+                  {type === 'pulsera' ? (
+                    <Image src="/assets/images/pulsera icono.png" alt="" width={48} height={48} className="mx-auto mb-3 opacity-60" />
+                  ) : (
+                    <Image src="/assets/images/anillo icono.png" alt="" width={48} height={48} className="mx-auto mb-3 opacity-60" />
+                  )}
                   <span className="block font-heading text-2xl font-medium text-ebony mb-2">
                     {type === 'pulsera' ? 'Pulsera' : 'Anillo'}
                   </span>
@@ -170,6 +180,9 @@ export default function PersonalizacionPage() {
       case 1:
         return (
           <div>
+            <div className="mb-6">
+              <JewelryViewer type={jewelType} dije={dije} color={COLORS.find((c) => c.value === color)?.value || null} balines={balines} />
+            </div>
             <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Elige tu dije favorito</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {DIJES.map((d) => (
@@ -177,12 +190,16 @@ export default function PersonalizacionPage() {
                   key={d.name}
                   onClick={() => setDije(d.name)}
                   className={`p-5 border-2 text-center transition-all ${
-                    dije === d.name
-                      ? 'border-gold-400 bg-gold-400/5 shadow-md'
-                      : 'border-pearl hover:border-gold-400 bg-white'
+                    dije === d.name ? 'border-gold-400 bg-gold-400/5 shadow-md' : 'border-pearl hover:border-gold-400 bg-white'
                   }`}
                 >
-                  <Sparkles className={`size-8 mx-auto mb-2 ${dije === d.name ? 'text-gold-400' : 'text-stone'}`} />
+                  <div className="size-12 mx-auto mb-2 flex items-center justify-center">
+                    {d.image ? (
+                      <Image src={d.image} alt={d.label} width={48} height={48} className="size-full object-contain" />
+                    ) : (
+                      <Sparkles className={`size-8 ${dije === d.name ? 'text-gold-400' : 'text-stone'}`} />
+                    )}
+                  </div>
                   <span className="block font-heading text-base font-medium text-ebony">{d.label}</span>
                   <span className="text-xs text-stone">+{formatPrice(d.price)}</span>
                 </button>
@@ -194,6 +211,9 @@ export default function PersonalizacionPage() {
       case 2:
         return (
           <div>
+            <div className="mb-6">
+              <JewelryViewer type={jewelType} dije={dije} color={COLORS.find((c) => c.value === color)?.value || null} balines={balines} />
+            </div>
             <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Selecciona el color</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {COLORS.map((c) => (
@@ -201,15 +221,10 @@ export default function PersonalizacionPage() {
                   key={c.name}
                   onClick={() => setColor(c.value)}
                   className={`p-6 border-2 text-center transition-all ${
-                    color === c.value
-                      ? 'border-gold-400 bg-gold-400/5 shadow-md'
-                      : 'border-pearl hover:border-gold-400 bg-white'
+                    color === c.value ? 'border-gold-400 bg-gold-400/5 shadow-md' : 'border-pearl hover:border-gold-400 bg-white'
                   }`}
                 >
-                  <div
-                    className="size-12 rounded-full mx-auto mb-3 border-2 border-white shadow-sm"
-                    style={{ backgroundColor: c.value }}
-                  />
+                  <div className="size-12 rounded-full mx-auto mb-3 border-2 border-white shadow-sm" style={{ backgroundColor: c.value }} />
                   <span className="block font-heading text-base font-medium text-ebony">{c.label}</span>
                 </button>
               ))}
@@ -220,6 +235,9 @@ export default function PersonalizacionPage() {
       case 3:
         return (
           <div>
+            <div className="mb-6">
+              <JewelryViewer type={jewelType} dije={dije} color={COLORS.find((c) => c.value === color)?.value || null} balines={balines} />
+            </div>
             <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-2">Número de balines</p>
             <p className="text-sm text-stone mb-6">Elige la cantidad (solo pares, de 4 a 10)</p>
             <div className="flex flex-wrap gap-3">
@@ -228,9 +246,7 @@ export default function PersonalizacionPage() {
                   key={n}
                   onClick={() => setBalines(n)}
                   className={`min-w-[80px] p-4 border-2 text-center transition-all ${
-                    balines === n
-                      ? 'border-gold-400 bg-gold-400/5 shadow-md'
-                      : 'border-pearl hover:border-gold-400 bg-white'
+                    balines === n ? 'border-gold-400 bg-gold-400/5 shadow-md' : 'border-pearl hover:border-gold-400 bg-white'
                   }`}
                 >
                   <span className="block font-heading text-xl font-medium text-ebony">{n}</span>
@@ -258,53 +274,48 @@ export default function PersonalizacionPage() {
 
       case 4:
         return (
-          <div className="bg-white p-8 border border-black/4">
-            <h3 className="font-heading text-xl font-medium text-ebony mb-6 pb-3 border-b border-gold-400/30">
-              Resumen de tu joya personalizada
-            </h3>
-            <div className="space-y-4">
-              <div className="flex justify-between text-sm">
-                <span className="text-stone">Tipo</span>
-                <span className="font-medium text-ebony">{jewelType === 'pulsera' ? 'Pulsera' : 'Anillo'}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-stone">Dije</span>
-                <span className="font-medium text-ebony">{DIJES.find((d) => d.name === dije)?.label}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-stone">Color</span>
-                <span className="font-medium text-ebony">{COLORS.find((c) => c.value === color)?.label}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-stone">Balines</span>
-                <span className="font-medium text-ebony">{balines}</span>
-              </div>
-              <hr className="border-pearl" />
-              <div className="flex justify-between text-sm">
-                <span className="text-stone">Base ({jewelType === 'pulsera' ? 'Pulsera' : 'Anillo'})</span>
-                <span className="font-medium text-ebony">{formatPrice(basePrice)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-stone">Dije ({DIJES.find((d) => d.name === dije)?.label})</span>
-                <span className="font-medium text-ebony">+{formatPrice(dijePrice)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-stone">Balines ({balines} × {formatPrice(BALIN_PRICE)}/2)</span>
-                <span className="font-medium text-ebony">+{formatPrice(balinPrice)}</span>
-              </div>
-              <hr className="border-pearl" />
-              <div className="flex justify-between font-heading text-xl font-semibold text-gold-400">
-                <span>Total</span>
-                <span>{formatPrice(total)}</span>
-              </div>
+          <div>
+            <div className="mb-6">
+              <JewelryViewer type={jewelType} dije={dije} color={COLORS.find((c) => c.value === color)?.value || null} balines={balines} />
             </div>
-            <div className="flex gap-3 mt-8">
-              <Button className="flex-1" size="lg" onClick={handleAddToCart}>
-                <ShoppingBag className="size-4 mr-2" /> Agregar al Carrito
-              </Button>
-              <Button variant="outline" size="lg" className="flex-1" onClick={handleAddToCart}>
-                Comprar Ahora
-              </Button>
+            <div className="bg-white p-8 border border-black/4">
+              <h3 className="font-heading text-xl font-medium text-ebony mb-6 pb-3 border-b border-gold-400/30">
+                Resumen de tu joya personalizada
+              </h3>
+              <div className="space-y-4">
+                {[
+                  ['Tipo', jewelType === 'pulsera' ? 'Pulsera' : 'Anillo'],
+                  ['Dije', DIJES.find((d) => d.name === dije)?.label],
+                  ['Color', COLORS.find((c) => c.value === color)?.label],
+                  ['Balines', String(balines)],
+                ].map(([label, value]) => (
+                  <div key={label} className="flex justify-between text-sm">
+                    <span className="text-stone">{label}</span>
+                    <span className="font-medium text-ebony">{value}</span>
+                  </div>
+                ))}
+                <hr className="border-pearl" />
+                {[
+                  [`Base (${jewelType === 'pulsera' ? 'Pulsera' : 'Anillo'})`, formatPrice(basePrice)],
+                  [`Dije (${DIJES.find((d) => d.name === dije)?.label})`, `+${formatPrice(dijePrice)}`],
+                  [`Balines (${balines} × ${formatPrice(BALIN_PRICE)}/2)`, `+${formatPrice(balinPrice)}`],
+                ].map(([label, value]) => (
+                  <div key={label} className="flex justify-between text-sm">
+                    <span className="text-stone">{label}</span>
+                    <span className="font-medium text-ebony">{value}</span>
+                  </div>
+                ))}
+                <hr className="border-pearl" />
+                <div className="flex justify-between font-heading text-xl font-semibold text-gold-400">
+                  <span>Total</span>
+                  <span>{formatPrice(total)}</span>
+                </div>
+              </div>
+              <div className="flex gap-3 mt-8">
+                <Button className="flex-1" size="lg" onClick={handleAddToCart}>
+                  <ShoppingBag className="size-4 mr-2" /> Agregar al Carrito
+                </Button>
+              </div>
             </div>
           </div>
         )
@@ -313,6 +324,7 @@ export default function PersonalizacionPage() {
 
   return (
     <>
+      <Confetti active={showConfetti} />
       <div className="bg-ebony/90">
         <div className="container-main py-14 md:py-20">
           <nav className="flex items-center gap-2 text-xs uppercase tracking-wider text-white/40 mb-6">
@@ -350,9 +362,7 @@ export default function PersonalizacionPage() {
               <Button variant="ghost" onClick={() => setStep(step - 1)}>
                 <ArrowLeft className="size-4 mr-2" /> Anterior
               </Button>
-            ) : (
-              <div />
-            )}
+            ) : <div />}
             {step < 4 ? (
               <Button disabled={!canProceed()} onClick={() => setStep(step + 1)}>
                 Continuar <ArrowRight className="size-4 ml-2" />

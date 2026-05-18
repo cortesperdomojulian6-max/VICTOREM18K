@@ -4,76 +4,47 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Trash2, Minus, Plus, ShoppingBag, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { api, ApiError } from '@/lib/api'
+import { api } from '@/lib/api'
 import { formatPrice } from '@/lib/utils'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
-import type { CartItem as CartItemType } from '@/types'
+import { useCartStore } from '@/store/useCartStore'
+import { useAuthStore } from '@/store/useAuthStore'
 
 export default function CarritoPage() {
   const router = useRouter()
-  const [items, setItems] = useState<CartItemType[]>([])
-  const [total, setTotal] = useState(0)
-  const [loading, setLoading] = useState(true)
+  const { items, total, isLoading, updateQuantity, removeItem } = useCartStore()
+  const { isAuthenticated, isLoading: authLoading } = useAuthStore()
+  const [shippingConfig, setShippingConfig] = useState({ shipping: 10000, freeShippingThreshold: 200000 })
   const [updating, setUpdating] = useState<number | null>(null)
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (!token) {
+    if (!authLoading && !isAuthenticated) {
       toast.error('Debes iniciar sesión para ver tu carrito')
       router.push('/')
-      return
     }
-    loadCart()
-  }, [router])
+  }, [isAuthenticated, authLoading, router])
 
-  const loadCart = async () => {
-    try {
-      const data = await api.get<{ items: CartItemType[]; total: number }>('/cart')
-      setItems(data.items || [])
-      setTotal(data.total || 0)
-    } catch {
-      setItems([])
-      setTotal(0)
-    } finally {
-      setLoading(false)
-    }
+  useEffect(() => {
+    api.get<{ shipping: number, freeShippingThreshold: number }>('/config')
+      .then(res => setShippingConfig(res))
+      .catch(() => {})
+  }, [])
+
+  const handleUpdate = async (id: number, qty: number) => {
+    setUpdating(id)
+    await updateQuantity(id, qty)
+    setUpdating(null)
   }
 
-  const updateQuantity = async (itemId: number, newQty: number) => {
-    if (newQty < 1) return
-    setUpdating(itemId)
-    try {
-      await api.put(`/cart/items/${itemId}`, { quantity: newQty })
-      await loadCart()
-      const count = items.reduce((acc, it) => acc + (it.id === itemId ? newQty - it.cantidad : 0), 0)
-      const currentCount = Number(localStorage.getItem('cartCount') || '0')
-      localStorage.setItem('cartCount', String(Math.max(0, currentCount + count)))
-      window.dispatchEvent(new CustomEvent('cartUpdated'))
-    } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : 'Error al actualizar')
-    } finally {
-      setUpdating(null)
-    }
+  const handleRemove = async (id: number) => {
+    setUpdating(id)
+    await removeItem(id)
+    setUpdating(null)
+    toast.success('Producto eliminado del carrito')
   }
 
-  const removeItem = async (itemId: number) => {
-    setUpdating(itemId)
-    try {
-      await api.delete(`/cart/items/${itemId}`)
-      await loadCart()
-      const currentCount = Number(localStorage.getItem('cartCount') || '0')
-      localStorage.setItem('cartCount', String(Math.max(0, currentCount - 1)))
-      window.dispatchEvent(new CustomEvent('cartUpdated'))
-      toast.success('Producto eliminado del carrito')
-    } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : 'Error al eliminar')
-    } finally {
-      setUpdating(null)
-    }
-  }
-
-  if (loading) {
+  if (isLoading || authLoading) {
     return (
       <div className="container-main py-20">
         <div className="animate-pulse max-w-3xl mx-auto space-y-4">
@@ -140,7 +111,7 @@ export default function CarritoPage() {
                   </div>
                   <div className="flex items-center gap-1 border border-pearl">
                     <button
-                      onClick={() => updateQuantity(item.id, item.cantidad - 1)}
+                      onClick={() => handleUpdate(item.id, item.cantidad - 1)}
                       disabled={item.cantidad <= 1}
                       className="size-9 flex items-center justify-center text-stone hover:text-ebony hover:bg-cream transition-colors disabled:opacity-30"
                       aria-label="Reducir cantidad"
@@ -149,7 +120,7 @@ export default function CarritoPage() {
                     </button>
                     <span className="w-10 text-center text-sm font-medium text-ebony">{item.cantidad}</span>
                     <button
-                      onClick={() => updateQuantity(item.id, item.cantidad + 1)}
+                      onClick={() => handleUpdate(item.id, item.cantidad + 1)}
                       className="size-9 flex items-center justify-center text-stone hover:text-ebony hover:bg-cream transition-colors"
                       aria-label="Aumentar cantidad"
                     >
@@ -160,7 +131,7 @@ export default function CarritoPage() {
                     {formatPrice(Number(item.price) * item.cantidad)}
                   </p>
                   <button
-                    onClick={() => removeItem(item.id)}
+                    onClick={() => handleRemove(item.id)}
                     className="size-9 flex items-center justify-center text-stone hover:text-red-500 hover:bg-red-50 transition-all shrink-0"
                     aria-label="Eliminar producto"
                   >
@@ -176,23 +147,43 @@ export default function CarritoPage() {
                   Resumen
                 </h2>
                 <div className="space-y-3 text-sm">
+                  {total < shippingConfig.freeShippingThreshold ? (
+                    <div className="bg-cream p-3 border border-black/4 space-y-2 mb-4">
+                      <p className="text-xs text-stone font-medium text-center">
+                        ¡Faltan {formatPrice(shippingConfig.freeShippingThreshold - total)} para envío gratis!
+                      </p>
+                      <div className="w-full bg-pearl h-2 overflow-hidden">
+                        <div 
+                          className="bg-gold-400 h-full transition-all duration-500" 
+                          style={{ width: `${Math.min(100, (total / shippingConfig.freeShippingThreshold) * 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-green-50 text-green-700 p-3 text-sm font-medium text-center mb-4 border border-green-200">
+                      ¡Tienes envío gratis!
+                    </div>
+                  )}
+                  
                   <div className="flex justify-between text-stone">
                     <span>Subtotal</span>
                     <span className="font-medium text-ebony">{formatPrice(total)}</span>
                   </div>
                   <div className="flex justify-between text-stone">
                     <span>Envío</span>
-                    <span className="font-medium text-ebony">$10.000</span>
+                    <span className="font-medium text-ebony">
+                      {total >= shippingConfig.freeShippingThreshold ? 'Gratis' : formatPrice(shippingConfig.shipping)}
+                    </span>
                   </div>
                   <div className="pt-3 border-t border-pearl flex justify-between font-heading text-xl font-semibold text-gold-400">
                     <span>Total</span>
-                    <span>{formatPrice(total + 10000)}</span>
+                    <span>{formatPrice(total + (total >= shippingConfig.freeShippingThreshold ? 0 : shippingConfig.shipping))}</span>
                   </div>
                 </div>
                 <Button className="w-full mt-6" size="lg" onClick={() => router.push('/checkout')}>
                   Finalizar Compra <ArrowRight className="size-4 ml-2" />
                 </Button>
-                <p className="text-xs text-stone text-center mt-3">Envío: $10.000 a todo Colombia</p>
+                <p className="text-xs text-stone text-center mt-3">Envío: {formatPrice(shippingConfig.shipping)} a todo Colombia</p>
               </div>
             </div>
           </div>

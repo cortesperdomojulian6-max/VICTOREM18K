@@ -3,13 +3,14 @@
 import { useEffect, useState, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, ChevronLeft, ChevronRight, Star } from 'lucide-react'
+import { ArrowRight, ChevronLeft, ChevronRight, Star, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ProductCard } from '@/components/ui/card'
 import { ProductCardSkeleton } from '@/components/ui/skeleton'
+import { ParticlesCanvas } from '@/components/ui/particles-canvas'
 import { api } from '@/lib/api'
 import type { Product } from '@/types'
-import { motion } from 'framer-motion'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import { toast } from 'sonner'
 
 const TESTIMONIALS = [
@@ -28,10 +29,16 @@ const TESTIMONIALS = [
 ]
 
 function HeroSection() {
+  const ref = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
+  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '30%'])
+  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0])
+
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-cover bg-center" style={{ backgroundImage: "url('/images/textura.png')" }}>
-      <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-black/40 to-black/70 z-0" />
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-snow to-transparent z-0" />
+    <section ref={ref} className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-cover bg-center" style={{ backgroundImage: "url('/images/textura.png')" }}>
+      <ParticlesCanvas className="absolute inset-0 z-[1] pointer-events-none" />
+      <motion.div className="absolute inset-0 bg-gradient-to-b from-black/85 via-black/40 to-black/70 z-[2]" style={{ opacity }} />
+      <motion.div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-snow to-transparent z-[2]" style={{ opacity }} />
 
       <div className="container-main relative z-10 text-center">
         <motion.div
@@ -73,6 +80,11 @@ function HeroSection() {
           </div>
         </motion.div>
       </div>
+
+      <motion.div
+        className="absolute inset-0 z-[1]"
+        style={{ backgroundImage: "url('/images/textura.png')", backgroundSize: 'cover', backgroundPosition: 'center', y: bgY }}
+      />
     </section>
   )
 }
@@ -140,7 +152,7 @@ function ProductCarousel({ products }: { products: Product[] }) {
         </>
       )}
 
-      <div className="flex justify-center gap-1.5 mt-8">
+      <motion.div className="flex justify-center gap-1.5 mt-8">
         {Array.from({ length: Math.ceil(products.length / slidesPerView) }).map((_, i) => (
           <button
             key={i}
@@ -151,7 +163,7 @@ function ProductCarousel({ products }: { products: Product[] }) {
             aria-label={`Ir a slide ${i + 1}`}
           />
         ))}
-      </div>
+      </motion.div>
     </div>
   )
 }
@@ -175,14 +187,23 @@ function TestimonialsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-50px' }}
               transition={{ delay: i * 0.1, duration: 0.6 }}
-              className="bg-white p-8 border border-black/4 relative hover:border-gold-400/25 hover:shadow-md transition-all duration-300"
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              className="bg-white p-8 border border-black/4 relative hover:border-gold-400/25 hover:shadow-xl transition-all duration-300"
             >
               <span className="font-heading text-5xl text-gold-400/30 absolute top-3 left-5 leading-none" aria-hidden="true">
                 &ldquo;
               </span>
               <div className="flex gap-1 mb-4" aria-label="5 estrellas">
                 {Array.from({ length: 5 }).map((_, j) => (
-                  <Star key={j} className="size-4 fill-gold-400 text-gold-400" />
+                  <motion.div
+                    key={j}
+                    initial={{ opacity: 0, scale: 0 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 + j * 0.08, type: 'spring', stiffness: 300 }}
+                  >
+                    <Star className="size-4 fill-gold-400 text-gold-400" />
+                  </motion.div>
                 ))}
               </div>
               <p className="text-sm text-stone leading-relaxed mb-4 italic relative z-[1]">
@@ -212,14 +233,21 @@ function NewsletterSection() {
     }
   }, [])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return
     setLoading(true)
-    localStorage.setItem('victorem_newsletter_email', email)
-    setSaved(true)
-    setLoading(false)
-    toast.success('Gracias por suscribirte. Pronto recibirás novedades.')
+    try {
+      const result = await api.post<{ ok: boolean; message: string }>('/newsletter', { email })
+      localStorage.setItem('victorem_newsletter_email', email)
+      setSaved(true)
+      toast.success(result.message || 'Gracias por suscribirte')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error al suscribirte'
+      toast.error(msg)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -244,7 +272,7 @@ function NewsletterSection() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Tu correo electrónico"
               required
-              className="flex-1 px-4 py-3.5 bg-white/5 border border-white/10 text-white text-sm placeholder:text-silver/50 focus:outline-none focus:border-gold-400 transition-colors"
+              className="flex-1 px-4 py-3.5 bg-white/5 border border-white/10 text-white text-sm placeholder:text-silver/50 focus:outline-none focus:border-gold-400 focus:shadow-[0_0_0_3px_rgba(212,175,55,0.15)] transition-all"
             />
             <Button type="submit" loading={loading}>
               Suscribirme

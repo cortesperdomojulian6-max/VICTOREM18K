@@ -9,7 +9,9 @@ import { api, ApiError } from '@/lib/api'
 import { formatPrice } from '@/lib/utils'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
-import type { CartItem, Address, User } from '@/types'
+import type { Address, User } from '@/types'
+import { useAuthStore } from '@/store/useAuthStore'
+import { useCartStore } from '@/store/useCartStore'
 
 interface FormState {
   nombre: string
@@ -22,10 +24,10 @@ interface FormState {
 
 export default function CheckoutPage() {
   const router = useRouter()
-  const [authenticated, setAuthenticated] = useState(false)
+  const { items: cartItems, total, syncFromServer: syncCart, clearCart } = useCartStore()
+  const { isAuthenticated, isLoading: authLoading } = useAuthStore()
+  const [shippingConfig, setShippingConfig] = useState({ shipping: 10000, freeShippingThreshold: 200000 })
   const [user, setUser] = useState<User | null>(null)
-  const [cartItems, setCartItems] = useState<CartItem[]>([])
-  const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [form, setForm] = useState<FormState>({
@@ -33,27 +35,26 @@ export default function CheckoutPage() {
   })
   const [errors, setErrors] = useState<Partial<FormState>>({})
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null)
-
+  
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (!token) {
+    if (!authLoading && !isAuthenticated) {
       router.push('/')
       toast.error('Debes iniciar sesión para continuar')
-      return
     }
-    setAuthenticated(true)
+  }, [isAuthenticated, authLoading, router])
 
+  useEffect(() => {
+    if (!isAuthenticated) return;
     const load = async () => {
       try {
-        const [userData, cartData] = await Promise.all([
+        const [userData, addresses, configRes] = await Promise.all([
           api.get<User>('/users/profile'),
-          api.get<{ items: CartItem[]; total: number }>('/cart'),
+          api.get<Address[]>('/addresses'),
+          api.get<{ shipping: number, freeShippingThreshold: number }>('/config').catch(() => ({ shipping: 10000, freeShippingThreshold: 200000 }))
         ])
         setUser(userData)
-        setCartItems(cartData.items || [])
-        setTotal(cartData.total || 0)
+        setShippingConfig(configRes)
 
-        const addresses = await api.get<Address[]>('/addresses')
         if (addresses.length > 0) {
           const addr = addresses[0]
           setForm({
@@ -73,7 +74,7 @@ export default function CheckoutPage() {
       }
     }
     load()
-  }, [router])
+  }, [isAuthenticated])
 
   const validate = (): boolean => {
     const errs: Partial<FormState> = {}
@@ -112,9 +113,7 @@ export default function CheckoutPage() {
         keepCart: false,
       })
 
-      localStorage.removeItem('productoParaComprar')
-      localStorage.removeItem('cartCount')
-      window.dispatchEvent(new CustomEvent('cartUpdated'))
+      clearCart()
       toast.success('Pedido confirmado. Te contactaremos para coordinar el pago por Nequi.')
       router.push('/miperfil')
     } catch (err) {
@@ -125,7 +124,7 @@ export default function CheckoutPage() {
     }
   }
 
-  if (!authenticated) return null
+  if (authLoading || !isAuthenticated) return null
 
   if (loading) {
     return (
@@ -246,12 +245,14 @@ export default function CheckoutPage() {
 
               <div className="flex justify-between text-sm text-stone mb-2">
                 <span>Envío</span>
-                <span className="font-medium text-ebony">$10.000</span>
+                <span className="font-medium text-ebony">
+                  {total >= shippingConfig.freeShippingThreshold ? 'Gratis' : formatPrice(shippingConfig.shipping)}
+                </span>
               </div>
 
               <div className="flex justify-between font-heading text-xl font-semibold text-gold-400 pt-4 border-t-2 border-pearl">
                 <span>Total</span>
-                <span>{formatPrice(total + 10000)}</span>
+                <span>{formatPrice(total + (total >= shippingConfig.freeShippingThreshold ? 0 : shippingConfig.shipping))}</span>
               </div>
 
               <Button

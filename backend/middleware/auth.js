@@ -21,8 +21,7 @@ if (!JWT_SECRET) {
  */
 async function requireAuth(req, res, next) {
   try {
-    const authHeader = req.headers.authorization || '';
-    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    const token = req.cookies.access_token;
 
     if (!token) {
       return res.status(401).json({ error: 'No autorizado: falta token' });
@@ -71,11 +70,19 @@ function requireAdmin(req, res, next) {
  * Genera un token JWT para un usuario.
  */
 function signToken(user) {
-  return jwt.sign(
+  const access_token = jwt.sign(
     { id: user.id, role: user.role },
     JWT_SECRET,
     { expiresIn: '24h' }
   );
+  
+  const refresh_token = jwt.sign(
+    { id: user.id, role: user.role },
+    JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+  
+  return { access_token, refresh_token };
 }
 
 module.exports = {

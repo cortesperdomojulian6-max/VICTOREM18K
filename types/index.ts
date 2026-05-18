@@ -8,6 +8,7 @@ export interface Product {
   features: string[] | null
   stock: number | null
   created_at: string
+  view_count?: number
 }
 
 export interface CartItem {

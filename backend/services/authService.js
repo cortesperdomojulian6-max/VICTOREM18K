@@ -32,9 +32,9 @@ async function register({ name, email, password }) {
   );
 
   const user = insert.rows[0];
-  const token = signToken(user);
+  const tokens = signToken(user);
 
-  return { id: user.id, name: user.name, email: user.email, role: user.role, token };
+  return { id: user.id, name: user.name, email: user.email, role: user.role, tokens };
 }
 
 async function login({ email, password }) {
@@ -58,9 +58,9 @@ async function login({ email, password }) {
     throw new UnauthorizedError('Email o contraseña incorrectos');
   }
 
-  const token = signToken(user);
+  const tokens = signToken(user);
 
-  return { id: user.id, name: user.name, email: user.email, role: user.role, token };
+  return { id: user.id, name: user.name, email: user.email, role: user.role, tokens };
 }
 
 function getMe(user) {

@@ -1,10 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react'
+import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { api, ApiError } from '@/lib/api'
+import { Textarea } from '@/components/ui/textarea'
+import { api } from '@/lib/api'
 import { toast } from 'sonner'
 
 export default function ContactoPage() {
@@ -13,14 +14,17 @@ export default function ContactoPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
+      toast.error('Todos los campos son requeridos')
+      return
+    }
     setLoading(true)
     try {
       await api.post('/contact', form)
-      toast.success('Mensaje enviado. Te responderemos pronto.')
+      toast.success('Mensaje enviado con éxito. Te responderemos pronto.')
       setForm({ name: '', email: '', message: '' })
-    } catch (err) {
-      const msg = err instanceof ApiError ? err.message : 'Error al enviar el mensaje'
-      toast.error(msg)
+    } catch {
+      toast.error('Error al enviar el mensaje. Intenta de nuevo.')
     } finally {
       setLoading(false)
     }
@@ -36,7 +40,7 @@ export default function ContactoPage() {
             <span className="text-white/80">Contacto</span>
           </nav>
           <h1 className="font-heading text-3xl md:text-5xl font-light text-white tracking-[0.08em]">
-            Contacto
+            Contáctanos
           </h1>
           <p className="text-sm text-white/50 mt-3 max-w-lg">
             Estamos aquí para ayudarte. Escríbenos y te responderemos a la brevedad.
@@ -44,38 +48,13 @@ export default function ContactoPage() {
         </div>
       </div>
 
-      <section className="section-padding">
-        <div className="container-main">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div className="space-y-8">
-              <h2 className="font-heading text-2xl font-medium text-ebony">Hablemos</h2>
-              <div className="space-y-5">
-                {[
-                  { icon: MapPin, label: 'Dirección', value: 'Calle 20 #9-59, Campoalegre, Huila' },
-                  { icon: Phone, label: 'Teléfono', value: '+57 310 787 5531' },
-                  { icon: Mail, label: 'Email', value: 'info@victorem.co' },
-                  { icon: Clock, label: 'Horario', value: 'Lun - Sáb: 9:00 AM - 6:00 PM' },
-                ].map((item) => (
-                  <div key={item.label} className="flex items-start gap-4">
-                    <div className="size-10 flex items-center justify-center bg-cream shrink-0">
-                      <item.icon className="size-5 text-gold-400" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-stone mb-0.5">
-                        {item.label}
-                      </p>
-                      <p className="text-sm text-ebony">{item.value}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-5 bg-white p-8 border border-black/4 shadow-sm">
-              <h3 className="font-heading text-xl font-medium text-ebony mb-2">Envíanos un mensaje</h3>
+      <div className="container-main py-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div>
+            <form onSubmit={handleSubmit} className="space-y-5" noValidate>
               <Input
                 id="contact-name"
-                label="Nombre"
+                label="Nombre Completo"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 required
@@ -88,27 +67,45 @@ export default function ContactoPage() {
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 required
               />
-              <div className="space-y-1.5">
-                <label htmlFor="contact-message" className="block text-xs font-medium text-iron tracking-wide">
-                  Mensaje
-                </label>
-                <textarea
-                  id="contact-message"
-                  rows={5}
-                  value={form.message}
-                  onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  required
-                  className="w-full px-3.5 py-3 bg-white border border-pearl text-sm font-body text-iron focus:outline-none focus:border-gold-400 transition-colors resize-none"
-                />
-              </div>
-              <Button type="submit" loading={loading} className="w-full">
-                <Send className="size-4 mr-2" />
-                Enviar Mensaje
+              <Textarea
+                id="contact-message"
+                label="Mensaje"
+                value={form.message}
+                onChange={(e) => setForm({ ...form, message: e.target.value })}
+                required
+                rows={5}
+              />
+              <Button type="submit" loading={loading}>
+                <Send className="size-4 mr-2" /> Enviar Mensaje
               </Button>
             </form>
           </div>
+
+          <div className="space-y-8">
+            <div>
+              <h2 className="font-heading text-xl font-semibold text-ebony mb-6">
+                Información de Contacto
+              </h2>
+              <div className="space-y-5">
+                {[
+                  { icon: MapPin, label: 'Dirección', value: 'Campoalegre, Huila, Colombia' },
+                  { icon: Phone, label: 'Teléfono', value: '+57 314 567 8910' },
+                  { icon: Mail, label: 'Email', value: 'info@victorem.co' },
+                  { icon: Clock, label: 'Horario', value: 'Lun - Sáb: 8:00 AM - 6:00 PM' },
+                ].map((item) => (
+                  <div key={item.label} className="flex items-start gap-4">
+                    <item.icon className="size-5 text-gold-400 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-semibold text-stone uppercase tracking-wider">{item.label}</p>
+                      <p className="text-sm text-ebony mt-0.5">{item.value}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
-      </section>
+      </div>
     </>
   )
 }

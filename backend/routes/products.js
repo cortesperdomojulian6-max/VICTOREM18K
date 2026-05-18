@@ -8,7 +8,11 @@ const router = express.Router();
 
 router.get('/', asyncHandler(async (req, res) => {
   const products = await productService.getAllProducts();
-  return res.json(products);
+  const withViewCount = products.map(p => ({
+    ...p,
+    view_count: Math.floor(Math.random() * (50 - 5 + 1)) + 5
+  }));
+  return res.json(withViewCount);
 }));
 
 router.get('/:id', asyncHandler(async (req, res) => {

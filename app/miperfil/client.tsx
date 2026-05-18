@@ -10,6 +10,7 @@ import { formatPrice } from '@/lib/utils'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import type { User as UserType, Order, Address } from '@/types'
+import { useAuthStore } from '@/store/useAuthStore'
 
 export type Tab = 'profile' | 'orders' | 'addresses'
 
@@ -306,20 +307,24 @@ export default function MiPerfilClient({ initialTab }: { initialTab?: Tab }) {
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<Tab>(initialTab ?? 'profile')
 
+  const { user: authUser, isAuthenticated, isLoading: authLoading, logout } = useAuthStore()
+
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (!token) {
+    if (!authLoading && !isAuthenticated) {
       toast.error('Debes iniciar sesión')
       router.push('/')
       return
     }
-    api.get<UserType>('/users/profile')
-      .then(setUser)
-      .catch(() => { localStorage.removeItem('token'); router.push('/') })
-      .finally(() => setLoading(false))
-  }, [router])
+    
+    if (isAuthenticated) {
+      api.get<UserType>('/users/profile')
+        .then(setUser)
+        .catch(() => { logout(); router.push('/') })
+        .finally(() => setLoading(false))
+    }
+  }, [isAuthenticated, authLoading, router, logout])
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="container-main py-20">
         <div className="animate-pulse max-w-3xl mx-auto space-y-4">

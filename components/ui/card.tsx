@@ -1,10 +1,14 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from './button'
 import { api } from '@/lib/api'
 import { toast } from 'sonner'
+import { useAuthStore } from '@/store/useAuthStore'
+import { useCartStore } from '@/store/useCartStore'
+import { Users } from 'lucide-react'
 
 interface ProductCardProps {
   id: number
@@ -13,27 +17,35 @@ interface ProductCardProps {
   price: number
   imageUrl: string | null
   priority?: boolean
+  view_count?: number
 }
 
-export function ProductCard({ id, name, description, price, imageUrl, priority }: ProductCardProps) {
+const shimmer = 'data:image/svg+xml;base64,' + Buffer.from(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600"><rect fill="#f5f0eb" width="600" height="600"/></svg>'
+).toString('base64')
+
+export function ProductCard({ id, name, description, price, imageUrl, priority, view_count }: ProductCardProps) {
+  const [adding, setAdding] = useState(false)
+  const { isAuthenticated } = useAuthStore()
+  const { addItem } = useCartStore()
+
   const formattedPrice = new Intl.NumberFormat('es-CO', {
     style: 'currency', currency: 'COP', minimumFractionDigits: 0,
   }).format(price)
 
   const handleAddToCart = async () => {
-    const token = localStorage.getItem('token')
-    if (!token) {
+    if (!isAuthenticated) {
       window.dispatchEvent(new CustomEvent('openAuth'))
       return
     }
+    setAdding(true)
     try {
-      await api.post('/cart/items', { product_id: id, quantity: 1 })
-      const currentCount = Number(localStorage.getItem('cartCount') || '0')
-      localStorage.setItem('cartCount', String(currentCount + 1))
-      window.dispatchEvent(new CustomEvent('cartUpdated'))
+      await addItem(id, 1)
       toast.success(`${name} agregado al carrito`)
     } catch {
       toast.error('Error al agregar al carrito')
+    } finally {
+      setAdding(false)
     }
   }
 
@@ -47,6 +59,8 @@ export function ProductCard({ id, name, description, price, imageUrl, priority }
             width={600}
             height={600}
             priority={priority}
+            placeholder="blur"
+            blurDataURL={shimmer}
             className="size-full object-cover transition-transform duration-700 group-hover:scale-105 aspect-square"
           />
         ) : (
@@ -55,6 +69,16 @@ export function ProductCard({ id, name, description, price, imageUrl, priority }
           </div>
         )}
       </div>
+      
+      {view_count && view_count > 0 && (
+        <div className="absolute top-4 left-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+          <div className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md text-white text-xs px-2.5 py-1.5 rounded-full font-medium">
+            <Users className="size-3.5 text-gold-400" />
+            <span>{view_count} personas viendo esto</span>
+          </div>
+        </div>
+      )}
+
       <div className="p-6 space-y-2">
         <h3 className="font-heading text-xl font-medium text-iron tracking-wide">{name}</h3>
         <p className="text-sm text-stone leading-relaxed line-clamp-2">{description}</p>
@@ -63,7 +87,9 @@ export function ProductCard({ id, name, description, price, imageUrl, priority }
           <Link href={`/catalogo?id=${id}`} className="flex-1">
             <Button variant="outline" size="sm" className="w-full">Ver Detalles</Button>
           </Link>
-          <Button size="sm" className="flex-1" onClick={handleAddToCart}>Agregar</Button>
+          <Button size="sm" className="flex-1" onClick={handleAddToCart} loading={adding} disabled={adding}>
+            {adding ? 'Agregando...' : 'Agregar'}
+          </Button>
         </div>
       </div>
     </article>

@@ -15,21 +15,35 @@ async function request<T>(
   endpoint: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const token =
-    typeof window !== 'undefined'
-      ? localStorage.getItem('token')
-      : null
-
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...options.headers,
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   }
 
-  const res = await fetch(`${API_BASE}/api${endpoint}`, {
+  let res = await fetch(`${API_BASE}/api${endpoint}`, {
     ...options,
     headers,
+    credentials: 'include',
   })
+
+  if (res.status === 401 && endpoint !== '/auth/refresh' && endpoint !== '/auth/login' && endpoint !== '/auth/register') {
+    try {
+      const refreshRes = await fetch(`${API_BASE}/api/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      })
+      if (refreshRes.ok) {
+        res = await fetch(`${API_BASE}/api${endpoint}`, {
+          ...options,
+          headers,
+          credentials: 'include',
+        })
+      }
+    } catch (e) {
+      // Ignorar
+    }
+  }
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}))

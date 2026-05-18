@@ -37,4 +37,31 @@ async function getStats() {
   return stats.rows[0];
 }
 
-module.exports = { getUsers, deleteUser, getStats };
+async function getAllOrders() {
+  const result = await db.query(`
+    SELECT o.id, o.numero_pedido, o.total, o.estado, o.metodo_pago, o.fecha,
+           u.name AS user_name, u.email AS user_email
+    FROM orders o
+    JOIN users u ON o.user_id = u.id
+    ORDER BY o.fecha DESC
+  `);
+  return result.rows;
+}
+
+async function updateOrderStatus(orderId, estado) {
+  const id = parseInt(orderId, 10);
+  if (Number.isNaN(id)) throw new ValidationError('ID inválido');
+
+  const valid = ['pendiente', 'pagado', 'confirmado', 'enviado', 'entregado', 'cancelado'];
+  if (!valid.includes(estado)) throw new ValidationError(`Estado inválido: ${estado}`);
+
+  const result = await db.query(
+    `UPDATE orders SET estado = $1 WHERE id = $2 RETURNING id, numero_pedido, estado`,
+    [estado, id]
+  );
+  if (result.rowCount === 0) throw new NotFoundError('Orden no encontrada');
+
+  return { ok: true, order: result.rows[0] };
+}
+
+module.exports = { getUsers, deleteUser, getStats, getAllOrders, updateOrderStatus };
