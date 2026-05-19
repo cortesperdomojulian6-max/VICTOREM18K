@@ -56,10 +56,10 @@ const BASE_PRICES: Record<JewelType, number> = { pulsera: 80000, anillo: 50000 }
 const BALIN_PRICE = 5000
 
 const STEPS = [
-  { id: 1, label: 'Producto' },
-  { id: 2, label: 'Dije' },
-  { id: 3, label: 'Color' },
-  { id: 4, label: 'Balines' },
+  { id: 1, label: 'Tipo Balín' },
+  { id: 2, label: 'Producto' },
+  { id: 3, label: 'Dije' },
+  { id: 4, label: 'Color' },
   { id: 5, label: 'Resumen' },
 ]
 
@@ -137,10 +137,10 @@ export default function PersonalizacionPage() {
 
   const canProceed = () => {
     switch (step) {
-      case 0: return jewelType !== null
-      case 1: return dije !== null
-      case 2: return color !== null
-      case 3: return true
+      case 0: return balinType !== null
+      case 1: return jewelType !== null
+      case 2: return dije !== null
+      case 3: return color !== null
       case 4: return true
       default: return false
     }
@@ -178,6 +178,52 @@ export default function PersonalizacionPage() {
   const renderStep = () => {
     switch (step) {
       case 0:
+        return (
+          <div>
+            <div className="mb-6">
+              <RealisticJewelryViewer
+                type={jewelType}
+                dije={dije}
+                color={color ? COLORS.find((c) => c.value === color)?.name || null : null}
+                balines={balines}
+                textureUrl={textureUrl}
+                productName={selectedProduct?.name}
+                balinType={balinType}
+              />
+            </div>
+            <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Selecciona el tipo de balín</p>
+            <div className="grid grid-cols-2 gap-6">
+              {(['lisos', 'diamantados'] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setBalinType(t)}
+                  className={`p-8 border-2 text-center transition-all ${
+                    balinType === t ? 'border-gold-400 bg-gold-400/5 shadow-md ring-1 ring-gold-400/30' : 'border-pearl hover:border-gold-400 bg-white'
+                  }`}
+                >
+                  <div className="size-20 mx-auto mb-4 flex items-center justify-center">
+                    <img
+                      src={t === 'lisos' ? '/assets/images/balines/balineslisos.jpeg' : '/assets/images/balines/balinesdiamantados.jpeg'}
+                      alt={t === 'lisos' ? 'Balines lisos' : 'Balines diamantados'}
+                      className="w-full h-full object-contain rounded-full ring-1 ring-black/5"
+                    />
+                  </div>
+                  <span className="block font-heading text-2xl font-medium text-ebony mb-2">
+                    {t === 'lisos' ? 'Lisos' : 'Diamantados'}
+                  </span>
+                  <span className="text-sm text-stone">{t === 'lisos' ? 'Acabado brillante clásico' : 'Corte facetado premium'}</span>
+                  {balinType === t && (
+                    <span className="block mt-3 text-xs text-gold-400 font-semibold uppercase tracking-wider">
+                      Seleccionado <Check className="size-3.5 inline ml-1" />
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        )
+
+      case 1:
         return (
           <div>
             <div className="mb-6">
@@ -241,7 +287,7 @@ export default function PersonalizacionPage() {
           </div>
         )
 
-      case 1:
+      case 2:
         return (
           <div>
             <div className="mb-6">
@@ -280,7 +326,7 @@ export default function PersonalizacionPage() {
           </div>
         )
 
-      case 2:
+      case 3:
         return (
           <div>
             <div className="mb-6">
@@ -312,77 +358,6 @@ export default function PersonalizacionPage() {
           </div>
         )
 
-      case 3:
-        return (
-          <div>
-            <div className="mb-6">
-              <RealisticJewelryViewer
-                type={jewelType}
-                dije={dije}
-                color={color ? COLORS.find((c) => c.value === color)?.name || null : null}
-                balines={balines}
-                textureUrl={textureUrl}
-                productName={selectedProduct?.name}
-                balinType={balinType}
-              />
-            </div>
-            <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-3">Tipo de balín</p>
-            <div className="grid grid-cols-2 gap-4 mb-8">
-              {(['lisos', 'diamantados'] as const).map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setBalinType(t)}
-                  className={`p-5 border-2 text-center transition-all ${
-                    balinType === t ? 'border-gold-400 bg-gold-400/5 shadow-md' : 'border-pearl hover:border-gold-400 bg-white'
-                  }`}
-                >
-                  <div className="size-16 mx-auto mb-3 flex items-center justify-center">
-                    <img
-                      src={t === 'lisos' ? '/assets/images/balines/balineslisos.jpeg' : '/assets/images/balines/balinesdiamantados.jpeg'}
-                      alt={t === 'lisos' ? 'Balines lisos' : 'Balines diamantados'}
-                      className="w-full h-full object-contain rounded-full"
-                    />
-                  </div>
-                  <span className="block font-heading text-base font-medium text-ebony">
-                    {t === 'lisos' ? 'Lisos' : 'Diamantados'}
-                  </span>
-                  <span className="text-xs text-stone">{t === 'lisos' ? 'Acabado brillante clásico' : 'Corte facetado premium'}</span>
-                </button>
-              ))}
-            </div>
-            <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-2">Número de balines</p>
-            <div className="flex flex-wrap gap-3">
-              {[4, 6, 8, 10, 12, 14].map((n) => (
-                <button
-                  key={n}
-                  onClick={() => setBalines(n)}
-                  className={`min-w-[80px] p-4 border-2 text-center transition-all ${
-                    balines === n ? 'border-gold-400 bg-gold-400/5 shadow-md' : 'border-pearl hover:border-gold-400 bg-white'
-                  }`}
-                >
-                  <span className="block font-heading text-xl font-medium text-ebony">{n}</span>
-                  <span className="text-xs text-stone">{formatPrice((n / 2) * BALIN_PRICE)}</span>
-                </button>
-              ))}
-            </div>
-            <div className="mt-6">
-              <input
-                type="range"
-                min={4}
-                max={14}
-                step={2}
-                value={balines}
-                onChange={(e) => setBalines(Number(e.target.value))}
-                className="w-full h-1.5 bg-pearl appearance-none cursor-pointer accent-gold-400"
-              />
-              <div className="flex justify-between text-xs text-stone mt-1">
-                <span>4</span>
-                <span>14</span>
-              </div>
-            </div>
-          </div>
-        )
-
       case 4:
         return (
           <div>
@@ -397,12 +372,47 @@ export default function PersonalizacionPage() {
                 balinType={balinType}
               />
             </div>
+            <div className="space-y-6 mb-8">
+              <div>
+                <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-2">Número de balines</p>
+                <div className="flex flex-wrap gap-3">
+                  {[4, 6, 8, 10, 12, 14].map((n) => (
+                    <button
+                      key={n}
+                      onClick={() => setBalines(n)}
+                      className={`min-w-[80px] p-4 border-2 text-center transition-all ${
+                        balines === n ? 'border-gold-400 bg-gold-400/5 shadow-md' : 'border-pearl hover:border-gold-400 bg-white'
+                      }`}
+                    >
+                      <span className="block font-heading text-xl font-medium text-ebony">{n}</span>
+                      <span className="text-xs text-stone">{formatPrice((n / 2) * BALIN_PRICE)}</span>
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-4">
+                  <input
+                    type="range"
+                    min={4}
+                    max={14}
+                    step={2}
+                    value={balines}
+                    onChange={(e) => setBalines(Number(e.target.value))}
+                    className="w-full h-1.5 bg-pearl appearance-none cursor-pointer accent-gold-400"
+                  />
+                  <div className="flex justify-between text-xs text-stone mt-1">
+                    <span>4</span>
+                    <span>14</span>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div className="bg-white p-8 border border-black/4">
               <h3 className="font-heading text-xl font-medium text-ebony mb-6 pb-3 border-b border-gold-400/30">
                 Resumen de tu joya personalizada
               </h3>
               <div className="space-y-4">
                 {[
+                  ['Tipo de balín', balinType === 'lisos' ? 'Lisos' : 'Diamantados'],
                   ['Producto base', selectedProduct?.name || `${jewelType === 'pulsera' ? 'Pulsera' : 'Anillo'} personalizado`],
                   ['Dije', DIJES.find((d) => d.name === dije)?.label || 'Ninguno'],
                   ['Color', COLORS.find((c) => c.value === color)?.label || 'Oro'],
