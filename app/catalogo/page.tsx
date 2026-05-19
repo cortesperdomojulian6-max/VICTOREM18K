@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useState, useMemo, useRef } from 'react'
-import { useSearchParams } from 'next/navigation'
-import { Search, SlidersHorizontal, ArrowUpDown } from 'lucide-react'
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { Search, SlidersHorizontal, ArrowUpDown, X } from 'lucide-react'
 import { ProductCard } from '@/components/ui/card'
 import { ProductCardSkeleton } from '@/components/ui/skeleton'
+import { ProductDetailModal } from '@/components/ui/product-detail-modal'
 import { api } from '@/lib/api'
 import type { Product } from '@/types'
 import { motion } from 'framer-motion'
@@ -20,22 +21,34 @@ type SortKey = 'popularity' | 'price-asc' | 'price-desc' | 'name'
 
 export default function CatalogoPage() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('')
   const [sort, setSort] = useState<SortKey>('popularity')
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const searchRef = useRef<HTMLInputElement>(null)
+
+  const openDetail = useCallback((product: Product) => {
+    setSelectedProduct(product)
+    window.history.replaceState(null, '', `/catalogo?id=${product.id}`)
+  }, [])
+
+  const closeDetail = useCallback(() => {
+    setSelectedProduct(null)
+    window.history.replaceState(null, '', '/catalogo')
+  }, [])
 
   useEffect(() => {
     const productId = searchParams.get('id')
     api.get<Product[]>('/products')
       .then((data) => {
-        if (productId) {
-          const el = document.getElementById(`product-${productId}`)
-          el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        }
         setProducts(data)
+        if (productId) {
+          const found = data.find((p) => p.id === Number(productId))
+          if (found) setSelectedProduct(found)
+        }
       })
       .catch(() => setProducts([]))
       .finally(() => setLoading(false))
@@ -47,10 +60,11 @@ export default function CatalogoPage() {
         e.preventDefault()
         searchRef.current?.focus()
       }
+      if (e.key === 'Escape' && selectedProduct) closeDetail()
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [])
+  }, [selectedProduct, closeDetail])
 
   const filtered = useMemo(() => {
     let result = [...products]
@@ -174,6 +188,7 @@ export default function CatalogoPage() {
                     price={Number(product.price)}
                     imageUrl={product.image_url?.replace(/^imagenes\//, '/assets/images/') || null}
                     view_count={product.view_count}
+                    onViewDetail={() => openDetail(product)}
                   />
                 </motion.div>
               ))}
@@ -197,6 +212,12 @@ export default function CatalogoPage() {
           </div>
         )}
       </div>
+
+      <ProductDetailModal
+        product={selectedProduct}
+        open={selectedProduct !== null}
+        onClose={closeDetail}
+      />
     </>
   )
 }

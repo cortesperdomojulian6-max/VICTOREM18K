@@ -18,13 +18,14 @@ interface ProductCardProps {
   imageUrl: string | null
   priority?: boolean
   view_count?: number
+  onViewDetail?: () => void
 }
 
 const shimmer = 'data:image/svg+xml;base64,' + Buffer.from(
   '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600"><rect fill="#f5f0eb" width="600" height="600"/></svg>'
 ).toString('base64')
 
-export function ProductCard({ id, name, description, price, imageUrl, priority, view_count }: ProductCardProps) {
+export function ProductCard({ id, name, description, price, imageUrl, priority, view_count, onViewDetail }: ProductCardProps) {
   const [adding, setAdding] = useState(false)
   const { isAuthenticated } = useAuthStore()
   const { addItem } = useCartStore()
@@ -84,9 +85,9 @@ export function ProductCard({ id, name, description, price, imageUrl, priority, 
         <p className="text-sm text-stone leading-relaxed line-clamp-2">{description}</p>
         <p className="font-heading text-xl font-semibold text-gold-400 pt-1">{formattedPrice}</p>
         <div className="flex gap-2 pt-2">
-          <Link href={`/catalogo?id=${id}`} className="flex-1">
-            <Button variant="outline" size="sm" className="w-full">Ver Detalles</Button>
-          </Link>
+          <div className="flex-1">
+            <Button variant="outline" size="sm" className="w-full" onClick={onViewDetail}>Ver Detalles</Button>
+          </div>
           <Button size="sm" className="flex-1" onClick={handleAddToCart} loading={adding} disabled={adding}>
             {adding ? 'Agregando...' : 'Agregar'}
           </Button>
