@@ -38,8 +38,11 @@ function HeroSection() {
   return (
     <section ref={ref} className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-cover bg-center" style={{ backgroundImage: "url('/images/textura.png')" }}>
       <ParticlesCanvas className="absolute inset-0 z-[1] pointer-events-none" />
-      <Hero3D />
-      <motion.div className="absolute inset-0 bg-gradient-to-b from-black/85 via-black/40 to-black/70 z-[2]" style={{ opacity }} />
+      <div className="absolute inset-0 z-[3] pointer-events-none">
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at center 40%, rgba(212,175,55,0.08) 0%, transparent 60%)' }} />
+        <Hero3D />
+      </div>
+      <motion.div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-black/60 z-[2]" style={{ opacity }} />
       <motion.div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-snow to-transparent z-[2]" style={{ opacity }} />
 
       <div className="container-main relative z-10 text-center">

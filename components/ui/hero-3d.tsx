@@ -84,7 +84,7 @@ function Ground() {
 
 export function Hero3D() {
   return (
-    <div className="absolute inset-0 z-[1] pointer-events-none">
+    <div className="absolute inset-0 pointer-events-none">
       <Canvas shadows dpr={[1, 1.5]} camera={{ position: [0, 1, 3.5], fov: 45 }}>
         <PerspectiveCamera makeDefault position={[0, 1, 3.5]} fov={45} />
         <ambientLight intensity={0.3} />
