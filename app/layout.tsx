@@ -4,8 +4,8 @@ import './globals.css'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { AuthModal } from '@/components/layout/auth-modal'
-import { PageTransition } from '@/components/layout/page-transition'
 import { ScrollToTop } from '@/components/ui/scroll-to-top'
+import { CursorTrail } from '@/components/ui/cursor-trail'
 import { Toaster } from 'sonner'
 
 const cormorant = Cormorant_Garamond({
@@ -59,14 +59,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Saltar al contenido
         </a>
         <Header />
-        <main id="main-content" className="flex-1 flex flex-col">
-          <PageTransition>
-            {children}
-          </PageTransition>
-        </main>
+        <main id="main-content" className="flex-1">{children}</main>
         <Footer />
         <AuthModal />
         <ScrollToTop />
+        <CursorTrail />
         <Toaster
           position="top-right"
           toastOptions={{
