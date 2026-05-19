@@ -93,6 +93,7 @@ export default function PersonalizacionPage() {
   const [dije, setDije] = useState<DijeName | null>(null)
   const [color, setColor] = useState<string | null>(null)
   const [balines, setBalines] = useState<number>(6)
+  const [balinType, setBalinType] = useState<'lisos' | 'diamantados'>('lisos')
   const [showConfetti, setShowConfetti] = useState(false)
   const [products, setProducts] = useState<Product[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
@@ -161,7 +162,7 @@ export default function PersonalizacionPage() {
       await addItem(custom.id, 1)
 
       localStorage.setItem('personalizacion', JSON.stringify({
-        type: jewelType, dije, color, balines, total,
+        type: jewelType, dije, color, balines, balinType, total,
         productoBase: selectedProduct?.name || null,
         fecha: new Date().toISOString(),
       }))
@@ -187,6 +188,7 @@ export default function PersonalizacionPage() {
                 balines={balines}
                 textureUrl={textureUrl}
                 productName={selectedProduct?.name}
+                balinType={balinType}
               />
             </div>
             <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Selecciona tu producto base del catálogo</p>
@@ -250,6 +252,7 @@ export default function PersonalizacionPage() {
                 balines={balines}
                 textureUrl={textureUrl}
                 productName={selectedProduct?.name}
+                balinType={balinType}
               />
             </div>
             <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Elige tu dije favorito</p>
@@ -288,6 +291,7 @@ export default function PersonalizacionPage() {
                 balines={balines}
                 textureUrl={textureUrl}
                 productName={selectedProduct?.name}
+                balinType={balinType}
               />
             </div>
             <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Selecciona el color</p>
@@ -319,10 +323,34 @@ export default function PersonalizacionPage() {
                 balines={balines}
                 textureUrl={textureUrl}
                 productName={selectedProduct?.name}
+                balinType={balinType}
               />
             </div>
+            <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-3">Tipo de balín</p>
+            <div className="grid grid-cols-2 gap-4 mb-8">
+              {(['lisos', 'diamantados'] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setBalinType(t)}
+                  className={`p-5 border-2 text-center transition-all ${
+                    balinType === t ? 'border-gold-400 bg-gold-400/5 shadow-md' : 'border-pearl hover:border-gold-400 bg-white'
+                  }`}
+                >
+                  <div className="size-16 mx-auto mb-3 flex items-center justify-center">
+                    <img
+                      src={t === 'lisos' ? '/assets/images/balines/balineslisos.jpeg' : '/assets/images/balines/balinesdiamantados.jpeg'}
+                      alt={t === 'lisos' ? 'Balines lisos' : 'Balines diamantados'}
+                      className="w-full h-full object-contain rounded-full"
+                    />
+                  </div>
+                  <span className="block font-heading text-base font-medium text-ebony">
+                    {t === 'lisos' ? 'Lisos' : 'Diamantados'}
+                  </span>
+                  <span className="text-xs text-stone">{t === 'lisos' ? 'Acabado brillante clásico' : 'Corte facetado premium'}</span>
+                </button>
+              ))}
+            </div>
             <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-2">Número de balines</p>
-            <p className="text-sm text-stone mb-6">Elige la cantidad (solo pares, de 4 a 14)</p>
             <div className="flex flex-wrap gap-3">
               {[4, 6, 8, 10, 12, 14].map((n) => (
                 <button
@@ -366,6 +394,7 @@ export default function PersonalizacionPage() {
                 balines={balines}
                 textureUrl={textureUrl}
                 productName={selectedProduct?.name}
+                balinType={balinType}
               />
             </div>
             <div className="bg-white p-8 border border-black/4">

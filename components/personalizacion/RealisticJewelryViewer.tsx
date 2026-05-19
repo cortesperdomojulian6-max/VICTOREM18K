@@ -16,6 +16,7 @@ interface RealisticJewelryViewerProps {
   balines: number
   textureUrl?: string | null
   productName?: string
+  balinType?: 'lisos' | 'diamantados'
 }
 
 const COLOR_MAP: Record<string, string> = {
@@ -27,28 +28,37 @@ function TextureBracelet({
   color,
   balineCount,
   dijeName,
+  balinType = 'lisos',
 }: {
   textureUrl?: string | null
   color: string
   balineCount: number
   dijeName: string | null
+  balinType?: 'lisos' | 'diamantados'
 }) {
   const groupRef = useRef<THREE.Group>(null)
   const radius = 1.5
   const tube = 0.1
 
-  const texture = useLoader(THREE.TextureLoader, textureUrl || '', (loader) => {
+  const productTex = useLoader(THREE.TextureLoader, textureUrl || '', (loader) => {
     loader.crossOrigin = 'anonymous'
   })
 
+  const balinTex = useLoader(
+    THREE.TextureLoader,
+    balinType === 'diamantados'
+      ? '/assets/images/balines/balinesdiamantados.jpeg'
+      : '/assets/images/balines/balineslisos.jpeg',
+  )
+
   useEffect(() => {
-    if (texture) {
-      texture.wrapS = THREE.RepeatWrapping
-      texture.wrapT = THREE.RepeatWrapping
-      texture.repeat.set(2, 1)
-      texture.needsUpdate = true
+    if (productTex) {
+      productTex.wrapS = THREE.RepeatWrapping
+      productTex.wrapT = THREE.RepeatWrapping
+      productTex.repeat.set(2, 1)
+      productTex.needsUpdate = true
     }
-  }, [texture])
+  }, [productTex])
 
   useFrame((_, delta) => {
     if (groupRef.current) groupRef.current.rotation.y += delta * 0.25
@@ -73,7 +83,7 @@ function TextureBracelet({
           <torusGeometry args={[radius, tube, 40, 80]} />
           {hasValidTexture ? (
             <meshStandardMaterial
-              map={texture}
+              map={productTex}
               metalness={0.3}
               roughness={0.4}
               envMapIntensity={1.2}
@@ -103,14 +113,12 @@ function TextureBracelet({
 
       {balinePositions.map((pos, i) => (
         <mesh key={i} position={pos} castShadow>
-          <sphereGeometry args={[0.09, 16, 16]} />
+          <sphereGeometry args={[0.09, balinType === 'diamantados' ? 12 : 20, balinType === 'diamantados' ? 12 : 20]} />
           <meshStandardMaterial
-            color={color}
-            metalness={0.92}
-            roughness={0.12}
-            envMapIntensity={2.5}
-            emissive={color}
-            emissiveIntensity={0.05}
+            map={balinTex}
+            metalness={0.3}
+            roughness={0.3}
+            envMapIntensity={1.5}
           />
         </mesh>
       ))}
@@ -148,26 +156,35 @@ function TextureRing({
   color,
   isDiamond,
   isTriple,
+  balinType = 'lisos',
 }: {
   textureUrl?: string | null
   color: string
   isDiamond: boolean
   isTriple: boolean
+  balinType?: 'lisos' | 'diamantados'
 }) {
   const groupRef = useRef<THREE.Group>(null)
 
-  const texture = useLoader(THREE.TextureLoader, textureUrl || '', (loader) => {
+  const productTex = useLoader(THREE.TextureLoader, textureUrl || '', (loader) => {
     loader.crossOrigin = 'anonymous'
   })
 
+  const balinTex = useLoader(
+    THREE.TextureLoader,
+    balinType === 'diamantados'
+      ? '/assets/images/balines/balinesdiamantados.jpeg'
+      : '/assets/images/balines/balineslisos.jpeg',
+  )
+
   useEffect(() => {
-    if (texture) {
-      texture.wrapS = THREE.RepeatWrapping
-      texture.wrapT = THREE.RepeatWrapping
-      texture.repeat.set(2, 1)
-      texture.needsUpdate = true
+    if (productTex) {
+      productTex.wrapS = THREE.RepeatWrapping
+      productTex.wrapT = THREE.RepeatWrapping
+      productTex.repeat.set(2, 1)
+      productTex.needsUpdate = true
     }
-  }, [texture])
+  }, [productTex])
 
   useFrame((_, delta) => {
     if (groupRef.current) groupRef.current.rotation.y += delta * 0.35
@@ -194,7 +211,7 @@ function TextureRing({
           <torusGeometry args={[0.75, 0.08, 28, 60]} />
           {hasValidTexture ? (
             <meshStandardMaterial
-              map={texture}
+              map={productTex}
               metalness={0.3}
               roughness={0.4}
               envMapIntensity={1.2}
@@ -308,6 +325,7 @@ function JewelryScene(props: RealisticJewelryViewerProps) {
             color={c}
             balineCount={props.balines}
             dijeName={props.dije}
+            balinType={props.balinType}
           />
         )}
         {isRing && (
@@ -316,6 +334,7 @@ function JewelryScene(props: RealisticJewelryViewerProps) {
             color={c}
             isDiamond={isDiamond}
             isTriple={isTriple}
+            balinType={props.balinType}
           />
         )}
       </Float>
