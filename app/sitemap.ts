@@ -1,38 +1,36 @@
 import { MetadataRoute } from 'next'
-import { api } from '@/lib/api'
-import type { Product } from '@/types'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://victorem.co'
 
-  // Rutas estáticas
-  const routes = [
-    '',
-    '/catalogo',
-    '/personalizacion',
-    '/historia',
-    '/contacto',
-  ].map((route) => ({
-    url: `${baseUrl}${route}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: route === '' ? 1 : 0.8,
-  }))
+  const staticRoutes = [
+    { url: baseUrl, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 1 },
+    { url: `${baseUrl}/catalogo`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.8 },
+    { url: `${baseUrl}/personalizacion`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.8 },
+    { url: `${baseUrl}/historia`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.6 },
+    { url: `${baseUrl}/contacto`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.6 },
+    { url: `${baseUrl}/carrito`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.4 },
+    { url: `${baseUrl}/cuidado`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.5 },
+    { url: `${baseUrl}/politicas`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.3 },
+    { url: `${baseUrl}/terminos`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.3 },
+  ]
 
   try {
-    // Rutas dinámicas de productos
-    const products = await api.get<Product[]>('/products')
-    
-    const productRoutes = products.map((product) => ({
-      url: `${baseUrl}/catalogo?id=${product.id}`,
-      lastModified: new Date(product.created_at || new Date()),
+    const { Pool } = await import('pg')
+    const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } })
+    const { rows } = await pool.query('SELECT id, updated_at FROM products WHERE active = true')
+    await pool.end()
+
+    const productRoutes = rows.map((row: { id: number; updated_at: string }) => ({
+      url: `${baseUrl}/catalogo?id=${row.id}`,
+      lastModified: new Date(row.updated_at || new Date()),
       changeFrequency: 'weekly' as const,
       priority: 0.6,
     }))
 
-    return [...routes, ...productRoutes]
+    return [...staticRoutes, ...productRoutes]
   } catch (error) {
     console.error('Error fetching products for sitemap:', error)
-    return routes
+    return staticRoutes
   }
 }
