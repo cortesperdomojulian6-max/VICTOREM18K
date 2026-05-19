@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Check, ArrowRight, ArrowLeft, ShoppingBag, Sparkles } from 'lucide-react'
+import { Check, ArrowRight, ArrowLeft, ShoppingBag, Sparkles, RefreshCcw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
 import { formatPrice } from '@/lib/utils'
@@ -13,8 +13,9 @@ import { Confetti } from '@/components/ui/confetti'
 import dynamic from 'next/dynamic'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useCartStore } from '@/store/useCartStore'
+import type { Product } from '@/types'
 
-const JewelryViewer = dynamic(() => import('@/components/personalizacion/JewelryViewer'), {
+const RealisticJewelryViewer = dynamic(() => import('@/components/personalizacion/RealisticJewelryViewer'), {
   ssr: false,
   loading: () => (
     <div className="w-full min-h-[400px] relative rounded-xl overflow-hidden bg-gradient-to-b from-stone-100 to-white border border-pearl flex items-center justify-center">
@@ -55,7 +56,7 @@ const BASE_PRICES: Record<JewelType, number> = { pulsera: 80000, anillo: 50000 }
 const BALIN_PRICE = 5000
 
 const STEPS = [
-  { id: 1, label: 'Tipo de Joya' },
+  { id: 1, label: 'Producto' },
   { id: 2, label: 'Dije' },
   { id: 3, label: 'Color' },
   { id: 4, label: 'Balines' },
@@ -93,8 +94,40 @@ export default function PersonalizacionPage() {
   const [color, setColor] = useState<string | null>(null)
   const [balines, setBalines] = useState<number>(6)
   const [showConfetti, setShowConfetti] = useState(false)
+  const [products, setProducts] = useState<Product[]>([])
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [loadingProducts, setLoadingProducts] = useState(false)
   const { isAuthenticated } = useAuthStore()
   const { addItem } = useCartStore()
+
+  useEffect(() => {
+    async function loadProducts() {
+      setLoadingProducts(true)
+      try {
+        const data = await api.get<Product[]>('/products')
+        setProducts(data)
+      } catch {
+        // Silently fail
+      } finally {
+        setLoadingProducts(false)
+      }
+    }
+    loadProducts()
+  }, [])
+
+  const textureUrl = selectedProduct?.image_url?.replace(/^imagenes\//, '/assets/images/') || null
+
+  const handleSelectProduct = (product: Product) => {
+    setSelectedProduct(product)
+    const isBracelet = product.category?.toLowerCase() === 'pulsos' || product.category?.toLowerCase() === 'manillas'
+    setJewelType(isBracelet ? 'pulsera' : 'anillo')
+    setColor('#d4af37')
+  }
+
+  const handleResetProduct = () => {
+    setSelectedProduct(null)
+    setJewelType(null)
+  }
 
   const basePrice = jewelType ? BASE_PRICES[jewelType] : 0
   const dijePrice = dije ? DIJES.find((d) => d.name === dije)?.price || 0 : 0
@@ -121,14 +154,16 @@ export default function PersonalizacionPage() {
     const typeLabel = jewelType === 'pulsera' ? 'Pulsera' : 'Anillo'
 
     try {
-      const products = await api.get<{ id: number; name: string }[]>('/products')
-      const custom = products.find((p) => p.name === 'Joya Personalizada' || p.name.toLowerCase().includes('personalizada'))
+      const productList = await api.get<{ id: number; name: string }[]>('/products')
+      const custom = productList.find((p) => p.name === 'Joya Personalizada' || p.name.toLowerCase().includes('personalizada'))
       if (!custom) { toast.error('Error: Producto personalizado no configurado'); return }
 
       await addItem(custom.id, 1)
 
       localStorage.setItem('personalizacion', JSON.stringify({
-        type: jewelType, dije, color, balines, total, fecha: new Date().toISOString(),
+        type: jewelType, dije, color, balines, total,
+        productoBase: selectedProduct?.name || null,
+        fecha: new Date().toISOString(),
       }))
 
       setShowConfetti(true)
@@ -145,35 +180,62 @@ export default function PersonalizacionPage() {
         return (
           <div>
             <div className="mb-6">
-              <JewelryViewer type={jewelType} dije={dije} color={COLORS.find((c) => c.value === color)?.value || null} balines={balines} />
+              <RealisticJewelryViewer
+                type={jewelType}
+                dije={dije}
+                color={color ? COLORS.find((c) => c.value === color)?.name || null : null}
+                balines={balines}
+                textureUrl={textureUrl}
+                productName={selectedProduct?.name}
+              />
             </div>
-            <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Selecciona el tipo de joya</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {(['pulsera', 'anillo'] as const).map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setJewelType(type)}
-                  className={`p-8 border-2 text-center transition-all ${
-                    jewelType === type ? 'border-gold-400 bg-gold-400/5 shadow-md' : 'border-pearl hover:border-gold-400 bg-white'
-                  }`}
-                >
-                  {type === 'pulsera' ? (
-                    <Image src="/assets/images/pulsera icono.png" alt="" width={48} height={48} className="mx-auto mb-3 opacity-60" />
-                  ) : (
-                    <Image src="/assets/images/anillo icono.png" alt="" width={48} height={48} className="mx-auto mb-3 opacity-60" />
-                  )}
-                  <span className="block font-heading text-2xl font-medium text-ebony mb-2">
-                    {type === 'pulsera' ? 'Pulsera' : 'Anillo'}
-                  </span>
-                  <span className="text-sm text-stone">Desde {formatPrice(BASE_PRICES[type])}</span>
-                  {jewelType === type && (
-                    <span className="block mt-3 text-xs text-gold-400 font-semibold uppercase tracking-wider">
-                      Seleccionado <Check className="size-3.5 inline ml-1" />
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
+            <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Selecciona tu producto base del catálogo</p>
+            {loadingProducts ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full size-8 border-b-2 border-gold-400" />
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {products.map((product) => {
+                    const imgUrl = product.image_url?.replace(/^imagenes\//, '/assets/images/') || null
+                    const isSelected = selectedProduct?.id === product.id
+                    return (
+                      <button
+                        key={product.id}
+                        onClick={() => handleSelectProduct(product)}
+                        className={`p-3 border-2 text-center transition-all ${
+                          isSelected
+                            ? 'border-gold-400 bg-gold-400/5 shadow-md ring-1 ring-gold-400/30'
+                            : 'border-pearl hover:border-gold-300 bg-white'
+                        }`}
+                      >
+                        <div className="aspect-square mb-2 flex items-center justify-center bg-stone-50 overflow-hidden">
+                          {imgUrl ? (
+                            <Image src={imgUrl} alt={product.name} width={100} height={100} className="w-full h-full object-contain p-1" />
+                          ) : (
+                            <Sparkles className="size-6 text-stone" />
+                          )}
+                        </div>
+                        <span className="block text-xs font-medium text-ebony leading-tight line-clamp-2">{product.name}</span>
+                        <span className="block text-[11px] text-stone mt-0.5">{formatPrice(Number(product.price))}</span>
+                        {isSelected && (
+                          <span className="block mt-1 text-[10px] text-gold-400 font-semibold">Seleccionado</span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+                <div className="mt-6 text-center">
+                  <button
+                    onClick={() => { setJewelType('pulsera'); setColor('#d4af37') }}
+                    className="text-xs text-stone hover:text-ebony underline underline-offset-2 transition-colors"
+                  >
+                    O empezar desde cero sin producto base
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         )
 
@@ -181,7 +243,14 @@ export default function PersonalizacionPage() {
         return (
           <div>
             <div className="mb-6">
-              <JewelryViewer type={jewelType} dije={dije} color={COLORS.find((c) => c.value === color)?.value || null} balines={balines} />
+              <RealisticJewelryViewer
+                type={jewelType}
+                dije={dije}
+                color={color ? COLORS.find((c) => c.value === color)?.name || null : null}
+                balines={balines}
+                textureUrl={textureUrl}
+                productName={selectedProduct?.name}
+              />
             </div>
             <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Elige tu dije favorito</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -212,7 +281,14 @@ export default function PersonalizacionPage() {
         return (
           <div>
             <div className="mb-6">
-              <JewelryViewer type={jewelType} dije={dije} color={COLORS.find((c) => c.value === color)?.value || null} balines={balines} />
+              <RealisticJewelryViewer
+                type={jewelType}
+                dije={dije}
+                color={color ? COLORS.find((c) => c.value === color)?.name || null : null}
+                balines={balines}
+                textureUrl={textureUrl}
+                productName={selectedProduct?.name}
+              />
             </div>
             <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Selecciona el color</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -236,12 +312,19 @@ export default function PersonalizacionPage() {
         return (
           <div>
             <div className="mb-6">
-              <JewelryViewer type={jewelType} dije={dije} color={COLORS.find((c) => c.value === color)?.value || null} balines={balines} />
+              <RealisticJewelryViewer
+                type={jewelType}
+                dije={dije}
+                color={color ? COLORS.find((c) => c.value === color)?.name || null : null}
+                balines={balines}
+                textureUrl={textureUrl}
+                productName={selectedProduct?.name}
+              />
             </div>
             <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-2">Número de balines</p>
-            <p className="text-sm text-stone mb-6">Elige la cantidad (solo pares, de 4 a 10)</p>
+            <p className="text-sm text-stone mb-6">Elige la cantidad (solo pares, de 4 a 14)</p>
             <div className="flex flex-wrap gap-3">
-              {[4, 6, 8, 10].map((n) => (
+              {[4, 6, 8, 10, 12, 14].map((n) => (
                 <button
                   key={n}
                   onClick={() => setBalines(n)}
@@ -258,7 +341,7 @@ export default function PersonalizacionPage() {
               <input
                 type="range"
                 min={4}
-                max={10}
+                max={14}
                 step={2}
                 value={balines}
                 onChange={(e) => setBalines(Number(e.target.value))}
@@ -266,7 +349,7 @@ export default function PersonalizacionPage() {
               />
               <div className="flex justify-between text-xs text-stone mt-1">
                 <span>4</span>
-                <span>10</span>
+                <span>14</span>
               </div>
             </div>
           </div>
@@ -276,7 +359,14 @@ export default function PersonalizacionPage() {
         return (
           <div>
             <div className="mb-6">
-              <JewelryViewer type={jewelType} dije={dije} color={COLORS.find((c) => c.value === color)?.value || null} balines={balines} />
+              <RealisticJewelryViewer
+                type={jewelType}
+                dije={dije}
+                color={color ? COLORS.find((c) => c.value === color)?.name || null : null}
+                balines={balines}
+                textureUrl={textureUrl}
+                productName={selectedProduct?.name}
+              />
             </div>
             <div className="bg-white p-8 border border-black/4">
               <h3 className="font-heading text-xl font-medium text-ebony mb-6 pb-3 border-b border-gold-400/30">
@@ -284,9 +374,9 @@ export default function PersonalizacionPage() {
               </h3>
               <div className="space-y-4">
                 {[
-                  ['Tipo', jewelType === 'pulsera' ? 'Pulsera' : 'Anillo'],
-                  ['Dije', DIJES.find((d) => d.name === dije)?.label],
-                  ['Color', COLORS.find((c) => c.value === color)?.label],
+                  ['Producto base', selectedProduct?.name || `${jewelType === 'pulsera' ? 'Pulsera' : 'Anillo'} personalizado`],
+                  ['Dije', DIJES.find((d) => d.name === dije)?.label || 'Ninguno'],
+                  ['Color', COLORS.find((c) => c.value === color)?.label || 'Oro'],
                   ['Balines', String(balines)],
                 ].map(([label, value]) => (
                   <div key={label} className="flex justify-between text-sm">
@@ -297,12 +387,12 @@ export default function PersonalizacionPage() {
                 <hr className="border-pearl" />
                 {[
                   [`Base (${jewelType === 'pulsera' ? 'Pulsera' : 'Anillo'})`, formatPrice(basePrice)],
-                  [`Dije (${DIJES.find((d) => d.name === dije)?.label})`, `+${formatPrice(dijePrice)}`],
-                  [`Balines (${balines} × ${formatPrice(BALIN_PRICE)}/2)`, `+${formatPrice(balinPrice)}`],
+                  ...(dije ? [[`Dije (${DIJES.find((d) => d.name === dije)?.label})`, `+${formatPrice(dijePrice)}`]] : []),
+                  [`Balines (${balines})`, `+${formatPrice(balinPrice)}`],
                 ].map(([label, value]) => (
-                  <div key={label} className="flex justify-between text-sm">
-                    <span className="text-stone">{label}</span>
-                    <span className="font-medium text-ebony">{value}</span>
+                  <div key={label as string} className="flex justify-between text-sm">
+                    <span className="text-stone">{label as string}</span>
+                    <span className="font-medium text-ebony">{value as string}</span>
                   </div>
                 ))}
                 <hr className="border-pearl" />

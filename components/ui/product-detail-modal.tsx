@@ -4,7 +4,6 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { X, ShoppingBag, Heart, Share2, Minus, Plus, ChevronRight } from 'lucide-react'
 import { Button } from './button'
-import { ProductViewer360 } from './product-viewer-360'
 import { formatPrice } from '@/lib/utils'
 import { api } from '@/lib/api'
 import { toast } from 'sonner'
@@ -80,13 +79,21 @@ export function ProductDetailModal({ product, open, onClose }: ProductDetailModa
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
-              <div className="border-r border-pearl">
-                <ProductViewer360
-                  imageUrl={imageUrl}
-                  name={product.name}
-                  balines={8}
-                  color={selectedColor}
-                />
+              <div className="border-r border-pearl bg-stone-50 flex items-center justify-center">
+                {imageUrl ? (
+                  <Image
+                    src={imageUrl}
+                    alt={product.name}
+                    width={500}
+                    height={500}
+                    className="w-full h-auto object-contain p-4"
+                    priority
+                  />
+                ) : (
+                  <div className="w-full aspect-square flex items-center justify-center text-stone text-sm">
+                    Sin imagen
+                  </div>
+                )}
               </div>
 
               <div className="p-6 md:p-8 space-y-6">
