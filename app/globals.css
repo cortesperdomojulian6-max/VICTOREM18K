@@ -15,6 +15,12 @@
   --color-gold-800: #704e10;
   --color-gold-900: #54380b;
 
+  /* Luxury design extras */
+  --color-deep-obsidian: #050505;
+  --color-glass-surface: rgba(255, 255, 255, 0.03);
+  --color-glass-border: rgba(255, 255, 255, 0.1);
+  --color-gold-glow: #FFD700;
+
   /* Neutrals */
   --color-ebony: #0d0d0d;
   --color-charcoal: #1a1a1a;
@@ -124,3 +130,30 @@
 @utility text-balance {
   text-wrap: balance;
 }
+
+@keyframes float-orb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(150px, 200px) scale(1.3); }
+  50% { transform: translate(-100px, 400px) scale(0.7); }
+  75% { transform: translate(300px, -150px) scale(1.2); }
+}
+
+@keyframes mascot-float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-20px) rotate(2deg); }
+}
+
+@keyframes logo-pulse {
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.2)); transform: scale(1); }
+  50% { filter: drop-shadow(0 0 30px rgba(212, 175, 55, 0.4)); transform: scale(1.05); }
+}
+
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-float-orb { animation: float-orb 25s infinite ease-in-out; }
+.animate-mascot { animation: mascot-float 6s ease-in-out infinite; }
+.animate-logo-pulse { animation: logo-pulse 4s ease-in-out infinite; }
+.animate-reveal { animation: reveal-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }

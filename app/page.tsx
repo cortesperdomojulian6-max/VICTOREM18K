@@ -1,333 +1,204 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, ChevronLeft, ChevronRight, Star, Sparkles } from 'lucide-react'
+import { ArrowRight, Star, Quote } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { ProductCard } from '@/components/ui/card'
-import { ProductCardSkeleton } from '@/components/ui/skeleton'
-import { ParticlesCanvas } from '@/components/ui/particles-canvas'
-import { WalkingTioRico } from '@/components/ui/walking-tio'
-import { api } from '@/lib/api'
-import type { Product } from '@/types'
-import { motion, useScroll, useTransform } from 'framer-motion'
-import { toast } from 'sonner'
 
-const TESTIMONIALS = [
-  {
-    text: 'La calidad es excepcional. Mi manilla personalizada es una obra de arte que uso todos los días. El proceso de personalización fue muy fácil y el resultado superó mis expectativas.',
-    author: 'María González',
-  },
-  {
-    text: 'Compré un anillo para mi esposa y quedó encantada. La atención al detalle y la elegancia del diseño son incomparables. Definitivamente volveré por más piezas.',
-    author: 'Carlos Rodríguez',
-  },
-  {
-    text: 'El trabajo artesanal es impresionante. Cada balín está perfectamente colocado y el acabado en oro es hermoso. Una inversión que vale la pena para una joya única.',
-    author: 'Ana Martínez',
-  },
+const PRODUCTS = [
+  { name: 'Pulsera Trébol', desc: 'Diseño artesanal con detalles en ónix y balinería fina de oro 18K.', price: '$ 165.000', img: 'https://lh3.googleusercontent.com/aida/ADBb0ui5-rz2jdv8Y_53OaYuZiv8WaX_MiMdloErKFkeDmMyySfIpTd00AL9LsjS9e1T4dV6ooVEWpK_OmEGA4M21Cn5dV4gUWjTI-UqQHZbs-lHKy9i4wns3A48zIZ0nYti5Dasd-iO4d0LakvH7wnVVtbE8cDJPPHTnH1peT-KJvwYT5Wl1ageRaBSaWHJttKrvmA6ERbSKDnkXEr1v21Gn21JusTBtJ2QqILz1MxlJJ0OGGXQHR0eZMrPqaM' },
+  { name: 'Anillo Tres Carriles', desc: 'Elegancia estructurada con tres bandas de balines en oro de alta calidad.', price: '$ 180.000', img: 'https://lh3.googleusercontent.com/aida/ADBb0uhxcUbRrCLheS4vc2Wzgr4I6B2A7mo90QDb788jg1olfnzdFUgf5-vaSgZDYy-6zXW1psTVd4-r_XAjjwuYsue-eujBnjanrvQ4YsP8bIrEsc8fI3soPTmz0MbEChw4SSZn5aZ728XwlNEbkr54kC46M5cuSlKoVMr9ZYBomb1039iYRv8K28Fc1kRhQofCSCDCaoj0W3QkejJ1VY9p5fME4mMMpHLDGkwlbwrz96Tpk1x0UYzZs-9gLZI' },
+  { name: 'Diseño Exclusivo', desc: 'Pieza única tejida a mano con balines de oro y cordón de seda negro.', price: '$ 210.000', img: 'https://lh3.googleusercontent.com/aida/ADBb0uiGDW1x9ijKs71IwonjJJ5W0lgfPrEy0CQyE6P2_ozWBO_OkhtFvcj2tTsCr_2Vn26hxxJkffR8Tsy5PoBqFoVsDN_bD0asCTeRFZ3fgWwgi6S9DJbrVl5RJyxCDwKMjdRnhDgdgJWNjq7kn3vss14RoCdQ-jpZpBr0B-b8HYVdHodReQJk90id4DpgMz0JckR1y1xnysPjLSTkfoBRn-V0EC2Sldi-0eiM1N_6jHjZcvMdJedN5fesPg' },
+  { name: 'Manilla Dollar', desc: 'Símbolo de sofisticación y estatus con placa central y balines labrados.', price: '$ 195.000', img: 'https://lh3.googleusercontent.com/aida/ADBb0uhJGO4B-c-kKEzG6855LTP-6LUGXF7LU07OWlb__OMYxQyxy_y1qbHL9KiJACRgXW_t8RP-sNqD1q1sjYrVMTTbRhTQKNKWROoKhoFLgAr6aYi3zZfVAWXkANlTRiVaXkyyxg-Z3B8OT9eqyNBtBXsTDMgYmOLmQQdXNx1CuTmOohlTL4Ae1oItAMkhK5LMYT9DF5NcBctnO1xCwUS5bb8Ich_cJua6IdZFRGMcB3OfFON855fQ_aWG4OA' },
 ]
 
-function HeroSection() {
-  const ref = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
-  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '30%'])
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0])
-
-  return (
-    <section ref={ref} className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-ebony">
-      <ParticlesCanvas className="absolute inset-0 z-[1] pointer-events-none" />
-      <div className="absolute inset-0 z-[3] pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-b from-ebony to-charcoal" />
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at center 40%, rgba(212,175,55,0.15) 0%, transparent 60%)' }} />
-        <WalkingTioRico />
-      </div>
-      <motion.div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-black/60 z-[2]" style={{ opacity }} />
-      <motion.div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-snow to-transparent z-[2]" style={{ opacity }} />
-
-      <div className="container-main relative z-10 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-        >
-          <div className="mx-auto mb-7">
-            <Image
-              src="/images/logo.png"
-              alt="Victorem"
-              width={120}
-              height={120}
-              className="mx-auto drop-shadow-[0_4px_20px_rgba(212,175,55,0.25)]"
-              priority
-            />
-          </div>
-          <h1 className="font-heading text-5xl md:text-7xl font-light tracking-[0.15em] md:tracking-[0.2em] text-white mb-4">
-            VICTOREM
-          </h1>
-          <div className="w-14 h-px bg-gradient-to-r from-gold-400 via-gold-300 to-gold-400 mx-auto my-5" />
-          <p className="font-heading text-lg md:text-xl font-light tracking-[0.15em] text-gold-200 mb-3">
-            Arte en cada balín, elegancia en cada detalle
-          </p>
-          <p className="text-sm md:text-base text-white/70 max-w-lg mx-auto mb-10 font-light leading-relaxed">
-            La perfecta fusión entre tradición artesanal y diseño contemporáneo en cada una de nuestras creaciones únicas
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/catalogo">
-              <Button size="lg" className="min-w-[200px]">
-                Explorar Catálogo <ArrowRight className="size-4 ml-2" />
-              </Button>
-            </Link>
-            <Link href="/personalizacion">
-              <Button variant="outline" size="lg" className="min-w-[200px]">
-                Crear Joya Única
-              </Button>
-            </Link>
-          </div>
-        </motion.div>
-      </div>
-
-      <motion.div
-        className="absolute inset-0 z-[1]"
-        style={{ backgroundImage: "url('/images/textura.png')", backgroundSize: 'cover', backgroundPosition: 'center', y: bgY }}
-      />
-    </section>
-  )
-}
-
-function ProductCarousel({ products }: { products: Product[] }) {
-  const trackRef = useRef<HTMLDivElement>(null)
-  const [index, setIndex] = useState(0)
-  const [isMobile, setIsMobile] = useState(false)
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768)
-    check()
-    window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
-  }, [])
-
-  const slidesPerView = isMobile ? 1 : 3
-  const maxIndex = Math.max(0, products.length - slidesPerView)
-
-  const goTo = (i: number) => setIndex(Math.max(0, Math.min(i, maxIndex)))
-
-  return (
-    <div className="relative">
-      <div className="overflow-hidden" ref={trackRef}>
-        <div
-          className="flex transition-transform duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]"
-          style={{ transform: `translateX(-${index * (100 / slidesPerView)}%)` }}
-        >
-          {products.map((p) => (
-            <div
-              key={p.id}
-              className="shrink-0 px-2"
-              style={{ flex: `0 0 ${100 / slidesPerView}%`, maxWidth: `${100 / slidesPerView}%` }}
-            >
-              <ProductCard
-                id={p.id}
-                name={p.name}
-                description={p.description || ''}
-                price={Number(p.price)}
-                imageUrl={p.image_url?.replace(/^imagenes\//, '/assets/images/') || null}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {!isMobile && products.length > slidesPerView && (
-        <>
-          <button
-            onClick={() => goTo(index - 1)}
-            disabled={index === 0}
-            className="absolute top-1/2 -left-0 -translate-y-1/2 size-11 bg-white border border-pearl shadow-md flex items-center justify-center hover:bg-ebony hover:text-gold-400 hover:border-ebony transition-all disabled:opacity-30 disabled:cursor-not-allowed z-10"
-            aria-label="Anterior"
-          >
-            <ChevronLeft className="size-5" />
-          </button>
-          <button
-            onClick={() => goTo(index + 1)}
-            disabled={index >= maxIndex}
-            className="absolute top-1/2 -right-0 -translate-y-1/2 size-11 bg-white border border-pearl shadow-md flex items-center justify-center hover:bg-ebony hover:text-gold-400 hover:border-ebony transition-all disabled:opacity-30 disabled:cursor-not-allowed z-10"
-            aria-label="Siguiente"
-          >
-            <ChevronRight className="size-5" />
-          </button>
-        </>
-      )}
-
-      <motion.div className="flex justify-center gap-1.5 mt-8">
-        {Array.from({ length: Math.ceil(products.length / slidesPerView) }).map((_, i) => (
-          <button
-            key={i}
-            onClick={() => goTo(i * slidesPerView)}
-            className={`h-0.5 transition-all duration-300 ${
-              i === Math.floor(index / slidesPerView) ? 'w-9 bg-gold-400' : 'w-6 bg-pearl hover:bg-gold-200'
-            }`}
-            aria-label={`Ir a slide ${i + 1}`}
-          />
-        ))}
-      </motion.div>
-    </div>
-  )
-}
-
-function TestimonialsSection() {
-  return (
-    <section className="section-padding bg-cream">
-      <div className="container-main">
-        <div className="text-center mb-14">
-          <span className="block text-xs text-gold-400 font-semibold uppercase tracking-[0.15em] mb-3">Testimonios</span>
-          <h2 className="font-heading text-3xl md:text-4xl font-medium text-ebony tracking-wide">
-            Lo que dicen nuestros clientes
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {TESTIMONIALS.map((t, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-50px' }}
-              transition={{ delay: i * 0.1, duration: 0.6 }}
-              whileHover={{ y: -4, transition: { duration: 0.2 } }}
-              className="bg-white p-8 border border-black/4 relative hover:border-gold-400/25 hover:shadow-xl transition-all duration-300"
-            >
-              <span className="font-heading text-5xl text-gold-400/30 absolute top-3 left-5 leading-none" aria-hidden="true">
-                &ldquo;
-              </span>
-              <div className="flex gap-1 mb-4" aria-label="5 estrellas">
-                {Array.from({ length: 5 }).map((_, j) => (
-                  <motion.div
-                    key={j}
-                    initial={{ opacity: 0, scale: 0 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 + j * 0.08, type: 'spring', stiffness: 300 }}
-                  >
-                    <Star className="size-4 fill-gold-400 text-gold-400" />
-                  </motion.div>
-                ))}
-              </div>
-              <p className="text-sm text-stone leading-relaxed mb-4 italic relative z-[1]">
-                {t.text}
-              </p>
-              <p className="font-heading text-sm font-semibold text-ebony tracking-wide">
-                {t.author}
-              </p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function NewsletterSection() {
-  const [email, setEmail] = useState('')
-  const [saved, setSaved] = useState(false)
-  const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    const stored = localStorage.getItem('victorem_newsletter_email')
-    if (stored) {
-      setEmail(stored)
-      setSaved(true)
-    }
-  }, [])
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return
-    setLoading(true)
-    try {
-      const result = await api.post<{ ok: boolean; message: string }>('/newsletter', { email })
-      localStorage.setItem('victorem_newsletter_email', email)
-      setSaved(true)
-      toast.success(result.message || 'Gracias por suscribirte')
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Error al suscribirte'
-      toast.error(msg)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <section className="section-padding bg-ebony text-white text-center">
-      <div className="container-main max-w-lg">
-        <h2 className="font-heading text-3xl md:text-4xl font-medium tracking-wide text-white mb-3">
-          Mantente Inspirado
-        </h2>
-        <p className="text-sm text-silver mb-8">
-          Recibe novedades, colecciones exclusivas y ofertas especiales directamente en tu correo.
-        </p>
-
-        {saved ? (
-          <p className="text-sm text-gold-200">
-            Ya estás suscrita con <span className="font-semibold">{email}</span>
-          </p>
-        ) : (
-          <form onSubmit={handleSubmit} className="flex gap-3 max-w-md mx-auto">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Tu correo electrónico"
-              required
-              className="flex-1 px-4 py-3.5 bg-white/5 border border-white/10 text-white text-sm placeholder:text-silver/50 focus:outline-none focus:border-gold-400 focus:shadow-[0_0_0_3px_rgba(212,175,55,0.15)] transition-all"
-            />
-            <Button type="submit" loading={loading}>
-              Suscribirme
-            </Button>
-          </form>
-        )}
-      </div>
-    </section>
-  )
-}
+const TESTIMONIALS = [
+  { text: 'La calidad es excepcional. Mi manilla personalizada es una obra de arte que uso todos los días. El proceso superó mis expectativas.', author: 'María González', location: 'Huila, Colombia' },
+  { text: 'Compré un anillo para mi esposa y quedó encantada. La atención al detalle y la elegancia del diseño son incomparables.', author: 'Carlos Rodríguez', location: 'Bogotá, Colombia' },
+  { text: 'El trabajo artesanal es impresionante. Cada balín está perfectamente colocado y el acabado en oro es hermoso. Inversión que vale la pena.', author: 'Ana Martínez', location: 'Medellín, Colombia' },
+]
 
 export default function HomePage() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-
   useEffect(() => {
-    api.get<Product[]>('/products')
-      .then((data) => setProducts(data.slice(0, 9)))
-      .catch(() => setProducts([]))
-      .finally(() => setLoading(false))
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) entry.target.classList.add('opacity-100', 'translate-y-0')
+        })
+      },
+      { threshold: 0.1 },
+    )
+    document.querySelectorAll('.reveal-up').forEach((el) => observer.observe(el))
+    return () => observer.disconnect()
   }, [])
 
   return (
     <>
-      <HeroSection />
+      <header className="relative min-h-screen flex items-center justify-center overflow-hidden bg-deep-obsidian pt-24">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gold-400 opacity-[0.05] blur-[150px] rounded-full" />
 
-      <section className="section-padding">
-        <div className="container-main">
-          <div className="text-center mb-14">
-            <span className="block text-xs text-gold-400 font-semibold uppercase tracking-[0.15em] mb-3">Colección</span>
-            <h2 className="font-heading text-3xl md:text-4xl font-medium text-ebony tracking-wide">
+        <div className="absolute top-[25%] left-[25%] size-[15px] bg-gold-400 rounded-full blur-[1px] shadow-[0_0_15px_rgba(212,175,55,0.6)] animate-float-orb" />
+        <div className="absolute top-[70%] left-[75%] size-[25px] bg-gold-400 rounded-full blur-[1px] shadow-[0_0_15px_rgba(212,175,55,0.6)] animate-float-orb" style={{ animationDelay: '-8s' }} />
+        <div className="absolute top-[45%] left-[85%] size-[12px] bg-gold-400 rounded-full blur-[1px] shadow-[0_0_15px_rgba(212,175,55,0.6)] animate-float-orb" style={{ animationDelay: '-12s' }} />
+        <div className="absolute top-[15%] left-[60%] size-[20px] bg-gold-400 rounded-full blur-[1px] shadow-[0_0_15px_rgba(212,175,55,0.6)] animate-float-orb" style={{ animationDelay: '-4s' }} />
+        <div className="absolute top-[40%] left-[15%] size-[18px] bg-gold-400 rounded-full blur-[1px] shadow-[0_0_15px_rgba(212,175,55,0.6)] animate-float-orb" style={{ animationDelay: '-2s', opacity: 0.6 }} />
+        <div className="absolute top-[80%] left-[30%] size-[10px] bg-gold-400 rounded-full blur-[1px] shadow-[0_0_15px_rgba(212,175,55,0.6)] animate-float-orb" style={{ animationDelay: '-6s', opacity: 0.4 }} />
+        <div className="absolute top-[20%] left-[80%] size-[14px] bg-gold-400 rounded-full blur-[1px] shadow-[0_0_15px_rgba(212,175,55,0.6)] animate-float-orb" style={{ animationDelay: '-10s', opacity: 0.5 }} />
+
+        <div className="absolute bottom-[5%] left-[2%] w-[280px] z-30 pointer-events-none hidden lg:block scale-90">
+          <img
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvr6aGbzd5XvA6oBxXlZfzDnOan6HDmO9C9ompI8xfA_IvObrGp4e1NEEt1WKohDbq2539Lu-FRa62UjEHpVZX2SmM1LgKsPl03U6gGwKqYnbpfQ9HPs15v3I_080cYBxgixPMO7gX8VSF36BTwjtlT6YebV_lNMAMIeRkNcA_MWHNJgHoPnvYqJivL7fEqqrpcF5K5nXOhg2eoGNpy2-0vSZFFtG6FTZ3SMq5dJIoQq2yszjjd66fhj5JSl9MtThocZX5Bz5SQuM"
+            alt="Scrooge McDuck Mascot"
+            className="w-full h-auto animate-mascot"
+            style={{ filter: 'drop-shadow(0 0 30px rgba(212,175,55,0.4)) brightness(1.1)' }}
+          />
+        </div>
+
+        <div className="relative z-10 text-center max-w-5xl px-4">
+          <div className="mb-8 flex flex-col items-center animate-logo-pulse">
+            <Image
+              src="/images/logo.png"
+              alt="Victorem"
+              width={160}
+              height={160}
+              className="size-32 md:size-40 object-contain mb-4 drop-shadow-xl"
+              priority
+            />
+          </div>
+
+          <h1 className="font-heading text-4xl md:text-7xl font-light tracking-[0.15em] text-white mb-6 reveal-up opacity-0 translate-y-8 transition-all duration-[0.8s]">
+            Arte en cada balín,<br />
+            <span className="text-gold-400 italic">elegancia en cada detalle</span>
+          </h1>
+
+          <p className="text-base md:text-lg text-silver/70 max-w-2xl mx-auto mb-12 reveal-up opacity-0 translate-y-8 transition-all duration-[0.8s] delay-200">
+            La perfecta fusión entre tradición artesanal y diseño contemporáneo en cada una de nuestras creaciones únicas.
+            Joyas en oro laminado 18K de la más alta distinción.
+          </p>
+
+          <div className="flex flex-col md:flex-row gap-6 justify-center items-center reveal-up opacity-0 translate-y-8 transition-all duration-[0.8s] delay-300">
+            <Link href="/catalogo">
+              <Button size="lg" className="min-w-[220px] text-sm tracking-[0.15em]">
+                Explorar Catálogo <ArrowRight className="size-4 ml-2" />
+              </Button>
+            </Link>
+            <Link href="/personalizacion">
+              <Button variant="outline" size="lg" className="min-w-[220px] text-sm tracking-[0.15em]">
+                Crear Joya Única
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50">
+          <span className="text-[10px] uppercase tracking-[0.3em] text-silver">Scroll</span>
+          <div className="w-px h-12 bg-gradient-to-b from-gold-400 to-transparent" />
+        </div>
+      </header>
+
+      <section className="py-24 md:py-40 px-4 max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+          <div>
+            <span className="text-gold-400 text-xs font-semibold uppercase tracking-[0.15em] block mb-3">Colección</span>
+            <h2 className="font-heading text-3xl md:text-4xl font-medium text-ebony dark:text-white tracking-wide">
               Productos Destacados
             </h2>
           </div>
+          <Link href="/catalogo" className="group flex items-center gap-4 text-sm text-stone hover:text-gold-400 transition-colors">
+            <span className="text-xs font-semibold uppercase tracking-wider">Ver Todo</span>
+            <div className="w-10 h-px bg-stone group-hover:bg-gold-400 transition-colors" />
+          </Link>
+        </div>
 
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <ProductCardSkeleton key={i} />
-              ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
+          {PRODUCTS.map((product, i) => (
+            <div
+              key={i}
+              className="group bg-white/5 dark:bg-white/5 backdrop-blur-xl border border-white/10 p-6 transition-all duration-500 hover:-translate-y-4 hover:shadow-[0_0_30px_rgba(212,175,55,0.15)] reveal-up opacity-0 translate-y-8 transition-all duration-[0.8s]"
+              style={{ transitionDelay: `${i * 0.1}s` }}
+            >
+              <div className="aspect-[3/4] overflow-hidden mb-8 relative bg-stone-950">
+                <img
+                  src={product.img}
+                  alt={product.name}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                  <button className="w-full py-3 bg-gradient-to-r from-gold-400 to-gold-500 text-ebony text-[10px] uppercase font-bold tracking-widest hover:shadow-[0_0_25px_rgba(212,175,55,0.4)] transition-all">
+                    Agregar
+                  </button>
+                </div>
+              </div>
+              <h3 className="font-heading text-xl font-medium text-gold-400 mb-2">{product.name}</h3>
+              <p className="text-sm text-stone mb-4 line-clamp-2">{product.desc}</p>
+              <div className="flex justify-between items-center">
+                <span className="text-gold-400 font-bold text-lg">{product.price}</span>
+                <button className="text-stone hover:text-gold-400 transition-colors">
+                  <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                  </svg>
+                </button>
+              </div>
             </div>
-          ) : (
-            <ProductCarousel products={products} />
-          )}
+          ))}
         </div>
       </section>
 
-      <TestimonialsSection />
-      <NewsletterSection />
+      <section className="bg-stone-950 dark:bg-stone-950 py-24 md:py-40 overflow-hidden">
+        <div className="px-4 max-w-7xl mx-auto">
+          <div className="text-center mb-16 reveal-up opacity-0 translate-y-8 transition-all duration-[0.8s]">
+            <span className="text-gold-400 text-xs font-semibold uppercase tracking-[0.15em] block mb-3">Testimonios</span>
+            <h2 className="font-heading text-3xl md:text-4xl font-medium text-white tracking-wide">
+              Lo que dicen nuestros clientes
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {TESTIMONIALS.map((t, i) => (
+              <div
+                key={i}
+                className="bg-white/5 backdrop-blur-xl border border-white/10 p-10 relative reveal-up opacity-0 translate-y-8 transition-all duration-[0.8s]"
+                style={{ transitionDelay: `${i * 0.1}s` }}
+              >
+                <div className="absolute -top-6 left-10 size-12 bg-gradient-to-r from-gold-400 to-gold-500 rounded-full flex items-center justify-center">
+                  <Quote className="size-5 text-ebony" />
+                </div>
+                <div className="flex gap-1 text-gold-400 mb-6">
+                  {Array.from({ length: 5 }).map((_, j) => (
+                    <Star key={j} className="size-4 fill-gold-400" />
+                  ))}
+                </div>
+                <p className="text-base italic mb-8 text-silver/80 leading-relaxed">"{t.text}"</p>
+                <div>
+                  <p className="font-heading font-semibold text-gold-400">{t.author}</p>
+                  <p className="text-xs text-silver/60">{t.location}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="relative py-24 md:py-32 px-4 reveal-up opacity-0 translate-y-8 transition-all duration-[0.8s]">
+        <div className="max-w-3xl mx-auto bg-white/5 backdrop-blur-xl border border-white/10 p-12 md:p-16 text-center border-t border-l border-white/10">
+          <h2 className="font-heading text-3xl md:text-4xl font-medium text-gold-400 mb-4">
+            Mantente Inspirado
+          </h2>
+          <p className="text-silver/70 mb-10 max-w-lg mx-auto">
+            Recibe novedades, colecciones exclusivas y ofertas especiales directamente en tu correo.
+          </p>
+          <form className="flex flex-col md:flex-row gap-4 max-w-lg mx-auto">
+            <input
+              type="email"
+              placeholder="Tu correo electrónico"
+              className="flex-1 bg-white/5 border border-white/10 px-6 py-4 text-sm text-white focus:outline-none focus:border-gold-400 focus:ring-1 focus:ring-gold-400 transition-all placeholder:text-white/20"
+            />
+            <Button type="submit">
+              Suscribirme
+            </Button>
+          </form>
+        </div>
+      </section>
     </>
   )
 }
