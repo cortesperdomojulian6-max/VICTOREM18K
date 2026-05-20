@@ -13,22 +13,23 @@ interface Coin {
   opacity: number
   life: number
   flip: number
+  type: 'gold' | 'diamond' | 'pearl'
 }
 
-interface Dust {
+interface Sparkle {
   x: number
   y: number
-  vx: number
-  vy: number
   size: number
   opacity: number
+  life: number
+  rot: number
 }
 
 export function WalkingTioRico() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const framesRef = useRef<HTMLImageElement[]>([])
-  const coinsRef = useRef<Coin[]>([])
-  const dustRef = useRef<Dust[]>([])
+  const particlesRef = useRef<Coin[]>([])
+  const sparklesRef = useRef<Sparkle[]>([])
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
@@ -66,111 +67,111 @@ export function WalkingTioRico() {
     const moneyImg = new Image()
     moneyImg.src = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#d4af37" stroke="#b8960c" stroke-width="3"/><text x="50" y="62" text-anchor="middle" font-size="40" font-weight="bold" fill="#b8960c" font-family="serif">$</text></svg>')
 
-    for (let i = 0; i < 50; i++) {
-      dustRef.current.push({
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        size: Math.random() * 2,
-        opacity: Math.random() * 0.5,
-      })
-    }
-
     let startTime = Date.now()
     let animId = 0
 
     function spawnCoin(x: number, y: number) {
-      coinsRef.current.push({
-        x: x + (Math.random() - 0.5) * 40,
+      const rand = Math.random()
+      const type = rand > 0.8 ? 'diamond' : (rand > 0.6 ? 'pearl' : 'gold')
+
+      particlesRef.current.push({
+        x: x + (Math.random() - 0.5) * 50,
         y,
         vx: (Math.random() - 0.5) * 3,
-        vy: -Math.random() * 5 - 2,
+        vy: -Math.random() * 6 - 2,
         rotation: Math.random() * Math.PI * 2,
         rotationSpeed: (Math.random() - 0.5) * 0.3,
-        size: 20 + Math.random() * 15,
+        size: type === 'gold' ? 20 + Math.random() * 15 : 12 + Math.random() * 8,
         opacity: 1,
         life: 1,
         flip: Math.random() * Math.PI,
+        type,
       })
-      if (coinsRef.current.length > 40) coinsRef.current.shift()
+      if (particlesRef.current.length > 50) particlesRef.current.shift()
+    }
+
+    function spawnSparkle(x: number, y: number) {
+      sparklesRef.current.push({
+        x, y,
+        size: Math.random() * 4 + 2,
+        opacity: 1,
+        life: 1,
+        rot: Math.random() * Math.PI * 2
+      })
     }
 
     function render() {
       const elapsed = (Date.now() - startTime) / 1000
-      ctx!.clearRect(0, 0, canvas!.width, canvas!.height)
 
-      const vw = canvas!.width
-      const vh = canvas!.height
+      // Use local non-null references to satisfy TS
+      const currentCanvas = canvasRef.current
+      const currentCtx = currentCanvas?.getContext('2d')
+      if (!currentCanvas || !currentCtx) return
 
-      const progress = (elapsed % 12) / 12
-      const xPos = (progress * 1.3 - 0.15) * vw
+      currentCtx.clearRect(0, 0, currentCanvas.width, currentCanvas.height)
 
-      const bob = Math.sin(elapsed * 12) * 8
-      const squash = 1 + Math.sin(elapsed * 12) * 0.03
+      const vw = currentCanvas.width
+      const vh = currentCanvas.height
+
+      const walkCycleDuration = 14
+      const progress = (elapsed % walkCycleDuration) / walkCycleDuration
+      const easeProgress = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2
+      const xPos = (easeProgress * 1.4 - 0.2) * vw
+
+      const bob = Math.sin(elapsed * 10) * 10
+      const squash = 1 + Math.sin(elapsed * 10) * 0.04
 
       const currentFrameIdx = Math.floor((elapsed * 24) % TOTAL_FRAMES)
       const frame = framesRef.current[currentFrameIdx]
 
-      ctx!.globalCompositeOperation = 'screen'
-      dustRef.current.forEach(d => {
-        d.x += d.vx
-        d.y += d.vy
-        if (d.x < 0 || d.x > vw) d.vx *= -1
-        if (d.y < 0 || d.y > vh) d.vy *= -1
-        ctx!.fillStyle = `rgba(212, 175, 55, ${d.opacity})`
-        ctx!.beginPath()
-        ctx!.arc(d.x, d.y, d.size, 0, Math.PI * 2)
-        ctx!.fill()
-      })
-      ctx!.globalCompositeOperation = 'source-over'
-
       if (frame && frame.complete) {
-        const finalH = vh * 0.45
+        const finalH = vh * 0.48
         const finalW = frame.naturalWidth * (finalH / frame.naturalHeight)
         const drawX = xPos - finalW / 2
-        const drawY = (vh - finalH - 60) + bob
+        const drawY = (vh - finalH - 80) + bob
 
-        const shadowW = finalW * 0.7 * (1 - bob * 0.005)
-        const shadowH = finalH * 0.15
-        const shadowGrad = ctx!.createRadialGradient(xPos, vh - 60, 0, xPos, vh - 60, shadowW / 2)
-        shadowGrad!.addColorStop(0, 'rgba(0,0,0,0.6)')
-        shadowGrad!.addColorStop(1, 'rgba(0,0,0,0)')
-        ctx!.fillStyle = shadowGrad
-        ctx!.beginPath()
-        ctx!.ellipse(xPos, vh - 60, shadowW / 2, shadowH / 2, 0, 0, Math.PI * 2)
-        ctx!.fill()
+        currentCtx.save()
+        currentCtx.translate(0, vh - 80)
+        currentCtx.scale(1, -0.4)
+        currentCtx.globalAlpha = 0.2
+        currentCtx.filter = 'blur(4px)'
+        currentCtx.drawImage(frame, drawX, - (vh - finalH - 80) + bob, finalW, finalH)
+        currentCtx.restore()
 
-        const floorGlow = ctx!.createRadialGradient(xPos, vh - 60, 0, xPos, vh - 60, finalW * 0.6)
-        floorGlow!.addColorStop(0, 'rgba(212, 175, 55, 0.2)')
-        floorGlow!.addColorStop(1, 'rgba(212, 175, 55, 0)')
-        ctx!.fillStyle = floorGlow
-        ctx!.beginPath()
-        ctx!.ellipse(xPos, vh - 60, finalW * 0.6, shadowH * 2, 0, 0, Math.PI * 2)
-        ctx!.fill()
+        const glow = currentCtx.createRadialGradient(xPos, vh - 80, 0, xPos, vh - 80, finalW * 0.8)
+        glow!.addColorStop(0, 'rgba(212, 175, 55, 0.25)')
+        glow!.addColorStop(0.5, 'rgba(212, 175, 55, 0.05)')
+        glow!.addColorStop(1, 'rgba(212, 175, 55, 0)')
+        currentCtx.fillStyle = glow
+        currentCtx.beginPath()
+        currentCtx.ellipse(xPos, vh - 80, finalW * 0.8, 30, 0, 0, Math.PI * 2)
+        currentCtx.fill()
 
-        ctx!.save()
-        ctx!.translate(xPos, drawY + finalH)
-        ctx!.scale(1, squash)
-        ctx!.translate(-xPos, -(drawY + finalH))
-        ctx!.imageSmoothingEnabled = false
-        ctx!.drawImage(frame, drawX, drawY, finalW, finalH)
-        ctx!.restore()
+        currentCtx.save()
+        currentCtx.translate(xPos, drawY + finalH)
+        currentCtx.scale(1, squash)
+        currentCtx.translate(-xPos, -(drawY + finalH))
+        currentCtx.imageSmoothingEnabled = false
+        currentCtx.drawImage(frame, drawX, drawY, finalW, finalH)
+        currentCtx.restore()
 
-        if (Math.random() > 0.94) {
-          spawnCoin(xPos, drawY + finalH - 20)
+        if (Math.random() > 0.93) {
+          spawnCoin(xPos, drawY + finalH - 30)
+        }
+        if (Math.random() > 0.97) {
+          spawnSparkle(drawX + Math.random() * finalW, drawY + Math.random() * finalH)
         }
       }
 
-      const coins = coinsRef.current
+      const coins = particlesRef.current
       for (let i = coins.length - 1; i >= 0; i--) {
         const c = coins[i]
         c.x += c.vx
         c.y += c.vy
-        c.vy += 0.18
+        c.vy += 0.2
         c.rotation += c.rotationSpeed
-        c.flip += 0.1
-        c.life -= 0.006
+        c.flip += 0.15
+        c.life -= 0.008
         c.opacity = Math.max(0, c.life)
 
         if (c.life <= 0) {
@@ -178,23 +179,58 @@ export function WalkingTioRico() {
           continue
         }
 
-        ctx!.save()
-        ctx!.translate(c.x, c.y)
-        ctx!.rotate(c.rotation)
-        ctx!.scale(Math.cos(c.flip), 1)
-        ctx!.globalAlpha = c.opacity
-        ctx!.shadowColor = '#d4af37'
-        ctx!.shadowBlur = 12
+        currentCtx.save()
+        currentCtx.translate(c.x, c.y)
+        currentCtx.rotate(c.rotation)
+        currentCtx.scale(Math.cos(c.flip), 1)
+        currentCtx.globalAlpha = c.opacity
 
-        if (moneyImg.complete) {
-          ctx!.drawImage(moneyImg, -c.size / 2, -c.size / 2, c.size, c.size)
+        if (c.type === 'gold') {
+          currentCtx.shadowColor = '#d4af37'
+          currentCtx.shadowBlur = 15
+          if (moneyImg.complete) {
+            currentCtx.drawImage(moneyImg, -c.size / 2, -c.size / 2, c.size, c.size)
+          } else {
+            currentCtx.fillStyle = '#d4af37'
+            currentCtx.beginPath()
+            currentCtx.arc(0, 0, c.size / 2, 0, Math.PI * 2)
+            currentCtx.fill()
+          }
+        } else if (c.type === 'diamond') {
+          currentCtx.shadowColor = '#fff'
+          currentCtx.shadowBlur = 20
+          currentCtx.fillStyle = '#e0f7ff'
+          currentCtx.beginPath()
+          currentCtx.moveTo(0, -c.size/2); currentCtx.lineTo(c.size/2, 0); currentCtx.lineTo(0, c.size/2); currentCtx.lineTo(-c.size/2, 0); currentCtx.closePath();
+          currentCtx.fill()
         } else {
-          ctx!.fillStyle = '#d4af37'
-          ctx!.beginPath()
-          ctx!.arc(0, 0, c.size / 2, 0, Math.PI * 2)
-          ctx!.fill()
+          currentCtx.shadowColor = '#fff'
+          currentCtx.shadowBlur = 10
+          currentCtx.fillStyle = '#fdfbf0'
+          currentCtx.beginPath()
+          currentCtx.arc(0, 0, c.size / 2, 0, Math.PI * 2)
+          currentCtx.fill()
         }
-        ctx!.restore()
+        currentCtx.restore()
+      }
+
+      const sparkles = sparklesRef.current
+      for (let i = sparkles.length - 1; i >= 0; i--) {
+        const s = sparkles[i]
+        s.life -= 0.02
+        if (s.life <= 0) {
+          sparkles.splice(i, 1)
+          continue
+        }
+        currentCtx.save()
+        currentCtx.globalAlpha = s.life
+        currentCtx.shadowColor = '#fff'
+        currentCtx.shadowBlur = 10
+        currentCtx.fillStyle = '#fff'
+        currentCtx.translate(s.x, s.y)
+        currentCtx.rotate(s.rot)
+        currentCtx.fillRect(-s.size/2, -s.size/2, s.size, s.size)
+        currentCtx.restore()
       }
 
       animId = requestAnimationFrame(render)
@@ -212,7 +248,7 @@ export function WalkingTioRico() {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 z-[3] pointer-events-none"
-      style={{ opacity: loaded ? 1 : 0, transition: 'opacity 0.8s ease-in' }}
+      style={{ opacity: loaded ? 1 : 0, transition: 'opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1)' }}
     />
   )
 }
