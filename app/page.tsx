@@ -36,10 +36,11 @@ function HeroSection() {
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0])
 
   return (
-    <section ref={ref} className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-cover bg-center" style={{ backgroundImage: "url('/images/textura.png')" }}>
+    <section ref={ref} className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-ebony">
       <ParticlesCanvas className="absolute inset-0 z-[1] pointer-events-none" />
-      <div className="absolute inset-0 z-[3]">
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at center 40%, rgba(212,175,55,0.05) 0%, transparent 60%)' }} />
+      <div className="absolute inset-0 z-[3] pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-b from-ebony to-charcoal" />
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at center 40%, rgba(212,175,55,0.15) 0%, transparent 60%)' }} />
         <WalkingTioRico />
       </div>
       <motion.div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-black/60 z-[2]" style={{ opacity }} />
