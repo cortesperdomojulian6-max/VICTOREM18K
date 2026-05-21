@@ -8,9 +8,9 @@ import {
 import * as THREE from 'three'
 
 const BEAD_SIZES = {
-  small: 0.1,
-  medium: 0.14,
-  large: 0.18,
+  small: 0.12,
+  medium: 0.17,
+  large: 0.22,
 }
 
 const BEAD_GAP = 0.005
@@ -101,12 +101,12 @@ function JewelryScene(props: ViewerProps) {
 
   return (
     <>
-      <PerspectiveCamera makeDefault position={[0, 0, 2.5]} fov={32} />
+      <PerspectiveCamera makeDefault position={[0, 0, 3]} fov={40} />
       <OrbitControls
         enablePan={false}
-        maxPolarAngle={Math.PI / 1.4}
-        minDistance={1.5}
-        maxDistance={6}
+        maxPolarAngle={Math.PI / 1.2}
+        minDistance={1}
+        maxDistance={5}
         enableDamping
         dampingFactor={0.1}
         target={[0, 0, 0]}
@@ -134,7 +134,7 @@ export default function RealisticJewelryViewer(props: ViewerProps) {
     <div className="w-full min-h-[500px] md:min-h-[600px] relative overflow-hidden bg-black rounded-xl">
       <div className="absolute inset-0 bg-gradient-to-b from-stone-950 via-stone-900 to-black pointer-events-none" />
       <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 50% 50%, rgba(212,175,55,0.08) 0%, transparent 60%)' }} />
-      <Canvas shadows dpr={[1, 2]} className="relative z-10">
+      <Canvas shadows dpr={[1, 2]} className="absolute inset-0 w-full h-full z-10" style={{ width: '100%', height: '100%' }}>
         <JewelryScene {...props} />
       </Canvas>
       <div className="absolute bottom-3 left-3 text-[10px] text-white/20 select-none z-20">
