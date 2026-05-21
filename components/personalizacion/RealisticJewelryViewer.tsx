@@ -8,9 +8,9 @@ import {
 import * as THREE from 'three'
 
 const BEAD_SIZES = {
-  small: 0.12,
-  medium: 0.17,
-  large: 0.22,
+  small: 0.14,
+  medium: 0.19,
+  large: 0.24,
 }
 
 const BEAD_GAP = 0.005
@@ -50,8 +50,8 @@ function Bead3D({
         color="#d4af37"
         metalness={type === 'diamantado' ? 1 : 0.9}
         roughness={type === 'diamantado' ? 0.2 : 0.08}
-        envMapIntensity={type === 'diamantado' ? 3 : 2}
-        clearcoat={type === 'diamantado' ? 0.2 : 0}
+        envMapIntensity={type === 'diamantado' ? 3.5 : 2.5}
+        clearcoat={type === 'diamantado' ? 0.3 : 0}
         clearcoatRoughness={0.15}
         emissive="#b8860b"
         emissiveIntensity={0.04}
@@ -95,18 +95,20 @@ function JewelrySequence({ balines }: { balines: BeadConfig[] }) {
 
 function JewelryScene(props: ViewerProps) {
   const count = props.balines?.length || 0
-  const maxWidth = count > 0
+  const totalWidth = count > 0
     ? count * (BEAD_SIZES.large * 2 + BEAD_GAP)
     : 1
 
+  const camZ = Math.max(totalWidth * 1.1 + 0.5, 2)
+
   return (
     <>
-      <PerspectiveCamera makeDefault position={[0, 0, 3]} fov={40} />
+      <PerspectiveCamera makeDefault position={[0, 0, camZ]} fov={40} />
       <OrbitControls
         enablePan={false}
-        maxPolarAngle={Math.PI / 1.2}
-        minDistance={1}
-        maxDistance={5}
+        maxPolarAngle={Math.PI / 1.5}
+        minDistance={camZ * 0.4}
+        maxDistance={camZ * 2}
         enableDamping
         dampingFactor={0.1}
         target={[0, 0, 0]}
@@ -121,9 +123,9 @@ function JewelryScene(props: ViewerProps) {
 
       <JewelrySequence balines={props.balines || []} />
 
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.4, 0]} receiveShadow>
-        <planeGeometry args={[maxWidth * 4, maxWidth * 4]} />
-        <meshStandardMaterial color="#0d0d0d" metalness={0.6} roughness={0.4} transparent opacity={0.15} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.3, 0]} receiveShadow>
+        <planeGeometry args={[totalWidth * 3, totalWidth * 3]} />
+        <meshStandardMaterial color="#0d0d0d" metalness={0.6} roughness={0.4} transparent opacity={0.12} />
       </mesh>
     </>
   )
@@ -131,14 +133,14 @@ function JewelryScene(props: ViewerProps) {
 
 export default function RealisticJewelryViewer(props: ViewerProps) {
   return (
-    <div className="w-full min-h-[500px] md:min-h-[600px] relative overflow-hidden bg-black rounded-xl">
+    <div className="w-full h-48 md:h-64 relative overflow-hidden bg-black rounded-xl">
       <div className="absolute inset-0 bg-gradient-to-b from-stone-950 via-stone-900 to-black pointer-events-none" />
       <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 50% 50%, rgba(212,175,55,0.08) 0%, transparent 60%)' }} />
-      <Canvas shadows dpr={[1, 2]} className="absolute inset-0 w-full h-full z-10" style={{ width: '100%', height: '100%' }}>
+      <Canvas shadows dpr={[1, 2]} className="absolute inset-0 w-full h-full z-10">
         <JewelryScene {...props} />
       </Canvas>
-      <div className="absolute bottom-3 left-3 text-[10px] text-white/20 select-none z-20">
-        Arrastra para rotar · Rueda para zoom
+      <div className="absolute bottom-2 left-3 text-[10px] text-white/20 select-none z-20">
+        Arrastra · Rueda
       </div>
     </div>
   )
