@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Check, ArrowRight, ArrowLeft, ShoppingBag, Sparkles, RefreshCcw, X, Plus } from 'lucide-react'
+import { Check, ArrowRight, ArrowLeft, ShoppingBag, Sparkles, RefreshCcw, X, Plus, ChevronUp, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
 import { formatPrice } from '@/lib/utils'
@@ -140,6 +140,16 @@ export default function PersonalizacionPage() {
     setBalines(balines.filter((_, i) => i !== index))
   }
 
+  const moveBalin = (index: number, direction: 'up' | 'down') => {
+    const newBalines = [...balines]
+    const target = direction === 'up' ? index - 1 : index + 1
+    if (target < 0 || target >= newBalines.length) return
+    const temp = newBalines[target]
+    newBalines[target] = newBalines[index]
+    newBalines[index] = temp
+    setBalines(newBalines)
+  }
+
   const basePrice = jewelType ? BASE_PRICES[jewelType] : 0
   const dijePrice = dije ? DIJES.find((d) => d.name === dije)?.price || 0 : 0
   const balinTotal = balines.length * BALIN_PRICE
@@ -228,6 +238,22 @@ export default function PersonalizacionPage() {
                 {balines.map((b, i) => (
                   <div key={i} className="group relative bg-white border border-pearl p-4 rounded-xl transition-all hover:border-gold-400/50 hover:shadow-sm">
                     <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => moveBalin(i, 'up')}
+                          disabled={i === 0}
+                          className="p-1 rounded hover:bg-stone-100 text-stone hover:text-gold-600 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                        >
+                          <ChevronUp className="size-3.5" />
+                        </button>
+                        <button
+                          onClick={() => moveBalin(i, 'down')}
+                          disabled={i === balines.length - 1}
+                          className="p-1 rounded hover:bg-stone-100 text-stone hover:text-gold-600 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                        >
+                          <ChevronDown className="size-3.5" />
+                        </button>
+                      </div>
                       <span className="text-[10px] font-bold text-stone uppercase tracking-tighter">Balín #{i + 1}</span>
                       <button
                         onClick={() => removeBalin(i)}

@@ -148,6 +148,16 @@
   50% { filter: drop-shadow(0 0 30px rgba(212, 175, 55, 0.4)); transform: scale(1.05); }
 }
 
+@keyframes pulse-slow {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+  50% { transform: translate(-50%, -50%) scale(1.02); opacity: 0.8; }
+}
+
+@keyframes pulse-slower {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
+  50% { transform: translate(-50%, -50%) scale(1.03); opacity: 0.6; }
+}
+
 @keyframes reveal-up {
   from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
@@ -157,3 +167,5 @@
 .animate-mascot { animation: mascot-float 6s ease-in-out infinite; }
 .animate-logo-pulse { animation: logo-pulse 4s ease-in-out infinite; }
 .animate-reveal { animation: reveal-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-pulse-slow { animation: pulse-slow 6s ease-in-out infinite; }
+.animate-pulse-slower { animation: pulse-slower 8s ease-in-out infinite; }
