@@ -69,16 +69,15 @@ export function ProductCard({ id, name, description, price, imageUrl, priority, 
             Sin imagen
           </div>
         )}
-      </div>
-      
-      {view_count && view_count > 0 && (
-        <div className="absolute top-4 left-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-          <div className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md text-white text-xs px-2.5 py-1.5 rounded-full font-medium">
-            <Users className="size-3.5 text-gold-400" />
-            <span>{view_count} personas viendo esto</span>
+        {view_count && view_count > 0 && (
+          <div className="absolute top-3 left-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="flex items-center gap-1 bg-black/70 backdrop-blur-md text-white text-[10px] px-2.5 py-1.5 font-medium">
+              <Users className="size-3 text-gold-400" />
+              <span>{view_count} viendo</span>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="p-6 space-y-2">
         <h3 className="font-heading text-xl font-medium text-iron tracking-wide">{name}</h3>

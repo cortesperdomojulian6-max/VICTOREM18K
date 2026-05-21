@@ -117,9 +117,9 @@ export default function CatalogoPage() {
         </div>
       </div>
 
-      <div className="container-main py-10">
-        <div className="flex flex-col md:flex-row gap-4 mb-10 items-start md:items-center">
-          <div className="relative flex-1 w-full md:max-w-sm">
+      <div className="container-main py-8 md:py-10">
+        <div className="flex flex-col gap-4 mb-8">
+          <div className="relative flex-1 w-full">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-stone" />
             <input
               ref={searchRef}
@@ -131,7 +131,7 @@ export default function CatalogoPage() {
             />
           </div>
 
-          <div className="flex gap-2 overflow-x-auto w-full md:w-auto">
+          <div className="flex flex-wrap gap-2">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat.value}
@@ -145,21 +145,20 @@ export default function CatalogoPage() {
                 {cat.label}
               </button>
             ))}
-          </div>
-
-          <div className="relative">
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value as SortKey)}
-              className="appearance-none px-4 py-2.5 pr-10 border border-pearl bg-white text-xs font-semibold uppercase tracking-wider text-stone cursor-pointer focus:outline-none focus:border-gold-400"
-              aria-label="Ordenar por"
-            >
-              <option value="popularity">Popularidad</option>
-              <option value="price-asc">Precio: Menor a Mayor</option>
-              <option value="price-desc">Precio: Mayor a Menor</option>
-              <option value="name">Nombre</option>
-            </select>
-            <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 size-3.5 text-stone pointer-events-none" />
+            <div className="relative ml-auto">
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value as SortKey)}
+                className="appearance-none px-4 py-2.5 pr-10 border border-pearl bg-white text-xs font-semibold uppercase tracking-wider text-stone cursor-pointer focus:outline-none focus:border-gold-400"
+                aria-label="Ordenar por"
+              >
+                <option value="popularity">Popularidad</option>
+                <option value="price-asc">Precio: Menor a Mayor</option>
+                <option value="price-desc">Precio: Mayor a Menor</option>
+                <option value="name">Nombre</option>
+              </select>
+              <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 size-3.5 text-stone pointer-events-none" />
+            </div>
           </div>
         </div>
 
@@ -171,8 +170,8 @@ export default function CatalogoPage() {
           </div>
         ) : filtered.length > 0 ? (
           <>
-            <p className="text-xs text-stone mb-6">{filtered.length} producto{filtered.length !== 1 ? 's' : ''}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <p className="text-xs text-stone/60 mb-6">{filtered.length} producto{filtered.length !== 1 ? 's' : ''}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
               {filtered.map((product, i) => (
                 <motion.div
                   key={product.id}

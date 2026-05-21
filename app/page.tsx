@@ -156,17 +156,17 @@ function CraftsmanshipSection() {
 
 function ProductsSection() {
   return (
-    <section className="section-padding bg-snow dark:bg-ebony transition-colors duration-500">
+    <section className="py-20 md:py-28 bg-snow dark:bg-ebony transition-colors duration-500">
       <div className="container-main">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="flex flex-col md:flex-row justify-between items-end mb-14 gap-6"
+          className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6"
         >
           <div>
-            <span className="text-gold-400 text-xs font-semibold uppercase tracking-[0.15em] block mb-3">Colección</span>
+            <span className="text-gold-400 text-xs font-semibold uppercase tracking-[0.2em] block mb-3">Colección</span>
             <h2 className="font-heading text-3xl md:text-5xl font-medium text-ebony dark:text-white tracking-wide">
               Piezas Destacadas
             </h2>
@@ -177,7 +177,7 @@ function ProductsSection() {
           </Link>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {PRODUCTS.map((product, i) => (
             <motion.div
               key={i}
@@ -187,23 +187,25 @@ function ProductsSection() {
               transition={{ duration: 0.5, delay: i * 0.08 }}
               className="group bg-white dark:bg-white/5 backdrop-blur-md border border-black/5 dark:border-white/10 overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(212,175,55,0.08)]"
             >
-              <div className="aspect-[3/4] overflow-hidden relative bg-stone-950">
-                <img
-                  src={product.img}
-                  alt={product.name}
-                  className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-5">
-                  <button className="w-full py-3 bg-gold-400 text-ebony text-[10px] uppercase font-bold tracking-widest hover:bg-gold-300 transition-all">
-                    Ver Detalle
-                  </button>
+              <Link href="/catalogo">
+                <div className="aspect-[4/5] overflow-hidden relative bg-stone-950">
+                  <img
+                    src={product.img}
+                    alt={product.name}
+                    className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-4">
+                    <span className="w-full py-2.5 bg-gold-400 text-ebony text-[10px] uppercase font-bold tracking-widest text-center block hover:bg-gold-300 transition-all">
+                      Ver Detalle
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <div className="p-5">
-                <h3 className="font-heading text-lg font-medium text-gold-400 mb-1">{product.name}</h3>
+              </Link>
+              <div className="p-4 md:p-5">
+                <h3 className="font-heading text-base md:text-lg font-medium text-gold-400 mb-1">{product.name}</h3>
                 <p className="text-xs text-stone dark:text-silver mb-3 line-clamp-2 font-light leading-relaxed">{product.desc}</p>
                 <div className="flex justify-between items-center pt-3 border-t border-black/5 dark:border-white/5">
-                  <span className="text-gold-400 font-bold">{product.price}</span>
+                  <span className="text-gold-400 font-bold text-sm md:text-base">{product.price}</span>
                   <button className="text-stone dark:text-silver hover:text-gold-400 transition-colors">
                     <Star className="size-4" />
                   </button>
@@ -212,6 +214,20 @@ function ProductsSection() {
             </motion.div>
           ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="text-center mt-12"
+        >
+          <Link href="/catalogo">
+            <Button variant="outline" className="text-xs uppercase tracking-[0.2em] border-stone/30 text-stone hover:border-gold-400 hover:text-gold-400 transition-all">
+              Explorar Catálogo Completo <ArrowRight className="size-3.5 ml-2" />
+            </Button>
+          </Link>
+        </motion.div>
       </div>
     </section>
   )
