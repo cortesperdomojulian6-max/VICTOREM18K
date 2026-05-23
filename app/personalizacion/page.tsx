@@ -10,19 +10,10 @@ import { formatPrice } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { Confetti } from '@/components/ui/confetti'
-import dynamic from 'next/dynamic'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useCartStore } from '@/store/useCartStore'
+import BeadSequenceViewer from '@/components/personalizacion/BeadSequenceViewer'
 import type { Product } from '@/types'
-
-const RealisticJewelryViewer = dynamic(() => import('@/components/personalizacion/RealisticJewelryViewer'), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full min-h-[400px] relative rounded-xl overflow-hidden bg-gradient-to-b from-stone-100 to-white border border-pearl flex items-center justify-center">
-      <div className="animate-spin rounded-full size-8 border-b-2 border-gold-400" />
-    </div>
-  )
-})
 
 type JewelType = 'pulsera' | 'anillo'
 type DijeName = 'estrella' | 'corazon' | 'media-luna' | 'cruz' | 'mariposa' | 'hoja' | 'infinito' | 'aru'
@@ -201,12 +192,8 @@ export default function PersonalizacionPage() {
         return (
           <div className="space-y-8">
             <div className="mb-6">
-              <RealisticJewelryViewer
-                type={jewelType}
-                dije={dije}
-                color={color ? COLORS.find((c) => c.value === color)?.name || null : null}
-                balines={balines}
-                productName={selectedProduct?.name}
+              <BeadSequenceViewer
+                items={balines.map(b => ({ kind: 'balin' as const, data: b }))}
               />
             </div>
             <div className="space-y-6">
@@ -307,12 +294,8 @@ export default function PersonalizacionPage() {
         return (
           <div className="space-y-8">
             <div className="mb-6">
-              <RealisticJewelryViewer
-                type={jewelType}
-                dije={dije}
-                color={color ? COLORS.find((c) => c.value === color)?.name || null : null}
-                balines={balines}
-                productName={selectedProduct?.name}
+              <BeadSequenceViewer
+                items={balines.map(b => ({ kind: 'balin' as const, data: b }))}
               />
             </div>
             <div className="text-center">
@@ -371,12 +354,8 @@ export default function PersonalizacionPage() {
         return (
           <div className="space-y-8">
             <div className="mb-6">
-              <RealisticJewelryViewer
-                type={jewelType}
-                dije={dije}
-                color={color ? COLORS.find((c) => c.value === color)?.name || null : null}
-                balines={balines}
-                productName={selectedProduct?.name}
+              <BeadSequenceViewer
+                items={balines.map(b => ({ kind: 'balin' as const, data: b }))}
               />
             </div>
             <div className="text-center">
@@ -410,12 +389,8 @@ export default function PersonalizacionPage() {
         return (
           <div className="space-y-8">
             <div className="mb-6">
-              <RealisticJewelryViewer
-                type={jewelType}
-                dije={dije}
-                color={color ? COLORS.find((c) => c.value === color)?.name || null : null}
-                balines={balines}
-                productName={selectedProduct?.name}
+              <BeadSequenceViewer
+                items={balines.map(b => ({ kind: 'balin' as const, data: b }))}
               />
             </div>
             <div className="text-center">
@@ -444,12 +419,8 @@ export default function PersonalizacionPage() {
         return (
           <div className="space-y-8">
             <div className="mb-6">
-              <RealisticJewelryViewer
-                type={jewelType}
-                dije={dije}
-                color={color ? COLORS.find((c) => c.value === color)?.name || null : null}
-                balines={balines}
-                productName={selectedProduct?.name}
+              <BeadSequenceViewer
+                items={balines.map(b => ({ kind: 'balin' as const, data: b }))}
               />
             </div>
             <div className="bg-white p-8 border border-black/4">
