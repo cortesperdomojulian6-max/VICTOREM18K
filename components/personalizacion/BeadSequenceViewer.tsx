@@ -2,51 +2,31 @@
 
 import { useMemo } from 'react'
 import Image from 'next/image'
+import { BEAD_IMAGE_SIZES, DIJON_VIEW_SIZE, getBeadImagePath } from '@/lib/personalizacion'
+import type { BalinConfig, MaterialName } from '@/lib/personalizacion'
 
-interface BeadItem {
-  type: 'liso' | 'diamantado'
-  size: 'small' | 'medium' | 'large'
-}
-
-interface DijonItem {
+interface DijonViewItem {
   id: string
   image: string
   nombre: string
 }
 
 type SequenceItem =
-  | { kind: 'balin'; data: BeadItem }
-  | { kind: 'dijon'; data: DijonItem }
+  | { kind: 'balin'; data: BalinConfig }
+  | { kind: 'dijon'; data: DijonViewItem }
 
 interface BeadSequenceViewerProps {
   items: SequenceItem[]
+  material?: MaterialName
 }
 
-const BEAD_IMAGE_SIZES: Record<string, number> = {
-  small: 40,
-  medium: 60,
-  large: 80,
-}
-
-const DIJON_SIZE = 60
-
-function getBeadImage(item: BeadItem): string {
-  const sizeMap: Record<string, string> = {
-    small: '40px',
-    medium: '60px',
-    large: '80px',
-  }
-  const mat = 'dorado'
-  return `/assets/images/balines/generados/balin-${item.type}-${mat}-${sizeMap[item.size]}.png`
-}
-
-export default function BeadSequenceViewer({ items }: BeadSequenceViewerProps) {
+export default function BeadSequenceViewer({ items, material = 'gold' }: BeadSequenceViewerProps) {
   const totalWidth = useMemo(() => {
     return items.reduce((sum, item) => {
       if (item.kind === 'balin') {
         return sum + BEAD_IMAGE_SIZES[item.data.size] + 2
       }
-      return sum + DIJON_SIZE + 2
+      return sum + DIJON_VIEW_SIZE + 2
     }, 0)
   }, [items])
 
@@ -71,7 +51,7 @@ export default function BeadSequenceViewer({ items }: BeadSequenceViewerProps) {
             <div key={i} className="flex items-center shrink-0">
               {item.kind === 'balin' ? (
                 <Image
-                  src={getBeadImage(item.data)}
+                  src={getBeadImagePath(item.data.type, material, item.data.size)}
                   alt={`Balín ${item.data.type}`}
                   width={BEAD_IMAGE_SIZES[item.data.size]}
                   height={BEAD_IMAGE_SIZES[item.data.size]}
@@ -82,8 +62,8 @@ export default function BeadSequenceViewer({ items }: BeadSequenceViewerProps) {
                 <Image
                   src={item.data.image}
                   alt={item.data.nombre}
-                  width={DIJON_SIZE}
-                  height={DIJON_SIZE}
+                  width={DIJON_VIEW_SIZE}
+                  height={DIJON_VIEW_SIZE}
                   className="inline-block"
                   draggable={false}
                 />

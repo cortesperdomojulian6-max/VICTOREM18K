@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Check, ArrowRight, ArrowLeft, ShoppingBag, Sparkles, RefreshCcw, X, Plus, ChevronUp, ChevronDown } from 'lucide-react'
+import { Check, ArrowRight, ArrowLeft, ShoppingBag, Sparkles, Plus, X, ChevronUp, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
 import { formatPrice } from '@/lib/utils'
@@ -13,75 +13,25 @@ import { Confetti } from '@/components/ui/confetti'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useCartStore } from '@/store/useCartStore'
 import BeadSequenceViewer from '@/components/personalizacion/BeadSequenceViewer'
+import {
+  DIJONES,
+  COLORS,
+  BASE_PRICES,
+  BALIN_PRICE,
+  STEPS,
+  getMaterialFromColor,
+  getDijon,
+} from '@/lib/personalizacion'
+import type { JewelType, BalinConfig, MaterialName } from '@/lib/personalizacion'
 import type { Product } from '@/types'
-
-type JewelType = 'pulsera' | 'anillo'
-type DijeName = 'estrella' | 'corazon' | 'media-luna' | 'cruz' | 'mariposa' | 'hoja' | 'infinito' | 'aru'
-
-interface Dije {
-  name: DijeName
-  label: string
-  price: number
-  image?: string
-}
-
-const DIJES: Dije[] = [
-  { name: 'estrella', label: 'Estrella', price: 15000 },
-  { name: 'corazon', label: 'Corazón', price: 15000 },
-  { name: 'media-luna', label: 'Media Luna', price: 18000 },
-  { name: 'cruz', label: 'Cruz', price: 15000 },
-  { name: 'mariposa', label: 'Mariposa', price: 20000 },
-  { name: 'hoja', label: 'Hoja', price: 18000 },
-  { name: 'infinito', label: 'Infinito', price: 20000 },
-  { name: 'aru', label: 'ARU', price: 25000, image: '/assets/images/dijes/van-cleef.jpg' },
-]
-
-const COLORS = [
-  { name: 'gold', label: 'Oro', value: '#d4af37' },
-  { name: 'silver', label: 'Plata', value: '#c0c0c0' },
-  { name: 'rose', label: 'Rosado', value: '#e8a0b4' },
-  { name: 'black', label: 'Negro', value: '#1a1a1a' },
-]
-
-const BASE_PRICES: Record<JewelType, number> = { pulsera: 80000, anillo: 50000 }
-const BALIN_PRICE = 5000
-
-const STEPS = [
-  { id: 1, label: 'Tipo de Balín' },
-  { id: 2, label: 'Producto' },
-  { id: 3, label: 'Dije' },
-  { id: 4, label: 'Color' },
-  { id: 5, label: 'Resumen' },
-]
-
-function StepIndicator({ current, total }: { current: number; total: number }) {
-  return (
-    <div className="flex items-center gap-2 mb-8">
-      {Array.from({ length: total }).map((_, i) => (
-        <div key={i} className="flex items-center gap-2 flex-1">
-          <div className={`size-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
-            i < current ? 'bg-gold-400 text-ebony' :
-            i === current ? 'bg-ebony text-white' :
-            'bg-pearl text-stone'
-          }`}>
-            {i < current ? <Check className="size-4" /> : i + 1}
-          </div>
-          {i < total - 1 && (
-            <div className={`flex-1 h-0.5 transition-colors ${i < current ? 'bg-gold-400' : 'bg-pearl'}`} />
-          )}
-        </div>
-      ))}
-    </div>
-  )
-}
 
 export default function PersonalizacionPage() {
   const router = useRouter()
   const [step, setStep] = useState(0)
   const [jewelType, setJewelType] = useState<JewelType | null>(null)
-  const [dije, setDije] = useState<DijeName | null>(null)
-  const [color, setColor] = useState<string | null>(null)
-  const [balines, setBalines] = useState<{ type: 'liso' | 'diamantado', size: 'small' | 'medium' | 'large' }[]>([])
+  const [dije, setDije] = useState<string | null>(null)
+  const [color, setColor] = useState<string>('#d4af37')
+  const [balines, setBalines] = useState<BalinConfig[]>([])
   const [balinType, setBalinType] = useState<'lisos' | 'diamantados'>('lisos')
   const [showConfetti, setShowConfetti] = useState(false)
   const [products, setProducts] = useState<Product[]>([])
@@ -90,6 +40,13 @@ export default function PersonalizacionPage() {
   const { isAuthenticated } = useAuthStore()
   const { addItem } = useCartStore()
 
+  const material: MaterialName = getMaterialFromColor(color)
+
+  const sequenceItems = [
+    ...balines.map((b) => ({ kind: 'balin' as const, data: b })),
+    ...(dije ? [{ kind: 'dijon' as const, data: { id: dije, image: getDijon(dije)?.image ?? '', nombre: getDijon(dije)?.label ?? '' } }] : []),
+  ]
+
   useEffect(() => {
     async function loadProducts() {
       setLoadingProducts(true)
@@ -97,7 +54,6 @@ export default function PersonalizacionPage() {
         const data = await api.get<Product[]>('/products')
         setProducts(data)
       } catch {
-        // Silently fail
       } finally {
         setLoadingProducts(false)
       }
@@ -117,9 +73,9 @@ export default function PersonalizacionPage() {
     setJewelType(null)
   }
 
-  const updateBalin = (index: number, field: 'type' | 'size', value: any) => {
+  const updateBalin = (index: number, field: 'type' | 'size', value: string) => {
     const newBalines = [...balines]
-    newBalines[index] = { ...newBalines[index], [field]: value }
+    ;(newBalines[index] as any)[field] = value
     setBalines(newBalines)
   }
 
@@ -142,7 +98,7 @@ export default function PersonalizacionPage() {
   }
 
   const basePrice = jewelType ? BASE_PRICES[jewelType] : 0
-  const dijePrice = dije ? DIJES.find((d) => d.name === dije)?.price || 0 : 0
+  const dijePrice = dije ? getDijon(dije)?.price || 0 : 0
   const balinTotal = balines.length * BALIN_PRICE
   const total = basePrice + dijePrice + balinTotal
 
@@ -150,8 +106,8 @@ export default function PersonalizacionPage() {
     switch (step) {
       case 0: return balines.length > 0
       case 1: return jewelType !== null
-      case 2: return dije !== null || step === 2 // Dije is optional? I'll let it be optional if the user wants.
-      case 3: return color !== null
+      case 2: return true
+      case 3: return true
       case 4: return true
       default: return false
     }
@@ -186,15 +142,34 @@ export default function PersonalizacionPage() {
     }
   }
 
+  function StepIndicator({ current, total }: { current: number; total: number }) {
+    return (
+      <div className="flex items-center gap-2 mb-8">
+        {Array.from({ length: total }).map((_, i) => (
+          <div key={i} className="flex items-center gap-2 flex-1">
+            <div className={`size-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
+              i < current ? 'bg-gold-400 text-ebony' :
+              i === current ? 'bg-ebony text-white' :
+              'bg-pearl text-stone'
+            }`}>
+              {i < current ? <Check className="size-4" /> : i + 1}
+            </div>
+            {i < total - 1 && (
+              <div className={`flex-1 h-0.5 transition-colors ${i < current ? 'bg-gold-400' : 'bg-pearl'}`} />
+            )}
+          </div>
+        ))}
+      </div>
+    )
+  }
+
   const renderStep = () => {
     switch (step) {
       case 0:
         return (
           <div className="space-y-8">
             <div className="mb-6">
-              <BeadSequenceViewer
-                items={balines.map(b => ({ kind: 'balin' as const, data: b }))}
-              />
+              <BeadSequenceViewer items={sequenceItems} material={material} />
             </div>
             <div className="space-y-6">
               <div className="text-center mb-8">
@@ -294,9 +269,7 @@ export default function PersonalizacionPage() {
         return (
           <div className="space-y-8">
             <div className="mb-6">
-              <BeadSequenceViewer
-                items={balines.map(b => ({ kind: 'balin' as const, data: b }))}
-              />
+              <BeadSequenceViewer items={sequenceItems} material={material} />
             </div>
             <div className="text-center">
               <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Selecciona tu producto base del catálogo</p>
@@ -354,61 +327,74 @@ export default function PersonalizacionPage() {
         return (
           <div className="space-y-8">
             <div className="mb-6">
-              <BeadSequenceViewer
-                items={balines.map(b => ({ kind: 'balin' as const, data: b }))}
-              />
+              <BeadSequenceViewer items={sequenceItems} material={material} />
             </div>
             <div className="text-center">
               <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Elige tu dije favorito</p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {DIJES.map((d) => (
+                {DIJONES.map((d) => (
                   <button
-                    key={d.name}
-                    onClick={() => setDije(d.name)}
-                    className={`p-5 border-2 text-center transition-all ${
-                      dije === d.name ? 'border-gold-400 bg-gold-400/5 shadow-md' : 'border-pearl hover:border-gold-400 bg-white'
+                    key={d.id}
+                    onClick={() => setDije(d.id)}
+                    className={`p-6 border-2 text-center transition-all ${
+                      dije === d.id ? 'border-gold-400 bg-gold-400/5 shadow-md ring-1 ring-gold-400/30' : 'border-pearl hover:border-gold-400 bg-white'
                     }`}
                   >
-                    <div className="size-12 mx-auto mb-2 flex items-center justify-center">
-                      {d.image ? (
-                        <Image src={d.image} alt={d.label} width={48} height={48} className="size-full object-contain" />
-                      ) : (
-                        <Sparkles className={`size-8 ${dije === d.name ? 'text-gold-400' : 'text-stone'}`} />
-                      )}
+                    <div className="size-16 mx-auto mb-3 flex items-center justify-center">
+                      <Image src={d.image} alt={d.label} width={64} height={64} className="size-full object-contain" />
                     </div>
                     <span className="block font-heading text-base font-medium text-ebony">{d.label}</span>
                     <span className="text-xs text-stone">+{formatPrice(d.price)}</span>
+                    {dije === d.id && (
+                      <span className="block mt-1 text-[10px] text-gold-400 font-semibold">Seleccionado</span>
+                    )}
                   </button>
                 ))}
+              </div>
+
+              <div className="mt-6">
+                <button
+                  onClick={() => setDije(null)}
+                  className={`text-xs px-6 py-2 border transition-all ${
+                    dije === null ? 'border-gold-400 bg-gold-400/10 text-gold-600 font-semibold' : 'border-pearl text-stone hover:border-gold-400'
+                  }`}
+                >
+                  Sin Dije
+                </button>
               </div>
             </div>
           </div>
         )
 
       case 3:
+        const colorName = COLORS.find((c) => c.value === color)?.name ?? 'gold'
         return (
           <div className="space-y-8">
             <div className="mb-6">
-              <BeadSequenceViewer
-                items={balines.map(b => ({ kind: 'balin' as const, data: b }))}
-              />
+              <BeadSequenceViewer items={sequenceItems} material={material} />
             </div>
             <div className="text-center">
-              <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Selecciona el color</p>
+              <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Selecciona el color del metal</p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {COLORS.map((c) => (
                   <button
                     key={c.name}
                     onClick={() => setColor(c.value)}
                     className={`p-6 border-2 text-center transition-all ${
-                      color === c.value ? 'border-gold-400 bg-gold-400/5 shadow-md' : 'border-pearl hover:border-gold-400 bg-white'
+                      color === c.value ? 'border-gold-400 bg-gold-400/5 shadow-md ring-1 ring-gold-400/30' : 'border-pearl hover:border-gold-400 bg-white'
                     }`}
                   >
                     <div className="size-12 rounded-full mx-auto mb-3 border-2 border-white shadow-sm" style={{ backgroundColor: c.value }} />
                     <span className="block font-heading text-base font-medium text-ebony">{c.label}</span>
+                    {color === c.value && (
+                      <span className="block mt-1 text-[10px] text-gold-400 font-semibold">Seleccionado</span>
+                    )}
                   </button>
                 ))}
               </div>
+              <p className="text-xs text-stone/50 mt-6 italic">
+                {colorName === 'rose' ? 'Los balines se mostrarán en dorado (simulación)' : `Los balines se mostrarán en ${COLORS.find(c => c.value === color)?.label?.toLowerCase() || 'oro'}`}
+              </p>
             </div>
           </div>
         )
@@ -416,12 +402,11 @@ export default function PersonalizacionPage() {
       case 4:
         const lisoCount = balines.filter(b => b.type === 'liso').length
         const diamCount = balines.filter(b => b.type === 'diamantado').length
+        const colorLabel = COLORS.find((c) => c.value === color)?.label || 'Oro'
         return (
           <div className="space-y-8">
             <div className="mb-6">
-              <BeadSequenceViewer
-                items={balines.map(b => ({ kind: 'balin' as const, data: b }))}
-              />
+              <BeadSequenceViewer items={sequenceItems} material={material} />
             </div>
             <div className="bg-white p-8 border border-black/4">
               <h3 className="font-heading text-xl font-medium text-ebony mb-6 pb-3 border-b border-gold-400/30">
@@ -430,8 +415,8 @@ export default function PersonalizacionPage() {
               <div className="space-y-4">
                 {[
                   ['Producto base', selectedProduct?.name || `${jewelType === 'pulsera' ? 'Pulsera' : 'Anillo'} personalizado`],
-                  ['Dije', DIJES.find((d) => d.name === dije)?.label || 'Ninguno'],
-                  ['Color', COLORS.find((c) => c.value === color)?.label || 'Oro'],
+                  ['Dije', dije ? getDijon(dije)?.label || 'Ninguno' : 'Ninguno'],
+                  ['Color', colorLabel],
                   ['Composición', `${balines.length} Balines (${lisoCount} Lisos, ${diamCount} Diamantados)`],
                 ].map(([label, value]) => (
                   <div key={label} className="flex justify-between text-sm">
@@ -442,7 +427,7 @@ export default function PersonalizacionPage() {
                 <hr className="border-pearl" />
                 {[
                   [`Base (${jewelType === 'pulsera' ? 'Pulsera' : 'Anillo'})`, formatPrice(basePrice)],
-                  ...(dije ? [[`Dije (${DIJES.find((d) => d.name === dije)?.label})`, `+${formatPrice(dijePrice)}`]] : []),
+                  ...(dije ? [[`Dije (${getDijon(dije)?.label})`, `+${formatPrice(dijePrice)}`]] : []),
                   [`Balines (${balines.length})`, `+${formatPrice(balinTotal)}`],
                 ].map(([label, value]) => (
                   <div key={label as string} className="flex justify-between text-sm">
