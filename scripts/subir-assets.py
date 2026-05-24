@@ -17,6 +17,16 @@ import argparse
 from pathlib import Path
 from PIL import Image, ImageFilter
 
+# Cargar .env manualmente si existe
+env_path = Path(__file__).resolve().parent.parent / ".env"
+if env_path.exists():
+    with open(env_path) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+
 MAX_SIZE = 200
 WEBP_QUALITY = 85
 
@@ -117,18 +127,28 @@ def upload_to_supabase(results: list[dict]) -> list[dict]:
         return results
 
     try:
-        from supabase import create_client
+        import requests
     except ImportError:
-        print("\n  !! supabase-py no instalado. Ejecuta: pip install supabase")
+        print("\n  !! requests no instalado. Ejecuta: pip install requests")
         return results
 
-    supabase = create_client(supabase_url, supabase_key)
+    auth_headers = {"Authorization": f"Bearer {supabase_key}"}
 
-    # Asegurar que el bucket existe
+    # Crear bucket si no existe
     try:
-        supabase.storage.create_bucket(bucket, {"public": True})
-    except Exception:
-        pass  # Ya existe
+        bucket_url = f"{supabase_url}/storage/v1/bucket"
+        r = requests.get(bucket_url, headers=auth_headers)
+        existing = [b["id"] for b in (r.json() if r.ok else [])]
+        if bucket not in existing:
+            resp = requests.post(bucket_url, json={
+                "name": bucket, "id": bucket, "public": True
+            }, headers={**auth_headers, "Content-Type": "application/json"})
+            if resp.ok:
+                print(f"  + Bucket '{bucket}' creado")
+            else:
+                print(f"  !! No se pudo crear bucket '{bucket}': {resp.status_code} {resp.text[:100]}")
+    except Exception as e:
+        print(f"  !! Error verificando bucket: {e}")
 
     uploaded = []
     for r in results:
@@ -137,12 +157,21 @@ def upload_to_supabase(results: list[dict]) -> list[dict]:
             continue
         storage_path = f"{r['tipo']}/{r['nombre_webp']}"
         try:
+            upload_url = f"{supabase_url}/storage/v1/object/{bucket}/{storage_path}"
             with open(webp_path, "rb") as f:
-                supabase.storage.from_(bucket).upload(storage_path, f, {"upsert": "true"})
+                resp = requests.post(
+                    f"{upload_url}?upsert=true",
+                    headers={**auth_headers, "Content-Type": "image/webp"},
+                    data=f
+                )
+                resp.raise_for_status()
             public_url = f"{supabase_url}/storage/v1/object/public/{bucket}/{storage_path}"
             r["url_publica"] = public_url
             uploaded.append(r)
             print(f"  ^ {storage_path} -> {public_url}")
+        except requests.RequestException as e:
+            detail = e.response.text[:80] if e.response is not None else str(e)
+            print(f"  X Error subiendo {storage_path}: {detail}")
         except Exception as e:
             print(f"  X Error subiendo {storage_path}: {e}")
 
