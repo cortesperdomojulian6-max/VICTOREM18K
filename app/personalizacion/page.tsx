@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
-import { formatPrice } from '@/lib/utils'
+import { formatPrice, productImageUrl } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { Confetti } from '@/components/ui/confetti'
@@ -359,7 +359,7 @@ export default function PersonalizacionPage() {
                 <>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {products.map((product) => {
-                      const imgUrl = product.image_url?.replace(/^imagenes\//, '/assets/images/') || null
+                      const imgUrl = productImageUrl(product.image_url)
                       const isSelected = selectedProduct?.id === product.id
                       return (
                         <button

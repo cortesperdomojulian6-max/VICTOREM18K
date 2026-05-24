@@ -27,3 +27,8 @@ export function truncate(text: string, length: number): string {
   if (text.length <= length) return text
   return text.slice(0, length).trimEnd() + '…'
 }
+
+export function productImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null
+  return url.replace(/^imagenes\//, '/assets/images/')
+}

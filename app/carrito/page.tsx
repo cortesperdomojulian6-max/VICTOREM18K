@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Trash2, Minus, Plus, ShoppingBag, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
-import { formatPrice } from '@/lib/utils'
+import { formatPrice, productImageUrl } from '@/lib/utils'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { useCartStore } from '@/store/useCartStore'
@@ -100,7 +100,7 @@ export default function CarritoPage() {
                 >
                   <div className="size-20 bg-cream shrink-0 flex items-center justify-center overflow-hidden">
                     {item.image_url ? (
-                      <img src={item.image_url} alt={item.name} className="size-full object-cover" />
+                      <img src={productImageUrl(item.image_url) ?? undefined} alt={item.name} className="size-full object-cover" />
                     ) : (
                       <ShoppingBag className="size-6 text-stone" />
                     )}

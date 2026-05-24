@@ -7,6 +7,7 @@ import { ProductCard } from '@/components/ui/card'
 import { ProductCardSkeleton } from '@/components/ui/skeleton'
 import { ProductDetailModal } from '@/components/ui/product-detail-modal'
 import { api } from '@/lib/api'
+import { productImageUrl } from '@/lib/utils'
 import type { Product } from '@/types'
 import { motion } from 'framer-motion'
 
@@ -185,7 +186,7 @@ export default function CatalogoPage() {
                     name={product.name}
                     description={product.description || ''}
                     price={Number(product.price)}
-                    imageUrl={product.image_url?.replace(/^imagenes\//, '/assets/images/') || null}
+                    imageUrl={productImageUrl(product.image_url)}
                     view_count={product.view_count}
                     onViewDetail={() => openDetail(product)}
                   />

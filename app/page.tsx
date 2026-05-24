@@ -8,10 +8,10 @@ import { Button } from '@/components/ui/button'
 import { motion, useScroll, useTransform } from 'framer-motion'
 
 const PRODUCTS = [
-  { name: 'Pulsera Trébol', desc: 'Diseño artesanal con detalles en ónix y balinería fina de oro 18K.', price: '$ 165.000', img: 'https://lh3.googleusercontent.com/aida/ADBb0ui5-rz2jdv8Y_53OaYuZiv8WaX_MiMdloErKFkeDmMyySfIpTd00AL9LsjS9e1T4dV6ooVEWpK_OmEGA4M21Cn5dV4gUWjTI-UqQHZbs-lHKy9i4wns3A48zIZ0nYti5Dasd-iO4d0LakvH7wnVVtbE8cDJPPHTnH1peT-KJvwYT5Wl1ageRaBSaWHJttKrvmA6ERbSKDnkXEr1v21Gn21JusTBtJ2QqILz1MxlJJ0OGGXQHR0eZMrPqaM' },
-  { name: 'Anillo Tres Carriles', desc: 'Elegancia estructurada con tres bandas de balines en oro de alta calidad.', price: '$ 180.000', img: 'https://lh3.googleusercontent.com/aida/ADBb0uhxcUbRrCLheS4vc2Wzgr4I6B2A7mo90QDb788jg1olfnzdFUgf5-vaSgZDYy-6zXW1psTVd4-r_XAjjwuYsue-eujBnjanrvQ4YsP8bIrEsc8fI3soPTmz0MbEChw4SSZn5aZ728XwlNEbkr54kC46M5cuSlKoVMr9ZYBomb1039iYRv8K28Fc1kRhQofCSCDCaoj0W3QkejJ1VY9p5fME4mMMpHLDGkwlbwrz96Tpk1x0UYzZs-9gLZI' },
-  { name: 'Diseño Exclusivo', desc: 'Pieza única tejida a mano con balines de oro y cordón de seda negro.', price: '$ 210.000', img: 'https://lh3.googleusercontent.com/aida/ADBb0uiGDW1x9ijKs71IwonjJJ5W0lgfPrEy0CQyE6P2_ozWBO_OkhtFvcj2tTsCr_2Vn26hxxJkffR8Tsy5PoBqFoVsDN_bD0asCTeRFZ3fgWwgi6S9DJbrVl5RJyxCDwKMjdRnhDgdgJWNjq7kn3vss14RoCdQ-jpZpBr0B-b8HYVdHodReQJk90id4DpgMz0JckR1y1xnysPjLSTkfoBRn-V0EC2Sldi-0eiM1N_6jHjZcvMdJedN5fesPg' },
-  { name: 'Manilla Dollar', desc: 'Símbolo de sofisticación y estatus con placa central y balines labrados.', price: '$ 195.000', img: 'https://lh3.googleusercontent.com/aida/ADBb0uhJGO4B-c-kKEzG6855LTP-6LUGXF7LU07OWlb__OMYxQyxy_y1qbHL9KiJACRgXW_t8RP-sNqD1q1sjYrVMTTbRhTQKNKWROoKhoFLgAr6aYi3zZfVAWXkANlTRiVaXkyyxg-Z3B8OT9eqyNBtBXsTDMgYmOLmQQdXNx1CuTmOohlTL4Ae1oItAMkhK5LMYT9DF5NcBctnO1xCwUS5bb8Ich_cJua6IdZFRGMcB3OfFON855fQ_aWG4OA' },
+  { name: 'Pulsera Van Cleef Dorada', desc: 'Diseño contemporáneo con balinería multiformato y acabado dorado brillante.', price: '$ 165.000', img: '/assets/images/van cleef dorada.jpeg' },
+  { name: 'Anillo Tres Carriles', desc: 'Elegancia estructurada con tres bandas de balines en oro de alta calidad.', price: '$ 180.000', img: '/assets/images/AnilloTresCarriles.jpg' },
+  { name: 'Diseño Exclusivo', desc: 'Pieza única tejida a mano con balines de oro y detalles de alta gama.', price: '$ 210.000', img: '/assets/images/AnilloDiseñoExclusivo.jpg' },
+  { name: 'Manilla Dollar', desc: 'Símbolo de sofisticación y estatus con placa central y balines labrados.', price: '$ 195.000', img: '/assets/images/ManillaDollar.jpg' },
 ]
 
 function HeroSection() {

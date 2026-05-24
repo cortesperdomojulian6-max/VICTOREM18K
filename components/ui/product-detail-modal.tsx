@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { X, ShoppingBag, Heart, Share2, Minus, Plus, ChevronRight } from 'lucide-react'
 import { Button } from './button'
-import { formatPrice } from '@/lib/utils'
+import { formatPrice, productImageUrl } from '@/lib/utils'
 import { api } from '@/lib/api'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -42,7 +42,7 @@ export function ProductDetailModal({ product, open, onClose }: ProductDetailModa
 
   if (!product) return null
 
-  const imageUrl = product.image_url?.replace(/^imagenes\//, '/assets/images/') || null
+  const imageUrl = productImageUrl(product.image_url)
 
   const handleAddToCart = async () => {
     const token = localStorage.getItem('token')
@@ -236,7 +236,7 @@ export function ProductDetailModal({ product, open, onClose }: ProductDetailModa
                     >
                       <div className="size-14 shrink-0 bg-stone-50 flex items-center justify-center overflow-hidden">
                         {rec.image_url ? (
-                          <Image src={rec.image_url.replace(/^imagenes\//, '/assets/images/')} alt={rec.name} width={56} height={56} className="object-contain" />
+                          <Image src={productImageUrl(rec.image_url) ?? ''} alt={rec.name} width={56} height={56} className="object-contain" />
                         ) : (
                           <div className="size-8 bg-pearl/40 rounded" />
                         )}

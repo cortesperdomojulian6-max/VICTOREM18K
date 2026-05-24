@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Users, Package, TrendingUp, DollarSign, Trash2, RefreshCw, Edit3, Plus, X, Check, Search } from 'lucide-react'
 import { api, ApiError } from '@/lib/api'
-import { formatPrice } from '@/lib/utils'
+import { formatPrice, productImageUrl } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/store/useAuthStore'
@@ -238,7 +238,7 @@ export default function AdminPage() {
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-3">
                               <div className="size-10 bg-cream flex items-center justify-center text-xs text-stone overflow-hidden">
-                                {p.image_url ? <img src={p.image_url} alt="" className="size-full object-cover" /> : <Package className="size-5" />}
+                                {p.image_url ? <img src={productImageUrl(p.image_url) ?? undefined} alt="" className="size-full object-cover" /> : <Package className="size-5" />}
                               </div>
                               <span className="font-medium text-ebony">{p.name}</span>
                             </div>
