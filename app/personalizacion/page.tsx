@@ -1,9 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Check, ArrowRight, ArrowLeft, ShoppingBag, Sparkles, Plus, X, ChevronUp, ChevronDown } from 'lucide-react'
+import {
+  Check, ArrowRight, ArrowLeft, ShoppingBag, Sparkles, Plus, X, GripVertical,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
 import { formatPrice } from '@/lib/utils'
@@ -13,16 +15,13 @@ import { Confetti } from '@/components/ui/confetti'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useCartStore } from '@/store/useCartStore'
 import BeadSequenceViewer from '@/components/personalizacion/BeadSequenceViewer'
+import ChatAssistant from '@/components/personalizacion/ChatAssistant'
 import {
-  DIJONES,
-  COLORS,
-  BASE_PRICES,
-  BALIN_PRICE,
-  STEPS,
-  getMaterialFromColor,
-  getDijon,
+  DIJONES, COLORS, NEOPRENO_COLORS,
+  BASE_PRICES, BALIN_PRICE, NEOPRENO_BASE_PRICE,
+  STEPS, getMaterialFromColor, getDijon, sequenceDescription,
 } from '@/lib/personalizacion'
-import type { JewelType, BalinConfig, MaterialName } from '@/lib/personalizacion'
+import type { JewelType, MaterialName, SequenceItem, BalinType, BalinSize } from '@/lib/personalizacion'
 import type { Product } from '@/types'
 
 export default function PersonalizacionPage() {
@@ -31,19 +30,26 @@ export default function PersonalizacionPage() {
   const [jewelType, setJewelType] = useState<JewelType | null>(null)
   const [dije, setDije] = useState<string | null>(null)
   const [color, setColor] = useState<string>('#d4af37')
-  const [balines, setBalines] = useState<BalinConfig[]>([])
-  const [balinType, setBalinType] = useState<'lisos' | 'diamantados'>('lisos')
+  const [sequence, setSequence] = useState<SequenceItem[]>([])
+  const [defaultBalinType, setDefaultBalinType] = useState<BalinType>('liso')
   const [showConfetti, setShowConfetti] = useState(false)
   const [products, setProducts] = useState<Product[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [loadingProducts, setLoadingProducts] = useState(false)
+  const [dragIndex, setDragIndex] = useState<number | null>(null)
   const { isAuthenticated } = useAuthStore()
   const { addItem } = useCartStore()
+  const [description, setDescription] = useState<string | null>(null)
+  const [descLoading, setDescLoading] = useState(false)
+  const descFetched = useRef(false)
 
   const material: MaterialName = getMaterialFromColor(color)
 
-  const sequenceItems = [
-    ...balines.map((b) => ({ kind: 'balin' as const, data: b })),
+  const sequenceWithDijon = [
+    ...sequence.map((s) => {
+      if (s.kind === 'balin') return { kind: 'balin' as const, data: s }
+      return { kind: 'neopreno' as const, data: s }
+    }),
     ...(dije ? [{ kind: 'dijon' as const, data: { id: dije, image: getDijon(dije)?.image ?? '', nombre: getDijon(dije)?.label ?? '' } }] : []),
   ]
 
@@ -73,38 +79,65 @@ export default function PersonalizacionPage() {
     setJewelType(null)
   }
 
-  const updateBalin = (index: number, field: 'type' | 'size', value: string) => {
-    const newBalines = [...balines]
-    ;(newBalines[index] as any)[field] = value
-    setBalines(newBalines)
-  }
+  const addBalin = useCallback(() => {
+    setSequence((prev) => [...prev, { kind: 'balin', type: defaultBalinType, size: 'medium' }])
+  }, [defaultBalinType])
 
-  const addBalin = () => {
-    setBalines([...balines, { type: balinType === 'lisos' ? 'liso' : 'diamantado', size: 'medium' }])
-  }
+  const addNeopreno = useCallback((color: string, label: string) => {
+    setSequence((prev) => [...prev, { kind: 'neopreno', color, label }])
+  }, [])
 
-  const removeBalin = (index: number) => {
-    setBalines(balines.filter((_, i) => i !== index))
-  }
+  const removeItem = useCallback((index: number) => {
+    setSequence((prev) => prev.filter((_, i) => i !== index))
+  }, [])
 
-  const moveBalin = (index: number, direction: 'up' | 'down') => {
-    const newBalines = [...balines]
-    const target = direction === 'up' ? index - 1 : index + 1
-    if (target < 0 || target >= newBalines.length) return
-    const temp = newBalines[target]
-    newBalines[target] = newBalines[index]
-    newBalines[index] = temp
-    setBalines(newBalines)
+  const insertAt = useCallback((index: number) => {
+    setSequence((prev) => {
+      const next = [...prev]
+      next.splice(index, 0, { kind: 'balin', type: defaultBalinType, size: 'medium' })
+      return next
+    })
+  }, [defaultBalinType])
+
+  const moveItem = useCallback((from: number, to: number) => {
+    if (to < 0 || to >= sequence.length) return
+    setSequence((prev) => {
+      const next = [...prev]
+      const [item] = next.splice(from, 1)
+      next.splice(to, 0, item)
+      return next
+    })
+  }, [sequence.length])
+
+  const updateBalin = useCallback((index: number, field: 'type' | 'size', value: string) => {
+    setSequence((prev) => {
+      const next = [...prev]
+      const item = next[index]
+      if (item.kind === 'balin') {
+        next[index] = { ...item, [field]: value }
+      }
+      return next
+    })
+  }, [])
+
+  const handleDragStart = (index: number) => setDragIndex(index)
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    if (dragIndex === null || dragIndex === index) return
+    moveItem(dragIndex, index)
+    setDragIndex(index)
   }
+  const handleDragEnd = () => setDragIndex(null)
 
   const basePrice = jewelType ? BASE_PRICES[jewelType] : 0
   const dijePrice = dije ? getDijon(dije)?.price || 0 : 0
-  const balinTotal = balines.length * BALIN_PRICE
-  const total = basePrice + dijePrice + balinTotal
+  const balinTotal = sequence.filter((s) => s.kind === 'balin').length * BALIN_PRICE
+  const neoprenoTotal = sequence.filter((s) => s.kind === 'neopreno').length * NEOPRENO_BASE_PRICE
+  const total = basePrice + dijePrice + balinTotal + neoprenoTotal
 
   const canProceed = () => {
     switch (step) {
-      case 0: return balines.length > 0
+      case 0: return sequence.some((s) => s.kind === 'balin')
       case 1: return jewelType !== null
       case 2: return true
       case 3: return true
@@ -112,6 +145,18 @@ export default function PersonalizacionPage() {
       default: return false
     }
   }
+
+  useEffect(() => {
+    if (step === 4 && !descFetched.current) {
+      descFetched.current = true
+      setDescLoading(true)
+      const config = { type: jewelType, dije, color, sequence, defaultBalinType, total, productoBase: selectedProduct?.name || null }
+      api.post<{ description: string }>('/describe/custom-order', { config })
+        .then((r) => setDescription(r.description))
+        .catch(() => setDescription(null))
+        .finally(() => setDescLoading(false))
+    }
+  }, [step, jewelType, dije, color, sequence, defaultBalinType, total, selectedProduct])
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
@@ -129,7 +174,7 @@ export default function PersonalizacionPage() {
       await addItem(custom.id, 1)
 
       localStorage.setItem('personalizacion', JSON.stringify({
-        type: jewelType, dije, color, balines, balinType, total,
+        type: jewelType, dije, color, sequence, defaultBalinType, total,
         productoBase: selectedProduct?.name || null,
         fecha: new Date().toISOString(),
       }))
@@ -169,97 +214,130 @@ export default function PersonalizacionPage() {
         return (
           <div className="space-y-8">
             <div className="mb-6">
-              <BeadSequenceViewer items={sequenceItems} material={material} />
+              <BeadSequenceViewer
+                items={sequenceWithDijon}
+                material={material}
+                onInsertBetween={insertAt}
+                onItemClick={removeItem}
+              />
             </div>
             <div className="space-y-6">
               <div className="text-center mb-8">
-                <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-2">Configura tu Secuencia de Balines</p>
-                <p className="text-sm text-stone/60 font-light">Añade, elimina y personaliza cada balín para crear un diseño único.</p>
+                <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-2">Configura tu Secuencia</p>
+                <p className="text-sm text-stone/60 font-light">Arrastra para reordenar, haz clic en un elemento para eliminarlo. Usa los + para insertar entre balines.</p>
               </div>
 
-              <div className="flex flex-wrap justify-center gap-4 mb-8">
-                {(['lisos', 'diamantados'] as const).map((t) => (
+              <div className="flex flex-wrap justify-center gap-3 mb-8">
+                {(['liso', 'diamantado'] as const).map((t) => (
                   <button
                     key={t}
-                    onClick={() => setBalinType(t)}
+                    onClick={() => setDefaultBalinType(t)}
                     className={`px-4 py-2 text-xs uppercase tracking-widest border transition-all ${
-                      balinType === t ? 'border-gold-400 bg-gold-400/10 text-gold-600 font-bold' : 'border-pearl text-stone hover:border-gold-400'
+                      defaultBalinType === t ? 'border-gold-400 bg-gold-400/10 text-gold-600 font-bold' : 'border-pearl text-stone hover:border-gold-400'
                     }`}
                   >
-                    Tipo Predeterminado: {t === 'lisos' ? 'Lisos' : 'Diamantados'}
+                    Predet: {t === 'liso' ? 'Lisos' : 'Diamantados'}
                   </button>
                 ))}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[400px] overflow-y-auto px-4 py-2 scrollbar-hide">
-                {balines.length === 0 && (
-                  <div className="col-span-full py-12 text-center border-2 border-dashed border-pearl rounded-xl">
-                    <p className="text-stone text-sm italic">No hay balines en la secuencia. Añade el primero.</p>
+              <div className="flex flex-wrap justify-center gap-3 mb-6">
+                <Button size="sm" variant="outline" onClick={addBalin}>
+                  <Plus className="size-3.5 mr-1.5" /> Agregar Balín
+                </Button>
+                <div className="relative group">
+                  <Button size="sm" variant="outline">
+                    <Plus className="size-3.5 mr-1.5" /> Agregar Neopreno
+                  </Button>
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 hidden group-hover:block z-20">
+                    <div className="bg-white shadow-xl border border-black/6 p-3 grid grid-cols-4 gap-2 min-w-[200px]">
+                      {NEOPRENO_COLORS.map((n) => (
+                        <button
+                          key={n.color}
+                          onClick={() => addNeopreno(n.color, n.label)}
+                          className="flex flex-col items-center gap-1 p-2 hover:bg-stone-50 transition-colors rounded"
+                          title={n.label}
+                        >
+                          <div className="size-6 rounded-sm border border-black/10" style={{ backgroundColor: n.color }} />
+                          <span className="text-[10px] text-stone">{n.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2 max-h-[360px] overflow-y-auto px-2">
+                {sequence.length === 0 && (
+                  <div className="py-12 text-center border-2 border-dashed border-pearl rounded-xl">
+                    <p className="text-stone text-sm italic">Secuencia vacía. Agrega balines y neoprenos.</p>
                   </div>
                 )}
-                {balines.map((b, i) => (
-                  <div key={i} className="group relative bg-white border border-pearl p-4 rounded-xl transition-all hover:border-gold-400/50 hover:shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => moveBalin(i, 'up')}
-                          disabled={i === 0}
-                          className="p-1 rounded hover:bg-stone-100 text-stone hover:text-gold-600 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
-                        >
-                          <ChevronUp className="size-3.5" />
-                        </button>
-                        <button
-                          onClick={() => moveBalin(i, 'down')}
-                          disabled={i === balines.length - 1}
-                          className="p-1 rounded hover:bg-stone-100 text-stone hover:text-gold-600 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
-                        >
-                          <ChevronDown className="size-3.5" />
-                        </button>
-                      </div>
-                      <span className="text-[10px] font-bold text-stone uppercase tracking-tighter">Balín #{i + 1}</span>
-                      <button
-                        onClick={() => removeBalin(i)}
-                        className="p-1 rounded-full hover:bg-red-50 text-stone hover:text-red-500 transition-colors"
-                      >
-                        <X className="size-3.5" />
-                      </button>
+                {sequence.map((item, i) => (
+                  <div
+                    key={i}
+                    draggable
+                    onDragStart={() => handleDragStart(i)}
+                    onDragOver={(e) => handleDragOver(e, i)}
+                    onDragEnd={handleDragEnd}
+                    className={`flex items-center gap-3 bg-white border border-pearl p-3 rounded-lg transition-all hover:border-gold-400/50 ${
+                      dragIndex === i ? 'opacity-50 border-gold-400' : ''
+                    }`}
+                  >
+                    <div className="cursor-grab active:cursor-grabbing text-stone hover:text-gold-600 transition-colors">
+                      <GripVertical className="size-4" />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-[10px] uppercase font-semibold text-stone block">Estilo</label>
-                        <select
-                          value={b.type}
-                          onChange={(e) => updateBalin(i, 'type', e.target.value)}
-                          className="w-full text-xs p-2 bg-stone-50 border border-pearl rounded-md outline-none focus:border-gold-400 transition-colors"
-                        >
-                          <option value="liso">Liso</option>
-                          <option value="diamantado">Diamantado</option>
-                        </select>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] uppercase font-semibold text-stone block">Tamaño</label>
-                        <select
-                          value={b.size}
-                          onChange={(e) => updateBalin(i, 'size', e.target.value)}
-                          className="w-full text-xs p-2 bg-stone-50 border border-pearl rounded-md outline-none focus:border-gold-400 transition-colors"
-                        >
-                          <option value="small">Pequeño</option>
-                          <option value="medium">Medio</option>
-                          <option value="large">Grande</option>
-                        </select>
-                      </div>
-                    </div>
+                    {item.kind === 'balin' ? (
+                      <>
+                        <Image
+                          src={`/assets/optimized/balines/balin-${item.type}-${material === 'rose' ? 'dorado' : material}-60px.webp`}
+                          alt={item.type}
+                          width={32}
+                          height={32}
+                          className="shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-xs font-semibold text-ebony uppercase">Balín #{i + 1}</span>
+                          <div className="flex gap-2 mt-1">
+                            <select
+                              value={item.type}
+                              onChange={(e) => updateBalin(i, 'type', e.target.value)}
+                              className="text-[11px] p-1 bg-stone-50 border border-pearl rounded outline-none focus:border-gold-400"
+                            >
+                              <option value="liso">Liso</option>
+                              <option value="diamantado">Diamantado</option>
+                            </select>
+                            <select
+                              value={item.size}
+                              onChange={(e) => updateBalin(i, 'size', e.target.value)}
+                              className="text-[11px] p-1 bg-stone-50 border border-pearl rounded outline-none focus:border-gold-400"
+                            >
+                              <option value="small">Pequeño</option>
+                              <option value="medium">Medio</option>
+                              <option value="large">Grande</option>
+                            </select>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="size-6 rounded-sm shrink-0 border border-black/10" style={{ backgroundColor: item.color }} />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-xs font-semibold text-ebony uppercase">Neopreno #{i + 1}</span>
+                          <p className="text-[11px] text-stone">{item.label}</p>
+                        </div>
+                      </>
+                    )}
+
+                    <button
+                      onClick={() => removeItem(i)}
+                      className="p-1 rounded-full hover:bg-red-50 text-stone hover:text-red-500 transition-colors shrink-0"
+                    >
+                      <X className="size-3.5" />
+                    </button>
                   </div>
                 ))}
-
-                <button
-                  onClick={addBalin}
-                  className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-pearl rounded-xl text-stone hover:border-gold-400 hover:text-gold-600 transition-all group"
-                >
-                  <Plus className="size-4 group-hover:scale-125 transition-transform" />
-                  <span className="text-xs font-semibold uppercase tracking-wider">Añadir Balín</span>
-                </button>
               </div>
             </div>
           </div>
@@ -269,7 +347,7 @@ export default function PersonalizacionPage() {
         return (
           <div className="space-y-8">
             <div className="mb-6">
-              <BeadSequenceViewer items={sequenceItems} material={material} />
+              <BeadSequenceViewer items={sequenceWithDijon} material={material} />
             </div>
             <div className="text-center">
               <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Selecciona tu producto base del catálogo</p>
@@ -327,7 +405,7 @@ export default function PersonalizacionPage() {
         return (
           <div className="space-y-8">
             <div className="mb-6">
-              <BeadSequenceViewer items={sequenceItems} material={material} />
+              <BeadSequenceViewer items={sequenceWithDijon} material={material} />
             </div>
             <div className="text-center">
               <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Elige tu dije favorito</p>
@@ -367,11 +445,10 @@ export default function PersonalizacionPage() {
         )
 
       case 3:
-        const colorName = COLORS.find((c) => c.value === color)?.name ?? 'gold'
         return (
           <div className="space-y-8">
             <div className="mb-6">
-              <BeadSequenceViewer items={sequenceItems} material={material} />
+              <BeadSequenceViewer items={sequenceWithDijon} material={material} />
             </div>
             <div className="text-center">
               <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Selecciona el color del metal</p>
@@ -393,22 +470,30 @@ export default function PersonalizacionPage() {
                 ))}
               </div>
               <p className="text-xs text-stone/50 mt-6 italic">
-                {colorName === 'rose' ? 'Los balines se mostrarán en dorado (simulación)' : `Los balines se mostrarán en ${COLORS.find(c => c.value === color)?.label?.toLowerCase() || 'oro'}`}
+                Los balines se mostrarán en el color seleccionado
               </p>
             </div>
           </div>
         )
 
       case 4:
-        const lisoCount = balines.filter(b => b.type === 'liso').length
-        const diamCount = balines.filter(b => b.type === 'diamantado').length
-        const colorLabel = COLORS.find((c) => c.value === color)?.label || 'Oro'
         return (
           <div className="space-y-8">
             <div className="mb-6">
-              <BeadSequenceViewer items={sequenceItems} material={material} />
+              <BeadSequenceViewer items={sequenceWithDijon} material={material} />
             </div>
             <div className="bg-white p-8 border border-black/4">
+              {descLoading ? (
+                <div className="animate-pulse mb-6">
+                  <div className="h-4 bg-pearl/60 w-full rounded" />
+                  <div className="h-4 bg-pearl/40 w-3/4 rounded mt-2" />
+                </div>
+              ) : description ? (
+                <p className="text-sm text-stone/80 italic leading-relaxed mb-6 pb-4 border-b border-gold-400/20">
+                  &ldquo;{description}&rdquo;
+                </p>
+              ) : null}
+
               <h3 className="font-heading text-xl font-medium text-ebony mb-6 pb-3 border-b border-gold-400/30">
                 Resumen de tu joya personalizada
               </h3>
@@ -416,8 +501,8 @@ export default function PersonalizacionPage() {
                 {[
                   ['Producto base', selectedProduct?.name || `${jewelType === 'pulsera' ? 'Pulsera' : 'Anillo'} personalizado`],
                   ['Dije', dije ? getDijon(dije)?.label || 'Ninguno' : 'Ninguno'],
-                  ['Color', colorLabel],
-                  ['Composición', `${balines.length} Balines (${lisoCount} Lisos, ${diamCount} Diamantados)`],
+                  ['Color', COLORS.find((c) => c.value === color)?.label || 'Oro'],
+                  ['Composición', sequenceDescription(sequence)],
                 ].map(([label, value]) => (
                   <div key={label} className="flex justify-between text-sm">
                     <span className="text-stone">{label}</span>
@@ -428,7 +513,8 @@ export default function PersonalizacionPage() {
                 {[
                   [`Base (${jewelType === 'pulsera' ? 'Pulsera' : 'Anillo'})`, formatPrice(basePrice)],
                   ...(dije ? [[`Dije (${getDijon(dije)?.label})`, `+${formatPrice(dijePrice)}`]] : []),
-                  [`Balines (${balines.length})`, `+${formatPrice(balinTotal)}`],
+                  [`Balines (${sequence.filter(s => s.kind === 'balin').length})`, `+${formatPrice(balinTotal)}`],
+                  ...(neoprenoTotal > 0 ? [[`Neoprenos (${sequence.filter(s => s.kind === 'neopreno').length})`, `+${formatPrice(neoprenoTotal)}`]] : []),
                 ].map(([label, value]) => (
                   <div key={label as string} className="flex justify-between text-sm">
                     <span className="text-stone">{label as string}</span>
@@ -455,6 +541,7 @@ export default function PersonalizacionPage() {
   return (
     <>
       <Confetti active={showConfetti} />
+      <ChatAssistant />
       <div className="bg-ebony/90">
         <div className="container-main py-14 md:py-20">
           <nav className="flex items-center gap-2 text-xs uppercase tracking-wider text-white/40 mb-6">

@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const db = require('../db');
 const { ValidationError, NotFoundError, ForbiddenError } = require('./errors');
 
-async function createOrder(userId, { address_id, payment_method, keepCart } = {}) {
+async function createOrder(userId, { address_id, payment_method, keepCart, tipo } = {}) {
   if (!address_id || !payment_method) {
     throw new ValidationError('address_id y payment_method requeridos');
   }
@@ -28,11 +28,12 @@ async function createOrder(userId, { address_id, payment_method, keepCart } = {}
     const numero_pedido = 'VM-' + Date.now().toString(36) + '-' + crypto.randomBytes(3).toString('hex');
 
     const envio = 10000;
+    const orderTipo = ['catalogo', 'personalizado', 'carrito'].includes(tipo) ? tipo : 'carrito';
     const orderResult = await client.query(
-      `INSERT INTO orders (user_id, subtotal, envio, total, address_id, metodo_pago, numero_pedido, estado)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, 'pendiente')
-       RETURNING id, user_id, total, envio, numero_pedido, estado, fecha`,
-      [userId, total, envio, total + envio, address_id, payment_method, numero_pedido]
+      `INSERT INTO orders (user_id, subtotal, envio, total, address_id, metodo_pago, numero_pedido, tipo, estado)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'pendiente')
+       RETURNING id, user_id, total, envio, numero_pedido, tipo, estado, fecha`,
+      [userId, total, envio, total + envio, address_id, payment_method, numero_pedido, orderTipo]
     );
 
     const orderId = orderResult.rows[0].id;

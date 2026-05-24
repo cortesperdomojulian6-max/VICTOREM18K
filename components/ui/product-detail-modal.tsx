@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { X, ShoppingBag, Heart, Share2, Minus, Plus, ChevronRight } from 'lucide-react'
 import { Button } from './button'
@@ -28,6 +28,17 @@ export function ProductDetailModal({ product, open, onClose }: ProductDetailModa
   const [adding, setAdding] = useState(false)
   const [selectedColor, setSelectedColor] = useState('#d4af37')
   const [showFullDesc, setShowFullDesc] = useState(false)
+  const [recommendations, setRecommendations] = useState<Product[]>([])
+  const [recsLoading, setRecsLoading] = useState(false)
+
+  useEffect(() => {
+    if (!product) return
+    setRecsLoading(true)
+    api.get<Product[]>(`/recommendations/${product.id}`)
+      .then(setRecommendations)
+      .catch(() => setRecommendations([]))
+      .finally(() => setRecsLoading(false))
+  }, [product])
 
   if (!product) return null
 
@@ -203,6 +214,42 @@ export function ProductDetailModal({ product, open, onClose }: ProductDetailModa
                 </div>
               </div>
             </div>
+
+            {recsLoading ? (
+              <div className="border-t border-pearl p-6">
+                <div className="animate-pulse space-y-3">
+                  <div className="h-4 bg-pearl/60 w-48" />
+                  <div className="flex gap-4">
+                    {[1, 2, 3].map(i => <div key={i} className="h-24 bg-pearl/40 flex-1 rounded" />)}
+                  </div>
+                </div>
+              </div>
+            ) : recommendations.length > 0 && (
+              <div className="border-t border-pearl p-6 bg-snow/30">
+                <p className="text-xs font-semibold text-stone uppercase tracking-wider mb-4">También te puede interesar</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {recommendations.map((rec) => (
+                    <button
+                      key={rec.id}
+                      onClick={() => window.location.href = `/catalogo?id=${rec.id}`}
+                      className="flex items-center gap-3 p-3 bg-white border border-pearl hover:border-gold-400/50 transition-all text-left"
+                    >
+                      <div className="size-14 shrink-0 bg-stone-50 flex items-center justify-center overflow-hidden">
+                        {rec.image_url ? (
+                          <Image src={rec.image_url.replace(/^imagenes\//, '/assets/images/')} alt={rec.name} width={56} height={56} className="object-contain" />
+                        ) : (
+                          <div className="size-8 bg-pearl/40 rounded" />
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-ebony truncate">{rec.name}</p>
+                        <p className="text-xs text-gold-400 font-semibold">{formatPrice(Number(rec.price))}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </motion.div>
         </motion.div>
       )}

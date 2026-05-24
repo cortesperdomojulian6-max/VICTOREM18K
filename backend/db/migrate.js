@@ -49,6 +49,23 @@ const MIGRATIONS = [
       );
     `,
   },
+  {
+    name: '005_create_custom_orders',
+    sql: `
+      CREATE TABLE IF NOT EXISTS custom_orders (
+        id              SERIAL PRIMARY KEY,
+        order_id        INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+        user_id         INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        configuracion   JSONB NOT NULL,
+        tipo_joya       VARCHAR(50),
+        precio_total    NUMERIC(12, 2) NOT NULL DEFAULT 0,
+        talla_cm        NUMERIC(4, 1),
+        created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_custom_orders_order ON custom_orders(order_id);
+      CREATE INDEX IF NOT EXISTS idx_custom_orders_user  ON custom_orders(user_id);
+    `,
+  },
 ];
 
 (async () => {

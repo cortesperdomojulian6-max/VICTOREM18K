@@ -64,4 +64,42 @@ async function updateOrderStatus(orderId, estado) {
   return { ok: true, order: result.rows[0] };
 }
 
-module.exports = { getUsers, deleteUser, getStats, getAllOrders, updateOrderStatus };
+async function getMayoreoAnalysis() {
+  const orders = await db.query(`
+    SELECT o.id, o.numero_pedido, o.total, o.estado, o.fecha,
+           u.name AS user_name, u.email AS user_email
+    FROM orders o
+    JOIN users u ON o.user_id = u.id
+    WHERE o.total >= 500000
+    ORDER BY o.fecha DESC
+  `);
+
+  const items = await db.query(`
+    SELECT oi.order_id, oi.nombre_producto, SUM(oi.cantidad) as total_cantidad
+    FROM order_items oi
+    JOIN orders o ON oi.order_id = o.id
+    WHERE o.total >= 500000
+    GROUP BY oi.order_id, oi.nombre_producto
+    ORDER BY oi.order_id
+  `);
+
+  const itemMap = {}
+  for (const item of items.rows) {
+    if (!itemMap[item.order_id]) itemMap[item.order_id] = []
+    itemMap[item.order_id].push(`${item.total_cantidad}x ${item.nombre_producto}`)
+  }
+
+  const enriched = orders.rows.map(o => ({
+    ...o,
+    items: itemMap[o.id] || [],
+    tiempo_estimado: `${Math.ceil(o.total / 50000)} horas (aprox)`,
+  }))
+
+  return {
+    total_pedidos_mayoreo: orders.rows.length,
+    ingresos_totales: orders.rows.reduce((s, o) => s + parseFloat(o.total || 0), 0),
+    pedidos: enriched,
+  }
+}
+
+module.exports = { getUsers, deleteUser, getStats, getAllOrders, updateOrderStatus, getMayoreoAnalysis };

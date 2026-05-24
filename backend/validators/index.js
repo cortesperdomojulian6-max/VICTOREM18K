@@ -62,12 +62,15 @@ function validateOrder(data) {
   if (!data.address_id || !Number.isInteger(Number(data.address_id)) || Number(data.address_id) <= 0) {
     errors.address_id = 'address_id requerido y debe ser un número positivo';
   }
-  const validMethods = ['transferencia'];
+  const validMethods = ['transferencia', 'nequi', 'wompi'];
   if (!data.payment_method || !validMethods.includes(data.payment_method)) {
     errors.payment_method = `payment_method debe ser uno de: ${validMethods.join(', ')}`;
   }
   if (data.keepCart !== undefined && typeof data.keepCart !== 'boolean') {
     errors.keepCart = 'keepCart debe ser booleano';
+  }
+  if (data.tipo !== undefined && !['catalogo', 'personalizado', 'carrito'].includes(data.tipo)) {
+    errors.tipo = 'tipo debe ser catalogo, personalizado o carrito';
   }
   return Object.keys(errors).length ? errors : null;
 }

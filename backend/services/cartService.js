@@ -3,7 +3,7 @@ const { ValidationError, NotFoundError } = require('./errors');
 
 async function getCart(userId) {
   const result = await db.query(
-    `SELECT ci.id, ci.product_id, p.name, p.price, ci.cantidad, (p.price * ci.cantidad) as subtotal
+    `SELECT ci.id, ci.product_id, p.name, p.price, p.image_url, ci.cantidad, (p.price * ci.cantidad) as subtotal
      FROM cart_items ci
      JOIN products p ON ci.product_id = p.id
      WHERE ci.user_id = $1`,

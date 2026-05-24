@@ -33,12 +33,21 @@ async function createPayment(userId, { amount, currency = 'COP', reference, cust
     }
   }
 
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : 'http://localhost:3000'
+
   const paymentData = {
     amount_in_cents: Math.round(amount * 100),
     currency,
     customer_email: customerEmail,
     reference,
-    description: `Pedido VICTOREM #${reference}`
+    description: `Pedido VICTOREM #${reference}`,
+    ...(currency === 'COP' ? {
+      redirect_url: `${baseUrl}/checkout?status=success&transaction_id=:transaction_id`,
+      success_url: `${baseUrl}/checkout?status=success`,
+      failure_url: `${baseUrl}/checkout?status=failure`,
+    } : {}),
   };
 
   const wompiResponse = await fetch(`${WOMPI_API_URL}/transactions`, {

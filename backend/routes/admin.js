@@ -44,6 +44,11 @@ router.post('/products', asyncHandler(async (req, res) => {
   return res.status(201).json(product);
 }));
 
+router.get('/mayoreo-analysis', asyncHandler(async (req, res) => {
+  const analysis = await adminService.getMayoreoAnalysis();
+  return res.json(analysis);
+}));
+
 router.put('/products/:id', asyncHandler(async (req, res) => {
   const product = await productService.updateProduct(req.params.id, req.body);
   return res.json(product);

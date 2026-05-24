@@ -7,9 +7,18 @@ export type BalinSize = 'small' | 'medium' | 'large'
 export type MaterialName = 'gold' | 'silver' | 'rose' | 'black'
 
 export interface BalinConfig {
+  kind: 'balin'
   type: BalinType
   size: BalinSize
 }
+
+export interface NeoprenoConfig {
+  kind: 'neopreno'
+  color: string
+  label: string
+}
+
+export type SequenceItem = BalinConfig | NeoprenoConfig
 
 export interface DijonConfig {
   id: string
@@ -18,23 +27,8 @@ export interface DijonConfig {
   image: string
 }
 
-const MATERIAL_MAP: Record<MaterialName, string> = {
-  gold: 'dorado',
-  silver: 'plateado',
-  rose: 'dorado',
-  black: 'negro',
-}
-
-const SIZE_MAP: Record<BalinSize, string> = {
-  small: '40px',
-  medium: '60px',
-  large: '80px',
-}
-
-export function getBeadImagePath(type: BalinType, material: MaterialName, size: BalinSize): string {
-  const mat = MATERIAL_MAP[material]
-  const sizeStr = SIZE_MAP[size]
-  return `/assets/optimized/balines/balin-${type}-${mat}-${sizeStr}.webp`
+export function getBeadImagePath(type: BalinType, _material?: MaterialName, _size?: BalinSize): string {
+  return `/assets/optimized/balines/balin-${type}.webp`
 }
 
 export const BEAD_IMAGE_SIZES: Record<BalinSize, number> = {
@@ -44,6 +38,8 @@ export const BEAD_IMAGE_SIZES: Record<BalinSize, number> = {
 }
 
 export const DIJON_VIEW_SIZE = 60
+export const NEOPRENO_VIEW_WIDTH = 24
+export const NEOPRENO_VIEW_HEIGHT = 50
 
 export const DIJONES: DijonConfig[] = [
   { id: 'infinito', label: 'Infinito', price: 18000, image: '/assets/optimized/dijones/dijon-infinito.webp' },
@@ -71,9 +67,21 @@ export const COLORS: { name: MaterialName; label: string; value: string }[] = [
   { name: 'black', label: 'Negro', value: '#1a1a1a' },
 ]
 
+export const NEOPRENO_COLORS: { color: string; label: string; price: number }[] = [
+  { color: '#8B4513', label: 'Café', price: 2000 },
+  { color: '#1a1a1a', label: 'Negro', price: 2000 },
+  { color: '#d4af37', label: 'Oro', price: 3000 },
+  { color: '#c0c0c0', label: 'Plateado', price: 2000 },
+  { color: '#8B0000', label: 'Rojo Oscuro', price: 2000 },
+  { color: '#000080', label: 'Azul Marino', price: 2000 },
+  { color: '#2F4F4F', label: 'Verde Oscuro', price: 2000 },
+  { color: '#D2691E', label: 'Chocolate', price: 2000 },
+]
+
 export const BASE_PRICES: Record<JewelType, number> = { pulsera: 80000, anillo: 50000 }
 
 export const BALIN_PRICE = 5000
+export const NEOPRENO_BASE_PRICE = 2000
 
 export const STEPS = [
   { id: 1, label: 'Secuencia de Balines' },
@@ -90,4 +98,17 @@ export function getMaterialFromColor(colorValue: string): MaterialName {
 
 export function getDijon(id: string): DijonConfig | undefined {
   return DIJONES.find((d) => d.id === id)
+}
+
+export function sequenceDescription(items: SequenceItem[]): string {
+  const balines = items.filter(i => i.kind === 'balin').length
+  const neoprenos = items.filter(i => i.kind === 'neopreno').length
+  const liso = items.filter(i => i.kind === 'balin' && i.type === 'liso').length
+  const diam = items.filter(i => i.kind === 'balin' && i.type === 'diamantado').length
+  let desc = `${balines} Balines`
+  if (liso > 0 && diam > 0) desc += ` (${liso} Lisos, ${diam} Diamantados)`
+  else if (liso > 0) desc += ' Lisos'
+  else desc += ' Diamantados'
+  if (neoprenos > 0) desc += `, ${neoprenos} Neopreno(s)`
+  return desc
 }

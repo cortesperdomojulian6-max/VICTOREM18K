@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, Star } from 'lucide-react'
@@ -12,12 +12,6 @@ const PRODUCTS = [
   { name: 'Anillo Tres Carriles', desc: 'Elegancia estructurada con tres bandas de balines en oro de alta calidad.', price: '$ 180.000', img: 'https://lh3.googleusercontent.com/aida/ADBb0uhxcUbRrCLheS4vc2Wzgr4I6B2A7mo90QDb788jg1olfnzdFUgf5-vaSgZDYy-6zXW1psTVd4-r_XAjjwuYsue-eujBnjanrvQ4YsP8bIrEsc8fI3soPTmz0MbEChw4SSZn5aZ728XwlNEbkr54kC46M5cuSlKoVMr9ZYBomb1039iYRv8K28Fc1kRhQofCSCDCaoj0W3QkejJ1VY9p5fME4mMMpHLDGkwlbwrz96Tpk1x0UYzZs-9gLZI' },
   { name: 'Diseño Exclusivo', desc: 'Pieza única tejida a mano con balines de oro y cordón de seda negro.', price: '$ 210.000', img: 'https://lh3.googleusercontent.com/aida/ADBb0uiGDW1x9ijKs71IwonjJJ5W0lgfPrEy0CQyE6P2_ozWBO_OkhtFvcj2tTsCr_2Vn26hxxJkffR8Tsy5PoBqFoVsDN_bD0asCTeRFZ3fgWwgi6S9DJbrVl5RJyxCDwKMjdRnhDgdgJWNjq7kn3vss14RoCdQ-jpZpBr0B-b8HYVdHodReQJk90id4DpgMz0JckR1y1xnysPjLSTkfoBRn-V0EC2Sldi-0eiM1N_6jHjZcvMdJedN5fesPg' },
   { name: 'Manilla Dollar', desc: 'Símbolo de sofisticación y estatus con placa central y balines labrados.', price: '$ 195.000', img: 'https://lh3.googleusercontent.com/aida/ADBb0uhJGO4B-c-kKEzG6855LTP-6LUGXF7LU07OWlb__OMYxQyxy_y1qbHL9KiJACRgXW_t8RP-sNqD1q1sjYrVMTTbRhTQKNKWROoKhoFLgAr6aYi3zZfVAWXkANlTRiVaXkyyxg-Z3B8OT9eqyNBtBXsTDMgYmOLmQQdXNx1CuTmOohlTL4Ae1oItAMkhK5LMYT9DF5NcBctnO1xCwUS5bb8Ich_cJua6IdZFRGMcB3OfFON855fQ_aWG4OA' },
-]
-
-const TESTIMONIALS = [
-  { text: 'La calidad es excepcional. Mi manilla personalizada es una obra de arte que uso todos los días. El proceso superó mis expectativas.', author: 'María González', location: 'Huila, Colombia' },
-  { text: 'Compré un anillo para mi esposa y quedó encantada. La atención al detalle y la elegancia del diseño son incomparables.', author: 'Carlos Rodríguez', location: 'Bogotá, Colombia' },
-  { text: 'El trabajo artesanal es impresionante. Cada balín está perfectamente colocado y el acabado en oro es hermoso. Inversión que vale la pena.', author: 'Ana Martínez', location: 'Medellín, Colombia' },
 ]
 
 function HeroSection() {
@@ -78,7 +72,7 @@ function HeroSection() {
             </Link>
             <Link href="/personalizacion">
               <Button variant="outline" size="lg" className="min-w-[200px] text-xs uppercase tracking-[0.2em] border-gold-400/30 text-gold-400 hover:bg-gold-400/10 hover:border-gold-400/60 transition-all duration-500">
-                Crear tu Joya
+                Personaliza
               </Button>
             </Link>
           </div>
@@ -233,10 +227,16 @@ function ProductsSection() {
   )
 }
 
-function TestimonialsSection() {
+function ProcessSection() {
+  const steps = [
+    { icon: '✦', title: 'Selección de Balines', desc: 'Elegimos la mejor balinería de oro laminado 18K, clasificando cada esfera por tamaño, brillo y consistencia.' },
+    { icon: '◎', title: 'Tejido Artesanal', desc: 'Cada balín se enhebra y asegura uno por uno sobre hilo de alta resistencia, formando patrones precisos.' },
+    { icon: '◈', title: 'Montaje y Detalles', desc: 'Incorporamos dijones y neoprenos seleccionados, ajustando la tensión y simetría de cada pieza.' },
+    { icon: '✨', title: 'Acabado y Control', desc: 'Cada joya recibe un pulido final y pasa por control de calidad antes de ser empacada a mano.' },
+  ]
   return (
     <section className="relative py-28 md:py-36 overflow-hidden bg-ebony">
-      <div className="absolute inset-0 bg-[url('/images/textura.png')] opacity-5 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gold-400/[0.02] to-transparent pointer-events-none" />
       <div className="container-main relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -245,32 +245,30 @@ function TestimonialsSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <span className="text-gold-400 text-xs font-semibold uppercase tracking-[0.15em] block mb-3">Testimonios</span>
+          <span className="text-gold-400 text-xs font-semibold uppercase tracking-[0.15em] block mb-3">Proceso</span>
           <h2 className="font-heading text-3xl md:text-5xl font-medium text-white tracking-wide">
-            Clientes Exigentes
+            Hecho a Mano, Paso a Paso
           </h2>
+          <p className="text-sm text-silver/50 mt-4 max-w-md mx-auto font-light">
+            Cada pieza Victorem sigue un proceso artesanal riguroso, desde la selección del material hasta el empaque final.
+          </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {TESTIMONIALS.map((t, i) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {steps.map((s, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-50px' }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] p-8 relative"
+              className="text-center p-8 bg-white/[0.02] border border-white/[0.06] hover:border-gold-400/20 transition-all group"
             >
-              <div className="flex gap-1 text-gold-400 mb-5">
-                {Array.from({ length: 5 }).map((_, j) => (
-                  <Star key={j} className="size-3.5 fill-gold-400" />
-                ))}
-              </div>
-              <p className="text-sm text-silver/70 mb-6 leading-relaxed italic">&ldquo;{t.text}&rdquo;</p>
-              <div className="pt-4 border-t border-white/5">
-                <p className="font-heading font-semibold text-gold-400 text-sm">{t.author}</p>
-                <p className="text-xs text-silver/40 mt-0.5">{t.location}</p>
-              </div>
+              <span className="text-3xl text-gold-400 block mb-4 group-hover:scale-110 transition-transform inline-block">
+                {s.icon}
+              </span>
+              <h3 className="font-heading text-lg font-medium text-white mb-3">{s.title}</h3>
+              <p className="text-sm text-silver/50 leading-relaxed">{s.desc}</p>
             </motion.div>
           ))}
         </div>
@@ -280,6 +278,30 @@ function TestimonialsSection() {
 }
 
 function NewsletterSection() {
+  const [email, setEmail] = useState('')
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [errorMsg, setErrorMsg] = useState('')
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!email) return
+    setStatus('loading')
+    setErrorMsg('')
+    const res = await fetch('/api/newsletter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    })
+    if (res.ok) {
+      setStatus('success')
+      setEmail('')
+    } else {
+      setStatus('error')
+      const data = await res.json().catch(() => ({}))
+      setErrorMsg(data?.error || 'Ocurrió un error. Intenta de nuevo.')
+    }
+  }
+
   return (
     <section className="relative py-24 md:py-28 overflow-hidden bg-snow dark:bg-ebony">
       <div className="container-main">
@@ -297,16 +319,27 @@ function NewsletterSection() {
           <p className="text-sm text-stone dark:text-silver/60 mb-10 max-w-md mx-auto">
             Acceso anticipado a colecciones limitadas, invitaciones a eventos exclusivos y un trato preferencial en cada compra.
           </p>
-          <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="Tu correo electrónico"
-              className="flex-1 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 px-5 py-3.5 text-sm text-ebony dark:text-white focus:outline-none focus:border-gold-400 transition-all placeholder:text-stone/40 dark:placeholder:text-white/20"
-            />
-            <Button type="submit" className="bg-gold-400 text-ebony hover:bg-gold-300 transition-all uppercase tracking-widest text-xs font-bold px-8">
-              Suscribirme
-            </Button>
-          </form>
+          {status === 'success' ? (
+            <p className="text-green-500 font-medium text-sm">¡Te has suscrito exitosamente!</p>
+          ) : (
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="Tu correo electrónico"
+                required
+                disabled={status === 'loading'}
+                className="flex-1 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 px-5 py-3.5 text-sm text-ebony dark:text-white focus:outline-none focus:border-gold-400 transition-all placeholder:text-stone/40 dark:placeholder:text-white/20 disabled:opacity-50"
+              />
+              <Button type="submit" disabled={status === 'loading'} className="bg-gold-400 text-ebony hover:bg-gold-300 disabled:opacity-50 transition-all uppercase tracking-widest text-xs font-bold px-8 min-w-[140px]">
+                {status === 'loading' ? 'Enviando...' : 'Suscribirme'}
+              </Button>
+            </form>
+          )}
+          {status === 'error' && (
+            <p className="text-red-400 text-xs mt-3">{errorMsg}</p>
+          )}
         </motion.div>
       </div>
     </section>
@@ -319,7 +352,7 @@ export default function HomePage() {
       <HeroSection />
       <CraftsmanshipSection />
       <ProductsSection />
-      <TestimonialsSection />
+      <ProcessSection />
       <NewsletterSection />
     </>
   )

@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { CreditCard, Building2, ShieldCheck, Truck, Lock } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { CreditCard, Building2, ShieldCheck, Truck, Lock, Smartphone } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { api, ApiError } from '@/lib/api'
@@ -22,20 +22,24 @@ interface FormState {
   telefono: string
 }
 
+type PaymentMethod = 'nequi' | 'wompi'
+
 export default function CheckoutPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { items: cartItems, total, syncFromServer: syncCart, clearCart } = useCartStore()
-  const { isAuthenticated, isLoading: authLoading } = useAuthStore()
+  const { isAuthenticated, isLoading: authLoading, user } = useAuthStore()
   const [shippingConfig, setShippingConfig] = useState({ shipping: 10000, freeShippingThreshold: 200000 })
-  const [user, setUser] = useState<User | null>(null)
+  const [userProfile, setUserProfile] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('wompi')
   const [form, setForm] = useState<FormState>({
     nombre: '', apellido: '', direccion: '', ciudad: '', departamento: '', telefono: '',
   })
   const [errors, setErrors] = useState<Partial<FormState>>({})
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null)
-  
+
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       router.push('/')
@@ -44,7 +48,7 @@ export default function CheckoutPage() {
   }, [isAuthenticated, authLoading, router])
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) return
     const load = async () => {
       try {
         const [userData, addresses, configRes] = await Promise.all([
@@ -52,7 +56,7 @@ export default function CheckoutPage() {
           api.get<Address[]>('/addresses'),
           api.get<{ shipping: number, freeShippingThreshold: number }>('/config').catch(() => ({ shipping: 10000, freeShippingThreshold: 200000 }))
         ])
-        setUser(userData)
+        setUserProfile(userData)
         setShippingConfig(configRes)
 
         if (addresses.length > 0) {
@@ -75,6 +79,17 @@ export default function CheckoutPage() {
     }
     load()
   }, [isAuthenticated])
+
+  useEffect(() => {
+    const status = searchParams.get('status')
+    const transactionId = searchParams.get('transaction_id')
+    if (status === 'success' && transactionId) {
+      toast.success('Pago exitoso. Tu pedido está siendo procesado.')
+      router.push('/miperfil?tab=orders')
+    } else if (status === 'failure') {
+      toast.error('El pago fue cancelado o rechazado. Intenta de nuevo.')
+    }
+  }, [searchParams, router])
 
   const validate = (): boolean => {
     const errs: Partial<FormState> = {}
@@ -107,15 +122,62 @@ export default function CheckoutPage() {
         addressId = newAddr.id
       }
 
-      await api.post('/orders', {
+      const hasCustomization = !!localStorage.getItem('personalizacion')
+      const tipo = hasCustomization ? 'personalizado' : 'catalogo'
+      const paymentMethodForOrder = paymentMethod === 'wompi' ? 'wompi' : 'nequi'
+
+      const order = await api.post<{
+        id: number, total: number, numero_pedido: string, estado: string
+      }>('/orders', {
         address_id: addressId,
-        payment_method: 'transferencia',
-        keepCart: false,
+        payment_method: paymentMethodForOrder,
+        tipo,
+        keepCart: paymentMethod === 'wompi',
+      })
+
+      const orderId = order.id
+
+      if (hasCustomization) {
+        try {
+          const customData = JSON.parse(localStorage.getItem('personalizacion')!)
+          await api.post('/custom-orders', {
+            order_id: orderId,
+            configuracion: customData,
+            tipo_joya: customData.type || 'manilla',
+            precio_total: order.total,
+            talla_cm: customData.talla || null,
+          })
+          localStorage.removeItem('personalizacion')
+        } catch (e) {
+          console.error('Error saving customization:', e)
+        }
+      }
+
+      if (paymentMethod === 'nequi') {
+        clearCart()
+        toast.success('Pedido confirmado. Te contactaremos para coordinar el pago por Nequi.')
+        router.push('/miperfil?tab=orders')
+        return
+      }
+
+      const wompiResult = await api.post<{
+        success: boolean, transaction: { id: string, redirect_url?: string }
+      }>('/wompi/create-payment', {
+        amount: order.total,
+        reference: order.numero_pedido,
+        currency: 'COP',
+        customerEmail: user?.email || userProfile?.email || '',
+        orderId,
       })
 
       clearCart()
-      toast.success('Pedido confirmado. Te contactaremos para coordinar el pago por Nequi.')
-      router.push('/miperfil')
+
+      if (wompiResult.transaction?.redirect_url) {
+        window.location.href = wompiResult.transaction.redirect_url
+      } else {
+        toast.success('Pedido creado. Redirigiendo al pago...')
+        router.push(`/miperfil?tab=orders`)
+      }
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : 'Error al procesar la compra'
       toast.error(msg)
@@ -196,25 +258,86 @@ export default function CheckoutPage() {
               className="bg-white p-8 shadow-sm border border-black/4"
             >
               <h2 className="font-heading text-xl font-medium text-ebony mb-6 pb-3 border-b border-gold-400/30">
-                Pago por Nequi
+                Método de Pago
               </h2>
-              <div className="bg-cream p-6 text-sm space-y-3">
-                <div className="flex items-center gap-3">
-                  <Building2 className="size-8 text-gold-400 shrink-0" />
-                  <div>
-                    <p className="font-semibold text-ebony">Nequi</p>
-                    <p className="text-xs text-stone">Transferencia directa desde la app Nequi</p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button
+                  onClick={() => setPaymentMethod('wompi')}
+                  className={`p-5 border text-left transition-all ${
+                    paymentMethod === 'wompi'
+                      ? 'border-gold-400 bg-gold-400/5'
+                      : 'border-black/10 hover:border-gold-400/40 bg-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className={`size-5 rounded-full border-2 flex items-center justify-center ${
+                      paymentMethod === 'wompi' ? 'border-gold-400' : 'border-stone/30'
+                    }`}>
+                      {paymentMethod === 'wompi' && (
+                        <div className="size-2.5 rounded-full bg-gold-400" />
+                      )}
+                    </div>
+                    <Smartphone className="size-6 text-gold-400" />
+                  </div>
+                  <p className="font-semibold text-ebony text-sm">Pago Online</p>
+                  <p className="text-xs text-stone mt-1">Nequi, PSE o Tarjeta vía Wompi</p>
+                </button>
+
+                <button
+                  onClick={() => setPaymentMethod('nequi')}
+                  className={`p-5 border text-left transition-all ${
+                    paymentMethod === 'nequi'
+                      ? 'border-gold-400 bg-gold-400/5'
+                      : 'border-black/10 hover:border-gold-400/40 bg-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className={`size-5 rounded-full border-2 flex items-center justify-center ${
+                      paymentMethod === 'nequi' ? 'border-gold-400' : 'border-stone/30'
+                    }`}>
+                      {paymentMethod === 'nequi' && (
+                        <div className="size-2.5 rounded-full bg-gold-400" />
+                      )}
+                    </div>
+                    <Building2 className="size-6 text-gold-400" />
+                  </div>
+                  <p className="font-semibold text-ebony text-sm">Transferencia Nequi</p>
+                  <p className="text-xs text-stone mt-1">Pago manual, te contactamos</p>
+                </button>
+              </div>
+
+              {paymentMethod === 'nequi' && (
+                <div className="bg-cream p-6 text-sm space-y-3 mt-6">
+                  <div className="flex items-center gap-3">
+                    <Building2 className="size-8 text-gold-400 shrink-0" />
+                    <div>
+                      <p className="font-semibold text-ebony">Nequi</p>
+                      <p className="text-xs text-stone">Transferencia directa desde la app Nequi</p>
+                    </div>
+                  </div>
+                  <div className="border-t border-gold-400/20 pt-3 mt-3 space-y-1">
+                    <p>Para completar tu compra:</p>
+                    <p className="font-semibold text-ebony text-base">Cuenta: 310 787 5531</p>
+                    <p className="text-xs text-silver">Titular: Julian Cortes</p>
+                    <p className="text-xs text-stone mt-2">
+                      Envía el comprobante de pago a <span className="font-semibold">info@victorem.co</span> para confirmar tu pedido.
+                    </p>
                   </div>
                 </div>
-                <div className="border-t border-gold-400/20 pt-3 mt-3 space-y-1">
-                  <p>Para completar tu compra:</p>
-                  <p className="font-semibold text-ebony text-base">Cuenta: 310 787 5531</p>
-                  <p className="text-xs text-silver">Titular: Julian Cortes</p>
-                  <p className="text-xs text-stone mt-2">
-                    Envía el comprobante de pago a <span className="font-semibold">info@victorem.co</span> para confirmar tu pedido.
-                  </p>
+              )}
+
+              {paymentMethod === 'wompi' && (
+                <div className="bg-blue-50 p-6 text-sm space-y-3 mt-6">
+                  <div className="flex items-center gap-3">
+                    <CreditCard className="size-8 text-gold-400 shrink-0" />
+                    <div>
+                      <p className="font-semibold text-ebony">Pago Seguro con Wompi</p>
+                      <p className="text-xs text-stone">Redirigiremos a la plataforma segura de Wompi para completar el pago.</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
             </motion.div>
           </div>
 
@@ -261,7 +384,7 @@ export default function CheckoutPage() {
                 loading={submitting}
                 onClick={handleSubmit}
               >
-                Confirmar Pedido
+                {paymentMethod === 'wompi' ? 'Pagar con Wompi' : 'Confirmar Pedido'}
               </Button>
 
               <div className="grid grid-cols-2 gap-2 mt-5 pt-4 border-t border-pearl">
