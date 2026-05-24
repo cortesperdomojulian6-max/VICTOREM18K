@@ -26,16 +26,16 @@ async function getProductById(id) {
   return result.rows[0];
 }
 
-async function createProduct({ name, description, price, image_url, category_id }) {
+async function createProduct({ name, description, price, image_url, category_id, stock }) {
   if (!name || price === undefined || !category_id) {
     throw new ValidationError('Faltan campos requeridos');
   }
 
   const result = await db.query(
-    `INSERT INTO products (name, description, price, image_url, category_id, active)
-     VALUES ($1, $2, $3, $4, $5, true)
-     RETURNING id, name, description, price, image_url, category_id, active, created_at`,
-    [name.trim(), (description || '').trim(), price, image_url || '', category_id]
+    `INSERT INTO products (name, description, price, image_url, category_id, stock, active)
+     VALUES ($1, $2, $3, $4, $5, $6, true)
+     RETURNING id, name, description, price, image_url, category_id, stock, active, created_at`,
+    [name.trim(), (description || '').trim(), price, image_url || '', category_id, stock ?? 0]
   );
 
   return result.rows[0];

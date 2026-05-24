@@ -9,6 +9,18 @@ function toBuffer(chunk: unknown): Buffer {
   return Buffer.from(String(chunk))
 }
 
+function fromHeaders(headers: Record<string, string | string[]>): Headers {
+  const h = new Headers()
+  for (const [key, value] of Object.entries(headers)) {
+    if (Array.isArray(value)) {
+      for (const v of value) h.append(key, v)
+    } else {
+      h.set(key, value)
+    }
+  }
+  return h
+}
+
 export function createExpressHandler(app: RequestListener) {
   return async (request: NextRequest): Promise<NextResponse> => {
     const url = new URL(request.url)
@@ -50,7 +62,16 @@ export function createExpressHandler(app: RequestListener) {
         if (args.length > 0) {
           const last = args[args.length - 1]
           if (typeof last === 'object' && last !== null) {
-            Object.assign(responseHeaders, last)
+            for (const [k, v] of Object.entries(last as Record<string, unknown>)) {
+              const existing = responseHeaders[k]
+              if (Array.isArray(existing)) {
+                existing.push(v as string)
+              } else if (existing !== undefined) {
+                responseHeaders[k] = [existing, v as string]
+              } else {
+                responseHeaders[k] = v as string
+              }
+            }
           }
         }
         serverRes.headersSent = true
@@ -70,7 +91,18 @@ export function createExpressHandler(app: RequestListener) {
       },
 
       setHeader(name: string, value: string | string[]) {
-        responseHeaders[name] = value
+        if (Array.isArray(value)) {
+          responseHeaders[name] = value
+        } else {
+          const existing = responseHeaders[name]
+          if (Array.isArray(existing)) {
+            existing.push(value)
+          } else if (existing !== undefined) {
+            responseHeaders[name] = [existing, value]
+          } else {
+            responseHeaders[name] = value
+          }
+        }
         return this
       },
 
@@ -92,7 +124,7 @@ export function createExpressHandler(app: RequestListener) {
     const buffer = Buffer.concat(chunks)
     return new NextResponse(buffer.length > 0 ? new Uint8Array(buffer) : null, {
       status: serverRes.statusCode,
-      headers: responseHeaders as Record<string, string>,
+      headers: fromHeaders(responseHeaders),
     })
   }
 }

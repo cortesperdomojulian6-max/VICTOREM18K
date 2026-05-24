@@ -17,7 +17,7 @@ interface AdminUser { id: number; name: string; email: string; role: string; reg
 
 interface AdminOrder { id: number; numero_pedido: string; total: string; estado: string; metodo_pago: string; fecha: string; user_name: string; user_email: string }
 
-interface AdminProduct { id: number; name: string; description: string; price: string; image_url: string; category: string; stock: number; active: boolean }
+interface AdminProduct { id: number; name: string; description: string; price: string; image_url: string; category: string; category_id: number; stock: number; active: boolean }
 
 type Tab = 'dashboard' | 'products' | 'orders' | 'users'
 
@@ -46,7 +46,8 @@ export default function AdminPage() {
   const [showProductModal, setShowProductModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState<AdminProduct | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
-  const [productForm, setProductForm] = useState({ name: '', description: '', price: '', image_url: '', stock: 0 })
+  const [productForm, setProductForm] = useState({ name: '', description: '', price: '', image_url: '', stock: 0, category_id: '' })
+  const [categories, setCategories] = useState<{ id: number; name: string; slug: string }[]>([])
 
   const { isAuthenticated, isLoading: authLoading } = useAuthStore()
 
@@ -60,13 +61,14 @@ export default function AdminPage() {
     if (isAuthenticated) {
       const load = async () => {
         try {
-          const [statsData, usersData, ordersData, productsData] = await Promise.all([
+          const [statsData, usersData, ordersData, productsData, categoriesData] = await Promise.all([
             api.get<AdminStats>('/admin/stats'),
             api.get<AdminUser[]>('/admin/users'),
             api.get<AdminOrder[]>('/admin/orders'),
             api.get<AdminProduct[]>('/admin/products'),
+            api.get<{ id: number; name: string; slug: string }[]>('/categories'),
           ])
-          setStats(statsData); setUsers(usersData); setOrders(ordersData); setProducts(productsData)
+          setStats(statsData); setUsers(usersData); setOrders(ordersData); setProducts(productsData); setCategories(categoriesData)
           setAuthorized(true)
         } catch { toast.error('No tienes permisos de administrador'); router.push('/') }
         finally { setLoading(false) }
@@ -106,23 +108,25 @@ export default function AdminPage() {
   const openProductForm = (product?: AdminProduct) => {
     if (product) {
       setEditingProduct(product)
-      setProductForm({ name: product.name, description: product.description || '', price: product.price, image_url: product.image_url || '', stock: product.stock })
+      setProductForm({ name: product.name, description: product.description || '', price: product.price, image_url: product.image_url || '', stock: product.stock, category_id: String(product.category_id || '') })
     } else {
       setEditingProduct(null)
-      setProductForm({ name: '', description: '', price: '', image_url: '', stock: 0 })
+      setProductForm({ name: '', description: '', price: '', image_url: '', stock: 0, category_id: '' })
     }
     setShowProductModal(true)
   }
 
   const handleSaveProduct = async () => {
     if (!productForm.name || !productForm.price) { toast.error('Nombre y precio requeridos'); return }
+    if (!productForm.category_id) { toast.error('Selecciona una categoría'); return }
     try {
+      const body = { ...productForm, category_id: Number(productForm.category_id), price: Number(productForm.price) }
       if (editingProduct) {
-        const updated = await api.put<AdminProduct>(`/admin/products/${editingProduct.id}`, productForm)
+        const updated = await api.put<AdminProduct>(`/admin/products/${editingProduct.id}`, body)
         setProducts((prev) => prev.map((p) => p.id === editingProduct.id ? { ...p, ...updated } : p))
         toast.success('Producto actualizado')
       } else {
-        const created = await api.post<AdminProduct>('/admin/products', productForm)
+        const created = await api.post<AdminProduct>('/admin/products', body)
         setProducts((prev) => [...prev, created])
         toast.success('Producto creado')
       }
@@ -404,6 +408,16 @@ export default function AdminPage() {
                     <input type="number" value={productForm.stock} onChange={(e) => setProductForm({ ...productForm, stock: Number(e.target.value) })}
                       className="w-full px-3.5 py-3 border border-pearl text-sm focus:outline-none focus:border-gold-400" />
                   </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-iron tracking-wide mb-1">Categoría</label>
+                  <select value={productForm.category_id} onChange={(e) => setProductForm({ ...productForm, category_id: e.target.value })}
+                    className="w-full px-3.5 py-3 border border-pearl text-sm focus:outline-none focus:border-gold-400 bg-white">
+                    <option value="">Seleccionar categoría...</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-iron tracking-wide mb-1">URL de Imagen</label>
