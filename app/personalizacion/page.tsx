@@ -18,18 +18,16 @@ import BeadSequenceViewer from '@/components/personalizacion/BeadSequenceViewer'
 import ChatAssistant from '@/components/personalizacion/ChatAssistant'
 import {
   DIJONES, COLORS, NEOPRENO_COLORS,
-  BASE_PRICES, BALIN_PRICE, NEOPRENO_BASE_PRICE,
+  BASE_PRICES, BALIN_PRICE, NEOPRENO_BASE_PRICE, DIJON_BASE_PRICE,
   STEPS, getMaterialFromColor, getDijon, getNeoprenoImage, sequenceDescription,
 } from '@/lib/personalizacion'
-import type { JewelType, MaterialName, SequenceItem, BalinType, BalinSize } from '@/lib/personalizacion'
+import type { JewelType, MaterialName, SequenceItem, BalinType, BalinSize, DijonConfig } from '@/lib/personalizacion'
 import type { Product } from '@/types'
 
 export default function PersonalizacionPage() {
   const router = useRouter()
   const [step, setStep] = useState(0)
   const [jewelType, setJewelType] = useState<JewelType | null>(null)
-  const [dije, setDije] = useState<string | null>(null)
-  const [showDijePicker, setShowDijePicker] = useState(false)
   const [color, setColor] = useState<string>('#d4af37')
   const [sequence, setSequence] = useState<SequenceItem[]>([])
   const [defaultBalinType, setDefaultBalinType] = useState<BalinType>('liso')
@@ -38,6 +36,8 @@ export default function PersonalizacionPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [loadingProducts, setLoadingProducts] = useState(false)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
+  const [insertIndex, setInsertIndex] = useState<number | null>(null)
+  const [showDijeGrid, setShowDijeGrid] = useState(false)
   const { isAuthenticated } = useAuthStore()
   const { addItem } = useCartStore()
   const [description, setDescription] = useState<string | null>(null)
@@ -45,14 +45,6 @@ export default function PersonalizacionPage() {
   const descFetched = useRef(false)
 
   const material: MaterialName = getMaterialFromColor(color)
-
-  const sequenceWithDijon = [
-    ...sequence.map((s) => {
-      if (s.kind === 'balin') return { kind: 'balin' as const, data: s }
-      return { kind: 'neopreno' as const, data: s }
-    }),
-    ...(dije ? [{ kind: 'dijon' as const, data: { id: dije, image: getDijon(dije)?.image ?? '', nombre: getDijon(dije)?.label ?? '' } }] : []),
-  ]
 
   useEffect(() => {
     async function loadProducts() {
@@ -88,10 +80,21 @@ export default function PersonalizacionPage() {
     setSequence((prev) => [...prev, { kind: 'neopreno', color, label }])
   }, [])
 
-  const handleSelectDijon = useCallback((dijonId: string) => {
-    setDije(dijonId)
-    setShowDijePicker(false)
-  }, [])
+  const addDijon = useCallback((id: string) => {
+    const d = getDijon(id)
+    if (!d) return
+    if (insertIndex !== null) {
+      setSequence((prev) => {
+        const next = [...prev]
+        next.splice(insertIndex, 0, { kind: 'dijon', id: d.id, label: d.label, image: d.image })
+        return next
+      })
+      setInsertIndex(null)
+    } else {
+      setSequence((prev) => [...prev, { kind: 'dijon', id: d.id, label: d.label, image: d.image }])
+    }
+    setShowDijeGrid(false)
+  }, [insertIndex])
 
   const removeItem = useCallback((index: number) => {
     setSequence((prev) => prev.filter((_, i) => i !== index))
@@ -104,6 +107,11 @@ export default function PersonalizacionPage() {
       return next
     })
   }, [defaultBalinType])
+
+  const insertDijonAt = useCallback((index: number) => {
+    setInsertIndex(index)
+    setShowDijeGrid(true)
+  }, [])
 
   const moveItem = useCallback((from: number, to: number) => {
     if (to < 0 || to >= sequence.length) return
@@ -136,10 +144,15 @@ export default function PersonalizacionPage() {
   const handleDragEnd = () => setDragIndex(null)
 
   const basePrice = jewelType ? BASE_PRICES[jewelType] : 0
-  const dijePrice = dije ? getDijon(dije)?.price || 0 : 0
   const balinTotal = sequence.filter((s) => s.kind === 'balin').length * BALIN_PRICE
   const neoprenoTotal = sequence.filter((s) => s.kind === 'neopreno').length * NEOPRENO_BASE_PRICE
-  const total = basePrice + dijePrice + balinTotal + neoprenoTotal
+  const dijonTotal = sequence
+    .filter((s): s is SequenceItem & { kind: 'dijon' } => s.kind === 'dijon')
+    .reduce((sum, s) => {
+      const d = getDijon(s.id)
+      return sum + (d?.price ?? DIJON_BASE_PRICE)
+    }, 0)
+  const total = basePrice + balinTotal + neoprenoTotal + dijonTotal
 
   const canProceed = () => {
     switch (step) {
@@ -147,22 +160,21 @@ export default function PersonalizacionPage() {
       case 1: return jewelType !== null
       case 2: return true
       case 3: return true
-      case 4: return true
       default: return false
     }
   }
 
   useEffect(() => {
-    if (step === 4 && !descFetched.current) {
+    if (step === 3 && !descFetched.current) {
       descFetched.current = true
       setDescLoading(true)
-      const config = { type: jewelType, dije, color, sequence, defaultBalinType, total, productoBase: selectedProduct?.name || null }
+      const config = { type: jewelType, color, sequence, defaultBalinType, total, productoBase: selectedProduct?.name || null }
       api.post<{ description: string }>('/describe/custom-order', { config })
         .then((r) => setDescription(r.description))
         .catch(() => setDescription(null))
         .finally(() => setDescLoading(false))
     }
-  }, [step, jewelType, dije, color, sequence, defaultBalinType, total, selectedProduct])
+  }, [step, jewelType, color, sequence, defaultBalinType, total, selectedProduct])
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
@@ -180,7 +192,7 @@ export default function PersonalizacionPage() {
       await addItem(custom.id, 1)
 
       localStorage.setItem('personalizacion', JSON.stringify({
-        type: jewelType, dije, color, sequence, defaultBalinType, total,
+        type: jewelType, color, sequence, defaultBalinType, total,
         productoBase: selectedProduct?.name || null,
         fecha: new Date().toISOString(),
       }))
@@ -221,9 +233,10 @@ export default function PersonalizacionPage() {
           <div className="space-y-8">
             <div className="mb-6">
               <BeadSequenceViewer
-                items={sequenceWithDijon}
+                items={sequence}
                 material={material}
                 onInsertBetween={insertAt}
+                onInsertDijonBetween={insertDijonAt}
                 onItemClick={removeItem}
               />
             </div>
@@ -275,37 +288,39 @@ export default function PersonalizacionPage() {
                     </div>
                   </div>
                 </div>
-                <div className="relative">
-                  <Button size="sm" variant="outline" onClick={() => setShowDijePicker(!showDijePicker)}>
-                    <Plus className="size-3.5 mr-1.5" /> {dije ? 'Cambiar Dije' : 'Dije'}
-                  </Button>
-                  {showDijePicker && (
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 z-20">
-                      <div className="bg-white shadow-xl border border-black/6 p-3 max-h-[300px] overflow-y-auto" style={{ width: '280px' }}>
-                        {dije && (
-                          <button onClick={() => { setDije(null); setShowDijePicker(false) }}
-                            className="w-full text-[11px] text-stone hover:text-red-500 text-center py-1 border-b border-pearl/50 mb-2 transition-colors">
-                            Quitar dije
-                          </button>
-                        )}
-                        <div className="grid grid-cols-4 gap-2">
-                          {DIJONES.map((d) => (
-                            <button
-                              key={d.id}
-                              onClick={() => handleSelectDijon(d.id)}
-                              className={`flex flex-col items-center gap-1 p-2 hover:bg-stone-50 transition-colors rounded ${dije === d.id ? 'ring-2 ring-gold-400' : ''}`}
-                              title={d.label}
-                            >
-                              <Image src={d.image} alt={d.label} width={40} height={40} className="shrink-0" />
-                              <span className="text-[10px] text-stone text-center leading-tight">{d.label}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <Button size="sm" variant="outline" onClick={() => setShowDijeGrid(true)}>
+                  <Plus className="size-3.5 mr-1.5" /> Dije
+                </Button>
               </div>
+
+              {showDijeGrid && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => { setShowDijeGrid(false); setInsertIndex(null) }}>
+                  <div className="bg-white p-6 rounded-xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-heading text-lg font-medium text-ebony">Selecciona un Dije</h3>
+                      <button onClick={() => { setShowDijeGrid(false); setInsertIndex(null) }} className="p-1 hover:bg-stone-100 rounded-full transition-colors">
+                        <X className="size-4 text-stone" />
+                      </button>
+                    </div>
+                    <p className="text-xs text-stone mb-4">
+                      {insertIndex !== null ? 'El dije se insertará en la posición seleccionada.' : 'El dije se agregará al final de la secuencia.'}
+                    </p>
+                    <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
+                      {DIJONES.map((d) => (
+                        <button
+                          key={d.id}
+                          onClick={() => addDijon(d.id)}
+                          className="flex flex-col items-center gap-1.5 p-3 hover:bg-stone-50 transition-colors rounded-lg border border-pearl hover:border-gold-400"
+                          title={d.label}
+                        >
+                          <Image src={d.image} alt={d.label} width={48} height={48} className="shrink-0" />
+                          <span className="text-[10px] text-stone text-center leading-tight">{d.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-2 max-h-[360px] overflow-y-auto px-2">
                 {sequence.length === 0 && (
@@ -360,13 +375,17 @@ export default function PersonalizacionPage() {
                           </div>
                         </div>
                       </>
+                    ) : item.kind === 'dijon' ? (
+                      <>
+                        <Image src={item.image} alt={item.label} width={32} height={32} className="shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-xs font-semibold text-ebony uppercase">Dije #{i + 1}</span>
+                          <p className="text-[11px] text-stone">{item.label}</p>
+                        </div>
+                      </>
                     ) : (
                       <>
-                        {getNeoprenoImage(item.color) ? (
-                          <Image src={getNeoprenoImage(item.color)!} alt={item.label} width={32} height={16} className="shrink-0" />
-                        ) : (
-                          <div className="size-6 rounded-sm shrink-0 border border-black/10" style={{ backgroundColor: item.color }} />
-                        )}
+                        <Image src={getNeoprenoImage(item.color)!} alt={item.label} width={32} height={16} className="shrink-0" />
                         <div className="flex-1 min-w-0">
                           <span className="text-xs font-semibold text-ebony uppercase">Neopreno #{i + 1}</span>
                           <p className="text-[11px] text-stone">{item.label}</p>
@@ -391,7 +410,7 @@ export default function PersonalizacionPage() {
         return (
           <div className="space-y-8">
             <div className="mb-6">
-              <BeadSequenceViewer items={sequenceWithDijon} material={material} />
+              <BeadSequenceViewer items={sequence} material={material} />
             </div>
             <div className="text-center">
               <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Selecciona tu producto base del catálogo</p>
@@ -449,50 +468,7 @@ export default function PersonalizacionPage() {
         return (
           <div className="space-y-8">
             <div className="mb-6">
-              <BeadSequenceViewer items={sequenceWithDijon} material={material} />
-            </div>
-            <div className="text-center">
-              <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Elige tu dije favorito</p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {DIJONES.map((d) => (
-                  <button
-                    key={d.id}
-                    onClick={() => setDije(d.id)}
-                    className={`p-6 border-2 text-center transition-all ${
-                      dije === d.id ? 'border-gold-400 bg-gold-400/5 shadow-md ring-1 ring-gold-400/30' : 'border-pearl hover:border-gold-400 bg-white'
-                    }`}
-                  >
-                    <div className="size-16 mx-auto mb-3 flex items-center justify-center">
-                      <Image src={d.image} alt={d.label} width={64} height={64} className="size-full object-contain" />
-                    </div>
-                    <span className="block font-heading text-base font-medium text-ebony">{d.label}</span>
-                    <span className="text-xs text-stone">+{formatPrice(d.price)}</span>
-                    {dije === d.id && (
-                      <span className="block mt-1 text-[10px] text-gold-400 font-semibold">Seleccionado</span>
-                    )}
-                  </button>
-                ))}
-              </div>
-
-              <div className="mt-6">
-                <button
-                  onClick={() => setDije(null)}
-                  className={`text-xs px-6 py-2 border transition-all ${
-                    dije === null ? 'border-gold-400 bg-gold-400/10 text-gold-600 font-semibold' : 'border-pearl text-stone hover:border-gold-400'
-                  }`}
-                >
-                  Sin Dije
-                </button>
-              </div>
-            </div>
-          </div>
-        )
-
-      case 3:
-        return (
-          <div className="space-y-8">
-            <div className="mb-6">
-              <BeadSequenceViewer items={sequenceWithDijon} material={material} />
+              <BeadSequenceViewer items={sequence} material={material} />
             </div>
             <div className="text-center">
               <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Selecciona el color del metal</p>
@@ -520,11 +496,11 @@ export default function PersonalizacionPage() {
           </div>
         )
 
-      case 4:
+      case 3:
         return (
           <div className="space-y-8">
             <div className="mb-6">
-              <BeadSequenceViewer items={sequenceWithDijon} material={material} />
+              <BeadSequenceViewer items={sequence} material={material} />
             </div>
             <div className="bg-white p-8 border border-black/4">
               {descLoading ? (
@@ -544,7 +520,6 @@ export default function PersonalizacionPage() {
               <div className="space-y-4">
                 {[
                   ['Producto base', selectedProduct?.name || `${jewelType === 'pulsera' ? 'Pulsera' : 'Anillo'} personalizado`],
-                  ['Dije', dije ? getDijon(dije)?.label || 'Ninguno' : 'Ninguno'],
                   ['Color', COLORS.find((c) => c.value === color)?.label || 'Oro'],
                   ['Composición', sequenceDescription(sequence)],
                 ].map(([label, value]) => (
@@ -556,9 +531,9 @@ export default function PersonalizacionPage() {
                 <hr className="border-pearl" />
                 {[
                   [`Base (${jewelType === 'pulsera' ? 'Pulsera' : 'Anillo'})`, formatPrice(basePrice)],
-                  ...(dije ? [[`Dije (${getDijon(dije)?.label})`, `+${formatPrice(dijePrice)}`]] : []),
                   [`Balines (${sequence.filter(s => s.kind === 'balin').length})`, `+${formatPrice(balinTotal)}`],
                   ...(neoprenoTotal > 0 ? [[`Neoprenos (${sequence.filter(s => s.kind === 'neopreno').length})`, `+${formatPrice(neoprenoTotal)}`]] : []),
+                  ...(dijonTotal > 0 ? [[`Dijones (${sequence.filter(s => s.kind === 'dijon').length})`, `+${formatPrice(dijonTotal)}`]] : []),
                 ].map(([label, value]) => (
                   <div key={label as string} className="flex justify-between text-sm">
                     <span className="text-stone">{label as string}</span>
@@ -624,7 +599,7 @@ export default function PersonalizacionPage() {
                 <ArrowLeft className="size-4 mr-2" /> Anterior
               </Button>
             ) : <div />}
-            {step < 4 ? (
+            {step < 3 ? (
               <Button disabled={!canProceed()} onClick={() => setStep(step + 1)}>
                 Continuar <ArrowRight className="size-4 ml-2" />
               </Button>

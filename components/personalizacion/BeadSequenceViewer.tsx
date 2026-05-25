@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { Plus } from 'lucide-react'
 import {
@@ -11,30 +11,35 @@ import {
   getBeadImagePath,
   getNeoprenoImage,
 } from '@/lib/personalizacion'
-import type { SequenceItem, BalinConfig, MaterialName } from '@/lib/personalizacion'
-
-interface DijonViewItem {
-  id: string
-  image: string
-  nombre: string
-}
-
-type ViewItem =
-  | { kind: 'balin'; data: BalinConfig }
-  | { kind: 'dijon'; data: DijonViewItem }
-  | { kind: 'neopreno'; data: { color: string; label: string } }
+import type { SequenceItem, MaterialName } from '@/lib/personalizacion'
 
 interface BeadSequenceViewerProps {
-  items: ViewItem[]
+  items: SequenceItem[]
   material?: MaterialName
   onInsertBetween?: (index: number) => void
+  onInsertDijonBetween?: (index: number) => void
   onItemClick?: (index: number) => void
 }
 
 export default function BeadSequenceViewer({
-  items, material = 'gold', onInsertBetween, onItemClick,
+  items, material = 'gold', onInsertBetween, onInsertDijonBetween, onItemClick,
 }: BeadSequenceViewerProps) {
+  const [menuIndex, setMenuIndex] = useState<number | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const hasInsert = !!onInsertBetween
+
+  const closeMenu = useCallback(() => setMenuIndex(null), [])
+
+  useEffect(() => {
+    if (menuIndex === null) return
+    const handleClick = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        closeMenu()
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [menuIndex, closeMenu])
 
   if (items.length === 0) {
     return (
@@ -49,21 +54,42 @@ export default function BeadSequenceViewer({
   return (
     <div className="w-full relative overflow-hidden bg-black rounded-xl">
       <div
+        ref={containerRef}
         className="flex items-center justify-center py-4 md:py-6 px-4 overflow-x-auto"
         style={{ minHeight: '100px' }}
       >
         <div className="flex items-center relative">
           {items.map((item, i) => (
-            <div key={i} className="flex items-center relative">
+            <div key={`${item.kind}-${i}`} className="flex items-center relative">
               {hasInsert && (
-                <button
-                  type="button"
-                  onClick={() => onInsertBetween(i)}
-                  className="absolute -left-2 z-10 size-4 rounded-full bg-gold-400 text-ebony flex items-center justify-center hover:scale-125 transition-transform shadow-lg opacity-0 hover:opacity-100 group-hover/seq:opacity-50"
-                  title="Insertar aquí"
-                >
-                  <Plus className="size-3" />
-                </button>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setMenuIndex(menuIndex === i ? null : i)}
+                    className="absolute -left-2 z-10 size-4 rounded-full bg-gold-400 text-ebony flex items-center justify-center hover:scale-125 transition-transform shadow-lg opacity-0 hover:opacity-100"
+                    title="Insertar aquí"
+                  >
+                    <Plus className="size-3" />
+                  </button>
+                  {menuIndex === i && (
+                    <div className="absolute -left-2 bottom-full mb-2 z-20 flex gap-1 bg-white rounded-lg shadow-xl border border-pearl p-1.5" onClick={e => e.stopPropagation()}>
+                      <button
+                        type="button"
+                        onClick={() => { onInsertBetween(i); closeMenu() }}
+                        className="text-[10px] px-2 py-1 rounded bg-stone-100 hover:bg-gold-100 text-ebony transition-colors whitespace-nowrap"
+                      >
+                        Balín
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { onInsertDijonBetween?.(i); closeMenu() }}
+                        className="text-[10px] px-2 py-1 rounded bg-stone-100 hover:bg-gold-100 text-ebony transition-colors whitespace-nowrap"
+                      >
+                        Dije
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
 
               {item.kind === 'balin' ? (
@@ -72,10 +98,10 @@ export default function BeadSequenceViewer({
                   onClick={() => onItemClick?.(i)}
                 >
                   <Image
-                    src={getBeadImagePath(item.data.type, material, item.data.size)}
-                    alt={`Balín ${item.data.type}`}
-                    width={BEAD_IMAGE_SIZES[item.data.size]}
-                    height={BEAD_IMAGE_SIZES[item.data.size]}
+                    src={getBeadImagePath(item.type, material, item.size)}
+                    alt={`Balín ${item.type}`}
+                    width={BEAD_IMAGE_SIZES[item.size]}
+                    height={BEAD_IMAGE_SIZES[item.size]}
                     className="inline-block"
                     draggable={false}
                   />
@@ -84,10 +110,11 @@ export default function BeadSequenceViewer({
                 <div
                   className={`flex items-center shrink-0 ${onItemClick ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
                   onClick={() => onItemClick?.(i)}
+                  title={item.label}
                 >
                   <Image
-                    src={item.data.image}
-                    alt={item.data.nombre}
+                    src={item.image}
+                    alt={item.label}
                     width={DIJON_VIEW_SIZE}
                     height={DIJON_VIEW_SIZE}
                     className="inline-block"
@@ -98,41 +125,50 @@ export default function BeadSequenceViewer({
                 <div
                   className={`flex items-center shrink-0 mx-0.5 rounded-sm ${onItemClick ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
                   onClick={() => onItemClick?.(i)}
-                  title={`Neopreno: ${item.data.label}`}
+                  title={`Neopreno: ${item.label}`}
                 >
-                  {getNeoprenoImage(item.data.color) ? (
-                    <Image
-                      src={getNeoprenoImage(item.data.color)!}
-                      alt={item.data.label}
-                      width={NEOPRENO_VIEW_WIDTH}
-                      height={NEOPRENO_VIEW_HEIGHT}
-                      className="inline-block"
-                      draggable={false}
-                    />
-                  ) : (
-                    <div
-                      className="rounded-sm border border-white/10"
-                      style={{
-                        width: NEOPRENO_VIEW_WIDTH,
-                        height: NEOPRENO_VIEW_HEIGHT,
-                        backgroundColor: item.data.color,
-                      }}
-                    />
-                  )}
+                  <Image
+                    src={getNeoprenoImage(item.color)!}
+                    alt={item.label}
+                    width={NEOPRENO_VIEW_WIDTH}
+                    height={NEOPRENO_VIEW_HEIGHT}
+                    className="inline-block"
+                    draggable={false}
+                  />
                 </div>
               )}
             </div>
           ))}
 
           {hasInsert && (
-            <button
-              type="button"
-              onClick={() => onInsertBetween(items.length)}
-              className="size-4 rounded-full bg-gold-400 text-ebony flex items-center justify-center hover:scale-125 transition-transform shadow-lg shrink-0 ml-1"
-              title="Insertar al final"
-            >
-              <Plus className="size-3" />
-            </button>
+            <div className="relative ml-1 shrink-0">
+              <button
+                type="button"
+                onClick={() => setMenuIndex(menuIndex === items.length ? null : items.length)}
+                className="size-4 rounded-full bg-gold-400 text-ebony flex items-center justify-center hover:scale-125 transition-transform shadow-lg"
+                title="Insertar al final"
+              >
+                <Plus className="size-3" />
+              </button>
+              {menuIndex === items.length && (
+                <div className="absolute bottom-full mb-2 right-0 z-20 flex gap-1 bg-white rounded-lg shadow-xl border border-pearl p-1.5" onClick={e => e.stopPropagation()}>
+                  <button
+                    type="button"
+                    onClick={() => { onInsertBetween(items.length); closeMenu() }}
+                    className="text-[10px] px-2 py-1 rounded bg-stone-100 hover:bg-gold-100 text-ebony transition-colors whitespace-nowrap"
+                  >
+                    Balín
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { onInsertDijonBetween?.(items.length); closeMenu() }}
+                    className="text-[10px] px-2 py-1 rounded bg-stone-100 hover:bg-gold-100 text-ebony transition-colors whitespace-nowrap"
+                  >
+                    Dije
+                  </button>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>
