@@ -64,9 +64,7 @@ export function Header() {
     <header className="sticky top-0 z-50 bg-ebony border-b border-gold-400/15">
       <div className="container-main flex items-center justify-between h-16">
         <Link href="/" className="flex items-center gap-3">
-          <span className="font-heading text-xl font-semibold tracking-[0.15em] text-gold-400">
-            VICTOREM
-          </span>
+          <img src="/assets/images/logo.png" alt="Victorem" className="h-8 w-auto" />
         </Link>
 
         <nav className="hidden md:flex items-center gap-1" aria-label="Navegación principal">
@@ -150,6 +148,11 @@ export function Header() {
                   <Link href="/miperfil?tab=addresses" className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-iron hover:bg-gold-400/5 hover:text-gold-400 transition-colors rounded-none">
                     <MapPin className="size-4" /> Direcciones
                   </Link>
+                  {user.role === 'admin' && (
+                    <Link href="/admin" className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-iron hover:bg-gold-400/5 hover:text-gold-400 transition-colors rounded-none">
+                      <Package className="size-4" /> Panel Admin
+                    </Link>
+                  )}
                   <hr className="border-pearl/50 my-1 mx-2" />
                   <button
                     onClick={handleLogout}
