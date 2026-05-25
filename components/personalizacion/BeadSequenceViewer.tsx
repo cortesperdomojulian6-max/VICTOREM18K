@@ -9,6 +9,7 @@ import {
   NEOPRENO_VIEW_WIDTH,
   NEOPRENO_VIEW_HEIGHT,
   getBeadImagePath,
+  getNeoprenoImage,
 } from '@/lib/personalizacion'
 import type { SequenceItem, BalinConfig, MaterialName } from '@/lib/personalizacion'
 
@@ -99,14 +100,25 @@ export default function BeadSequenceViewer({
                   onClick={() => onItemClick?.(i)}
                   title={`Neopreno: ${item.data.label}`}
                 >
-                  <div
-                    className="rounded-sm border border-white/10"
-                    style={{
-                      width: NEOPRENO_VIEW_WIDTH,
-                      height: NEOPRENO_VIEW_HEIGHT,
-                      backgroundColor: item.data.color,
-                    }}
-                  />
+                  {getNeoprenoImage(item.data.color) ? (
+                    <Image
+                      src={getNeoprenoImage(item.data.color)!}
+                      alt={item.data.label}
+                      width={NEOPRENO_VIEW_WIDTH}
+                      height={NEOPRENO_VIEW_HEIGHT}
+                      className="inline-block"
+                      draggable={false}
+                    />
+                  ) : (
+                    <div
+                      className="rounded-sm border border-white/10"
+                      style={{
+                        width: NEOPRENO_VIEW_WIDTH,
+                        height: NEOPRENO_VIEW_HEIGHT,
+                        backgroundColor: item.data.color,
+                      }}
+                    />
+                  )}
                 </div>
               )}
             </div>

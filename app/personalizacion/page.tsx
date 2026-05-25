@@ -19,7 +19,7 @@ import ChatAssistant from '@/components/personalizacion/ChatAssistant'
 import {
   DIJONES, COLORS, NEOPRENO_COLORS,
   BASE_PRICES, BALIN_PRICE, NEOPRENO_BASE_PRICE,
-  STEPS, getMaterialFromColor, getDijon, sequenceDescription,
+  STEPS, getMaterialFromColor, getDijon, getNeoprenoImage, sequenceDescription,
 } from '@/lib/personalizacion'
 import type { JewelType, MaterialName, SequenceItem, BalinType, BalinSize } from '@/lib/personalizacion'
 import type { Product } from '@/types'
@@ -29,6 +29,7 @@ export default function PersonalizacionPage() {
   const [step, setStep] = useState(0)
   const [jewelType, setJewelType] = useState<JewelType | null>(null)
   const [dije, setDije] = useState<string | null>(null)
+  const [showDijePicker, setShowDijePicker] = useState(false)
   const [color, setColor] = useState<string>('#d4af37')
   const [sequence, setSequence] = useState<SequenceItem[]>([])
   const [defaultBalinType, setDefaultBalinType] = useState<BalinType>('liso')
@@ -85,6 +86,11 @@ export default function PersonalizacionPage() {
 
   const addNeopreno = useCallback((color: string, label: string) => {
     setSequence((prev) => [...prev, { kind: 'neopreno', color, label }])
+  }, [])
+
+  const handleSelectDijon = useCallback((dijonId: string) => {
+    setDije(dijonId)
+    setShowDijePicker(false)
   }, [])
 
   const removeItem = useCallback((index: number) => {
@@ -243,11 +249,11 @@ export default function PersonalizacionPage() {
 
               <div className="flex flex-wrap justify-center gap-3 mb-6">
                 <Button size="sm" variant="outline" onClick={addBalin}>
-                  <Plus className="size-3.5 mr-1.5" /> Agregar Balín
+                  <Plus className="size-3.5 mr-1.5" /> Balín
                 </Button>
                 <div className="relative group">
                   <Button size="sm" variant="outline">
-                    <Plus className="size-3.5 mr-1.5" /> Agregar Neopreno
+                    <Plus className="size-3.5 mr-1.5" /> Neopreno
                   </Button>
                   <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 hidden group-hover:block z-20">
                     <div className="bg-white shadow-xl border border-black/6 p-3 grid grid-cols-4 gap-2 min-w-[200px]">
@@ -258,12 +264,46 @@ export default function PersonalizacionPage() {
                           className="flex flex-col items-center gap-1 p-2 hover:bg-stone-50 transition-colors rounded"
                           title={n.label}
                         >
-                          <div className="size-6 rounded-sm border border-black/10" style={{ backgroundColor: n.color }} />
+                          {n.image ? (
+                            <Image src={n.image} alt={n.label} width={32} height={16} className="shrink-0" />
+                          ) : (
+                            <div className="size-6 rounded-sm border border-black/10" style={{ backgroundColor: n.color }} />
+                          )}
                           <span className="text-[10px] text-stone">{n.label}</span>
                         </button>
                       ))}
                     </div>
                   </div>
+                </div>
+                <div className="relative">
+                  <Button size="sm" variant="outline" onClick={() => setShowDijePicker(!showDijePicker)}>
+                    <Plus className="size-3.5 mr-1.5" /> {dije ? 'Cambiar Dije' : 'Dije'}
+                  </Button>
+                  {showDijePicker && (
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 z-20">
+                      <div className="bg-white shadow-xl border border-black/6 p-3 max-h-[300px] overflow-y-auto" style={{ width: '280px' }}>
+                        {dije && (
+                          <button onClick={() => { setDije(null); setShowDijePicker(false) }}
+                            className="w-full text-[11px] text-stone hover:text-red-500 text-center py-1 border-b border-pearl/50 mb-2 transition-colors">
+                            Quitar dije
+                          </button>
+                        )}
+                        <div className="grid grid-cols-4 gap-2">
+                          {DIJONES.map((d) => (
+                            <button
+                              key={d.id}
+                              onClick={() => handleSelectDijon(d.id)}
+                              className={`flex flex-col items-center gap-1 p-2 hover:bg-stone-50 transition-colors rounded ${dije === d.id ? 'ring-2 ring-gold-400' : ''}`}
+                              title={d.label}
+                            >
+                              <Image src={d.image} alt={d.label} width={40} height={40} className="shrink-0" />
+                              <span className="text-[10px] text-stone text-center leading-tight">{d.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -291,7 +331,7 @@ export default function PersonalizacionPage() {
                     {item.kind === 'balin' ? (
                       <>
                         <Image
-                          src={`/assets/optimized/balines/balin-${item.type}-${material === 'rose' ? 'dorado' : material}-60px.webp`}
+                          src={`/assets/optimized/balines/balin-${item.type}.webp`}
                           alt={item.type}
                           width={32}
                           height={32}
@@ -322,7 +362,11 @@ export default function PersonalizacionPage() {
                       </>
                     ) : (
                       <>
-                        <div className="size-6 rounded-sm shrink-0 border border-black/10" style={{ backgroundColor: item.color }} />
+                        {getNeoprenoImage(item.color) ? (
+                          <Image src={getNeoprenoImage(item.color)!} alt={item.label} width={32} height={16} className="shrink-0" />
+                        ) : (
+                          <div className="size-6 rounded-sm shrink-0 border border-black/10" style={{ backgroundColor: item.color }} />
+                        )}
                         <div className="flex-1 min-w-0">
                           <span className="text-xs font-semibold text-ebony uppercase">Neopreno #{i + 1}</span>
                           <p className="text-[11px] text-stone">{item.label}</p>

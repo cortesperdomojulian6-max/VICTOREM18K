@@ -67,16 +67,27 @@ export const COLORS: { name: MaterialName; label: string; value: string }[] = [
   { name: 'black', label: 'Negro', value: '#1a1a1a' },
 ]
 
-export const NEOPRENO_COLORS: { color: string; label: string; price: number }[] = [
+export interface NeoprenoColor {
+  color: string
+  label: string
+  price: number
+  image?: string
+}
+
+export const NEOPRENO_COLORS: NeoprenoColor[] = [
   { color: '#8B4513', label: 'Café', price: 2000 },
-  { color: '#1a1a1a', label: 'Negro', price: 2000 },
+  { color: '#1a1a1a', label: 'Negro', price: 2000, image: '/assets/optimized/neoprenos/neopreno-negro.webp' },
   { color: '#d4af37', label: 'Oro', price: 3000 },
   { color: '#c0c0c0', label: 'Plateado', price: 2000 },
-  { color: '#8B0000', label: 'Rojo Oscuro', price: 2000 },
-  { color: '#000080', label: 'Azul Marino', price: 2000 },
+  { color: '#8B0000', label: 'Rojo Oscuro', price: 2000, image: '/assets/optimized/neoprenos/neopreno-rojo.webp' },
+  { color: '#000080', label: 'Azul Marino', price: 2000, image: '/assets/optimized/neoprenos/neopreno-azul.webp' },
   { color: '#2F4F4F', label: 'Verde Oscuro', price: 2000 },
   { color: '#D2691E', label: 'Chocolate', price: 2000 },
 ]
+
+export function getNeoprenoImage(color: string): string | undefined {
+  return NEOPRENO_COLORS.find(n => n.color === color)?.image
+}
 
 export const BASE_PRICES: Record<JewelType, number> = { pulsera: 80000, anillo: 50000 }
 
