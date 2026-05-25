@@ -420,9 +420,34 @@ export default function AdminPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-iron tracking-wide mb-1">URL de Imagen</label>
-                  <input value={productForm.image_url} onChange={(e) => setProductForm({ ...productForm, image_url: e.target.value })}
-                    className="w-full px-3.5 py-3 border border-pearl text-sm focus:outline-none focus:border-gold-400" />
+                  <label className="block text-xs font-medium text-iron tracking-wide mb-1">Imagen</label>
+                  <div className="flex gap-3">
+                    <div className="flex-1">
+                      <input value={productForm.image_url} onChange={(e) => setProductForm({ ...productForm, image_url: e.target.value })}
+                        placeholder="URL de imagen..."
+                        className="w-full px-3.5 py-3 border border-pearl text-sm focus:outline-none focus:border-gold-400" />
+                    </div>
+                    <label className="shrink-0 flex items-center gap-2 px-4 py-3 text-xs font-semibold uppercase tracking-wider bg-ebony text-white hover:bg-ebony/80 cursor-pointer transition-colors">
+                      <Plus className="size-4" /> Subir
+                      <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                        const file = e.target.files?.[0]
+                        if (!file) return
+                        if (file.size > 2 * 1024 * 1024) { toast.error('La imagen debe ser menor a 2MB'); return }
+                        const reader = new FileReader()
+                        reader.onload = async () => {
+                          try {
+                            const result = await api.post<{ url: string }>('/upload', { file: reader.result, filename: file.name })
+                            setProductForm({ ...productForm, image_url: result.url })
+                            toast.success('Imagen subida')
+                          } catch { toast.error('Error al subir imagen') }
+                        }
+                        reader.readAsDataURL(file)
+                      }} />
+                    </label>
+                  </div>
+                  {productForm.image_url && (
+                    <img src={productImageUrl(productForm.image_url) ?? undefined} alt="Preview" className="mt-2 h-24 w-24 object-cover border border-pearl" />
+                  )}
                 </div>
               </div>
               <div className="flex gap-3 mt-8 justify-end">

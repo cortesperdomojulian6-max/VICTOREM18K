@@ -94,6 +94,7 @@ app.use('/api/newsletter', require('./routes/newsletter'));
 app.use('/api/wompi',     require('./routes/wompi'));
 app.use('/api/config',    require('./routes/config'));
 app.use('/api/categories', require('./routes/categories'));
+app.use('/api/upload', require('./routes/upload'));
 app.use('/api/custom-orders', require('./routes/customOrders'));
 app.use('/api/describe',  require('./routes/describe'));
 app.use('/api/recommendations', require('./routes/recommendations'));
