@@ -80,8 +80,7 @@ export default function CatalogoPage() {
       result = result.filter((p) => p.category === category)
     }
 
-    // Nota: La búsqueda semántica ya se aplicó en el backend. 
-    // Solo ordenamos y filtramos categoría localmente.
+    // La búsqueda ya se aplicó en el backend
 
     switch (sort) {
       case 'price-asc':

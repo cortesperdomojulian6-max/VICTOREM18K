@@ -116,7 +116,7 @@ export function SearchBar({ initialValue = '', onSearch, placeholder = "Buscar j
           ) : results.length > 0 ? (
             <div className="py-2">
               <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-stone/50 border-b border-pearl/50">
-                Sugerencias (Antigravity™)
+                  Sugerencias
               </div>
               {results.map((product) => (
                 <button
