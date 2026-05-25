@@ -6,6 +6,7 @@ import { Search, SlidersHorizontal, ArrowUpDown, X } from 'lucide-react'
 import { ProductCard } from '@/components/ui/card'
 import { ProductCardSkeleton } from '@/components/ui/skeleton'
 import { ProductDetailModal } from '@/components/ui/product-detail-modal'
+import { SearchBar } from '@/components/ui/search-bar'
 import { api } from '@/lib/api'
 import { productImageUrl } from '@/lib/utils'
 import type { Product } from '@/types'
@@ -42,25 +43,30 @@ export default function CatalogoPage() {
   }, [])
 
   useEffect(() => {
-    const productId = searchParams.get('id')
-    api.get<Product[]>('/products')
-      .then((data) => {
+    const fetchProducts = async () => {
+      setLoading(true)
+      try {
+        const endpoint = search ? `/search?q=${encodeURIComponent(search)}&tipo=catalogo&limit=50` : '/products'
+        const data = await api.get<Product[]>(endpoint)
         setProducts(data)
+        
+        const productId = searchParams.get('id')
         if (productId) {
           const found = data.find((p) => p.id === Number(productId))
           if (found) setSelectedProduct(found)
         }
-      })
-      .catch(() => setProducts([]))
-      .finally(() => setLoading(false))
-  }, [searchParams])
+      } catch (err) {
+        setProducts([])
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    fetchProducts()
+  }, [searchParams, search])
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault()
-        searchRef.current?.focus()
-      }
       if (e.key === 'Escape' && selectedProduct) closeDetail()
     }
     window.addEventListener('keydown', handler)
@@ -74,14 +80,8 @@ export default function CatalogoPage() {
       result = result.filter((p) => p.category === category)
     }
 
-    if (search.trim()) {
-      const q = search.toLowerCase()
-      result = result.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.description?.toLowerCase().includes(q),
-      )
-    }
+    // Nota: La búsqueda semántica ya se aplicó en el backend. 
+    // Solo ordenamos y filtramos categoría localmente.
 
     switch (sort) {
       case 'price-asc':
@@ -120,17 +120,12 @@ export default function CatalogoPage() {
 
       <div className="container-main py-8 md:py-10">
         <div className="flex flex-col gap-4 mb-8">
-          <div className="relative flex-1 w-full">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-stone" />
-            <input
-              ref={searchRef}
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar joyas... (Cmd+K)"
-              className="w-full pl-10 pr-4 py-3 border border-pearl bg-white text-sm text-iron placeholder:text-stone/50 focus:outline-none focus:border-gold-400 focus:shadow-[0_0_0_3px_rgba(212,175,55,0.08)] transition-all"
-            />
-          </div>
+          <SearchBar 
+            initialValue={search} 
+            onSearch={setSearch} 
+            tipo="catalogo"
+            placeholder="Buscar joyas, estilos, intenciones (ej. matrimonio, regalo)..."
+          />
 
           <div className="flex flex-wrap gap-2">
             {CATEGORIES.map((cat) => (

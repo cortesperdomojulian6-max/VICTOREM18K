@@ -98,6 +98,7 @@ app.use('/api/upload', require('./routes/upload'));
 app.use('/api/custom-orders', require('./routes/customOrders'));
 app.use('/api/describe',  require('./routes/describe'));
 app.use('/api/recommendations', require('./routes/recommendations'));
+app.use('/api/search', require('./routes/search'));
 
 // Health check
 app.get('/api/health', async (req, res) => {
