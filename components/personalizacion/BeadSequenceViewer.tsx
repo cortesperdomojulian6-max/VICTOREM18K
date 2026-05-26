@@ -17,6 +17,8 @@ interface BeadSequenceViewerProps {
   onItemClick?: (index: number) => void
 }
 
+const ITEM_STYLE = { display: 'flex' as const, alignItems: 'center' as const, cursor: 'pointer' as const }
+
 export default function BeadSequenceViewer({
   items,
   material = 'gold',
@@ -27,7 +29,7 @@ export default function BeadSequenceViewer({
 
   if (items.length === 0) {
     return (
-      <div className="w-full h-20 relative overflow-hidden bg-black rounded-xl flex items-center justify-center">
+      <div className="w-full h-16 relative overflow-hidden bg-black rounded-xl flex items-center justify-center">
         <div className="text-white/15 text-[10px] uppercase tracking-widest">
           Secuencia vacía
         </div>
@@ -38,48 +40,45 @@ export default function BeadSequenceViewer({
   return (
     <div className="w-full relative overflow-hidden bg-black rounded-xl">
       <div
-        className="flex items-center justify-center py-2 px-4 overflow-x-auto"
-        style={{ minHeight: `${beadPx + 16}px` }}
+        className="flex items-center justify-center py-1 px-2 overflow-x-auto"
       >
-        <div className="flex items-center" style={{ gap: '1px' }}>
+        <div className="flex items-center" style={{ gap: 0 }}>
           {items.map((item, i) => (
             <div
               key={`${item.kind}-${i}`}
-              className={`flex items-center shrink-0 ${
-                onItemClick ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''
-              }`}
               onClick={() => onItemClick?.(i)}
-              style={{ margin: 0, padding: 0, lineHeight: 0 }}
+              title={onItemClick ? 'Clic para eliminar' : undefined}
+              style={ITEM_STYLE}
             >
               {item.kind === 'balin' ? (
                 <Image
                   src={getBeadImagePath(item.type, material, item.size)}
-                  alt={`Balín ${item.type}`}
+                  alt=""
                   width={BEAD_IMAGE_SIZES[item.size]}
                   height={BEAD_IMAGE_SIZES[item.size]}
                   draggable={false}
+                  className="pointer-events-none"
                   style={{ display: 'block' }}
-                  className="inline-block"
                 />
               ) : item.kind === 'dijon' ? (
                 <Image
                   src={item.image}
-                  alt={item.label}
+                  alt=""
                   width={DIJON_VIEW_SIZE}
                   height={DIJON_VIEW_SIZE}
                   draggable={false}
+                  className="pointer-events-none"
                   style={{ display: 'block' }}
-                  className="inline-block"
                 />
               ) : (
                 <Image
                   src={getNeoprenoImage(item.color)!}
-                  alt={item.label}
+                  alt=""
                   width={getNeoprenoDisplaySize(beadPx).width}
                   height={getNeoprenoDisplaySize(beadPx).height}
                   draggable={false}
+                  className="pointer-events-none"
                   style={{ display: 'block' }}
-                  className="inline-block"
                 />
               )}
             </div>

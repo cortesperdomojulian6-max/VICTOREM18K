@@ -60,7 +60,7 @@ export function getNeoprenoDisplaySize(beadSize: number) {
   return { width: Math.round(beadSize * NEOPRENO_ASPECT), height: beadSize }
 }
 
-export const DIJON_VIEW_SIZE = BEAD_DIAMETER
+export const DIJON_VIEW_SIZE = 48
 
 export const DIJONES: DijonConfig[] = [
   { id: 'infinito', label: 'Infinito', price: 18000, image: '/assets/optimized/dijones/dijon-infinito.webp' },
