@@ -38,15 +38,29 @@ export function getBeadImagePath(type: BalinType, _material?: MaterialName, _siz
   return `/assets/optimized/balines/balin-${type}.webp`
 }
 
-export const BEAD_IMAGE_SIZES: Record<BalinSize, number> = {
-  small: 40,
-  medium: 60,
-  large: 80,
+export function getBeadSmallImagePath(type: BalinType): string {
+  return `/assets/optimized/balines/balin-${type}-small.webp`
 }
 
-export const DIJON_VIEW_SIZE = 50
-export const NEOPRENO_VIEW_WIDTH = 32
-export const NEOPRENO_VIEW_HEIGHT = 40
+export function getBeadLargeImagePath(type: BalinType): string {
+  return `/assets/optimized/balines/balin-${type}-large.webp`
+}
+
+const BEAD_DIAMETER = 40
+
+export const BEAD_IMAGE_SIZES: Record<BalinSize, number> = {
+  small: 28,
+  medium: BEAD_DIAMETER,
+  large: 52,
+}
+
+export const NEOPRENO_ASPECT = 160 / 74
+
+export function getNeoprenoDisplaySize(beadSize: number) {
+  return { width: Math.round(beadSize * NEOPRENO_ASPECT), height: beadSize }
+}
+
+export const DIJON_VIEW_SIZE = BEAD_DIAMETER
 
 export const DIJONES: DijonConfig[] = [
   { id: 'infinito', label: 'Infinito', price: 18000, image: '/assets/optimized/dijones/dijon-infinito.webp' },
@@ -120,3 +134,37 @@ export function sequenceDescription(items: SequenceItem[]): string {
   if (dijones > 0) desc += `, ${dijones} Dijón(es)`
   return desc
 }
+
+export interface InsumoProduct {
+  id: string
+  name: string
+  category: 'balin' | 'neopreno' | 'dije' | 'hilo' | 'tabla' | 'otro'
+  image: string
+  retailPrice: number
+  wholesalePrice: number
+  wholesaleMinQty: number
+  unit: string
+  colors?: string[]
+}
+
+export const INSUMOS: InsumoProduct[] = [
+  { id: 'balin-liso', name: 'Balín Liso', category: 'balin', image: '/assets/optimized/balines/balin-liso.webp', retailPrice: 5000, wholesalePrice: 3500, wholesaleMinQty: 50, unit: 'unidad' },
+  { id: 'balin-diamantado', name: 'Balín Diamantado', category: 'balin', image: '/assets/optimized/balines/balin-diamantado.webp', retailPrice: 6000, wholesalePrice: 4200, wholesaleMinQty: 50, unit: 'unidad' },
+  { id: 'neopreno-negro', name: 'Neopreno Negro', category: 'neopreno', image: '/assets/optimized/neoprenos/neopreno-negro.webp', retailPrice: 2000, wholesalePrice: 1200, wholesaleMinQty: 100, unit: 'unidad' },
+  { id: 'neopreno-rojo', name: 'Neopreno Rojo', category: 'neopreno', image: '/assets/optimized/neoprenos/neopreno-rojo.webp', retailPrice: 2000, wholesalePrice: 1200, wholesaleMinQty: 100, unit: 'unidad' },
+  { id: 'neopreno-azul', name: 'Neopreno Azul', category: 'neopreno', image: '/assets/optimized/neoprenos/neopreno-azul.webp', retailPrice: 2000, wholesalePrice: 1200, wholesaleMinQty: 100, unit: 'unidad' },
+  { id: 'dije-infinito', name: 'Dije Infinito', category: 'dije', image: '/assets/optimized/dijones/dijon-infinito.webp', retailPrice: 18000, wholesalePrice: 12000, wholesaleMinQty: 10, unit: 'unidad' },
+  { id: 'dije-corazon', name: 'Dije Corazón', category: 'dije', image: '/assets/optimized/dijones/dijon-corazon.webp', retailPrice: 15000, wholesalePrice: 10000, wholesaleMinQty: 10, unit: 'unidad' },
+  { id: 'dije-cruz', name: 'Dije Cruz', category: 'dije', image: '/assets/optimized/dijones/dijon-cruz.webp', retailPrice: 15000, wholesalePrice: 10000, wholesaleMinQty: 10, unit: 'unidad' },
+  { id: 'hilo-poliamida', name: 'Hilo Poliamida 0.5mm', category: 'hilo', image: '', retailPrice: 8000, wholesalePrice: 5500, wholesaleMinQty: 20, unit: 'rollo 10m', colors: ['#1a1a1a', '#d4af37', '#c0c0c0', '#ffffff', '#8B0000'] },
+  { id: 'hilo-elastico', name: 'Hilo Elástico 0.8mm', category: 'hilo', image: '', retailPrice: 5000, wholesalePrice: 3500, wholesaleMinQty: 30, unit: 'rollo 5m', colors: ['#1a1a1a', '#ffffff', '#c0c0c0'] },
+  { id: 'tabla-tejido', name: 'Tabla de Tejido', category: 'tabla', image: '', retailPrice: 25000, wholesalePrice: 18000, wholesaleMinQty: 5, unit: 'unidad' },
+]
+
+export const INSUMO_CATEGORIES = [
+  { id: 'balin', label: 'Balines' },
+  { id: 'neopreno', label: 'Neoprenos' },
+  { id: 'dije', label: 'Dijes' },
+  { id: 'hilo', label: 'Hilos' },
+  { id: 'tabla', label: 'Tablas' },
+]
