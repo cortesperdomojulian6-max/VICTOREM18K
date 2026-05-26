@@ -54,7 +54,7 @@ export const BEAD_IMAGE_SIZES: Record<BalinSize, number> = {
   large: 52,
 }
 
-export const NEOPRENO_ASPECT = 160 / 74
+export const NEOPRENO_ASPECT = 1.0
 
 export function getNeoprenoDisplaySize(beadSize: number) {
   return { width: Math.round(beadSize * NEOPRENO_ASPECT), height: beadSize }

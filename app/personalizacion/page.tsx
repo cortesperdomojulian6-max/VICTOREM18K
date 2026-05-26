@@ -36,7 +36,6 @@ export default function PersonalizacionPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [loadingProducts, setLoadingProducts] = useState(false)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
-  const [insertIndex, setInsertIndex] = useState<number | null>(null)
   const [showDijeGrid, setShowDijeGrid] = useState(false)
   const { isAuthenticated } = useAuthStore()
   const { addItem } = useCartStore()
@@ -83,34 +82,12 @@ export default function PersonalizacionPage() {
   const addDijon = useCallback((id: string) => {
     const d = getDijon(id)
     if (!d) return
-    if (insertIndex !== null) {
-      setSequence((prev) => {
-        const next = [...prev]
-        next.splice(insertIndex, 0, { kind: 'dijon', id: d.id, label: d.label, image: d.image })
-        return next
-      })
-      setInsertIndex(null)
-    } else {
-      setSequence((prev) => [...prev, { kind: 'dijon', id: d.id, label: d.label, image: d.image }])
-    }
+    setSequence((prev) => [...prev, { kind: 'dijon', id: d.id, label: d.label, image: d.image }])
     setShowDijeGrid(false)
-  }, [insertIndex])
+  }, [])
 
   const removeItem = useCallback((index: number) => {
     setSequence((prev) => prev.filter((_, i) => i !== index))
-  }, [])
-
-  const insertAt = useCallback((index: number) => {
-    setSequence((prev) => {
-      const next = [...prev]
-      next.splice(index, 0, { kind: 'balin', type: defaultBalinType, size: 'medium' })
-      return next
-    })
-  }, [defaultBalinType])
-
-  const insertDijonAt = useCallback((index: number) => {
-    setInsertIndex(index)
-    setShowDijeGrid(true)
   }, [])
 
   const moveItem = useCallback((from: number, to: number) => {
@@ -235,8 +212,6 @@ export default function PersonalizacionPage() {
               <BeadSequenceViewer
                 items={sequence}
                 material={material}
-                onInsertBetween={insertAt}
-                onInsertDijonBetween={insertDijonAt}
                 onItemClick={removeItem}
               />
             </div>
@@ -294,16 +269,16 @@ export default function PersonalizacionPage() {
               </div>
 
               {showDijeGrid && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => { setShowDijeGrid(false); setInsertIndex(null) }}>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setShowDijeGrid(false)}>
                   <div className="bg-white p-6 rounded-xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-heading text-lg font-medium text-ebony">Selecciona un Dije</h3>
-                      <button onClick={() => { setShowDijeGrid(false); setInsertIndex(null) }} className="p-1 hover:bg-stone-100 rounded-full transition-colors">
+                      <button onClick={() => setShowDijeGrid(false)} className="p-1 hover:bg-stone-100 rounded-full transition-colors">
                         <X className="size-4 text-stone" />
                       </button>
                     </div>
                     <p className="text-xs text-stone mb-4">
-                      {insertIndex !== null ? 'El dije se insertará en la posición seleccionada.' : 'El dije se agregará al final de la secuencia.'}
+                      El dije se agregará al final de la secuencia. Luego puedes reordenarlo arrastrando.
                     </p>
                     <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
                       {DIJONES.map((d) => (
