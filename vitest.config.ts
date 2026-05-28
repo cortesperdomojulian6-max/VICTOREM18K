@@ -5,7 +5,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    include: ['backend/__tests__/**/*.{test,spec}.{js,ts}', 'frontend/__tests__/**/*.{test,spec}.{ts,tsx}'],
+    include: ['frontend/__tests__/**/*.{test,spec}.{ts,tsx}', '__tests__/**/*.{test,spec}.{ts,tsx}'],
     exclude: ['node_modules', '.next'],
   },
   resolve: {

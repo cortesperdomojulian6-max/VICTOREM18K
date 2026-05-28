@@ -13,17 +13,14 @@ import { useAuthStore } from '@/store/useAuthStore'
 
 export default function CarritoPage() {
   const router = useRouter()
-  const { items, total, isLoading, updateQuantity, removeItem } = useCartStore()
+  const { items, localItems, total, isLoading, updateQuantity, removeItem } = useCartStore()
   const { isAuthenticated, isLoading: authLoading } = useAuthStore()
   const [shippingConfig, setShippingConfig] = useState({ shipping: 10000, freeShippingThreshold: 200000 })
-  const [updating, setUpdating] = useState<number | null>(null)
+  const [updating, setUpdating] = useState<string | number | null>(null)
 
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      toast.error('Debes iniciar sesión para ver tu carrito')
-      router.push('/')
-    }
-  }, [isAuthenticated, authLoading, router])
+  const displayItems = isAuthenticated
+    ? items.map(i => ({ id: i.id, name: i.name, price: Number(i.price), quantity: i.cantidad, imageUrl: i.image_url }))
+    : localItems.map(i => ({ id: i.localId, name: i.name, price: i.price, quantity: i.quantity, imageUrl: i.imageUrl }))
 
   useEffect(() => {
     api.get<{ shipping: number, freeShippingThreshold: number }>('/config')
@@ -31,13 +28,13 @@ export default function CarritoPage() {
       .catch(() => {})
   }, [])
 
-  const handleUpdate = async (id: number, qty: number) => {
+  const handleUpdate = async (id: string | number, qty: number) => {
     setUpdating(id)
     await updateQuantity(id, qty)
     setUpdating(null)
   }
 
-  const handleRemove = async (id: number) => {
+  const handleRemove = async (id: string | number) => {
     setUpdating(id)
     await removeItem(id)
     setUpdating(null)
@@ -72,7 +69,7 @@ export default function CarritoPage() {
       </div>
 
       <div className="container-main py-10">
-        {items.length === 0 ? (
+        {displayItems.length === 0 ? (
           <div className="text-center py-20 max-w-md mx-auto">
             <ShoppingBag className="size-16 text-pearl mx-auto mb-6" />
             <h2 className="font-heading text-2xl font-medium text-ebony mb-3">
@@ -88,7 +85,7 @@ export default function CarritoPage() {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             <div className="lg:col-span-2 space-y-4">
-              {items.map((item, i) => (
+              {displayItems.map((item, i) => (
                 <motion.div
                   key={item.id}
                   initial={{ opacity: 0, y: 10 }}
@@ -99,28 +96,28 @@ export default function CarritoPage() {
                   }`}
                 >
                   <div className="size-20 bg-cream shrink-0 flex items-center justify-center overflow-hidden">
-                    {item.image_url ? (
-                      <img src={productImageUrl(item.image_url) ?? undefined} alt={item.name} className="size-full object-cover" />
+                    {item.imageUrl ? (
+                      <img src={productImageUrl(item.imageUrl) ?? undefined} alt={item.name} className="size-full object-cover" />
                     ) : (
                       <ShoppingBag className="size-6 text-stone" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-heading text-base font-medium text-ebony truncate">{item.name}</p>
-                    <p className="text-sm text-gold-400 font-semibold mt-1">{formatPrice(Number(item.price))}</p>
+                    <p className="text-sm text-gold-400 font-semibold mt-1">{formatPrice(item.price)}</p>
                   </div>
                   <div className="flex items-center gap-1 border border-pearl">
                     <button
-                      onClick={() => handleUpdate(item.id, item.cantidad - 1)}
-                      disabled={item.cantidad <= 1}
+                      onClick={() => handleUpdate(item.id, item.quantity - 1)}
+                      disabled={item.quantity <= 1}
                       className="size-9 flex items-center justify-center text-stone hover:text-ebony hover:bg-cream transition-colors disabled:opacity-30"
                       aria-label="Reducir cantidad"
                     >
                       <Minus className="size-3.5" />
                     </button>
-                    <span className="w-10 text-center text-sm font-medium text-ebony">{item.cantidad}</span>
+                    <span className="w-10 text-center text-sm font-medium text-ebony">{item.quantity}</span>
                     <button
-                      onClick={() => handleUpdate(item.id, item.cantidad + 1)}
+                      onClick={() => handleUpdate(item.id, item.quantity + 1)}
                       className="size-9 flex items-center justify-center text-stone hover:text-ebony hover:bg-cream transition-colors"
                       aria-label="Aumentar cantidad"
                     >
@@ -128,7 +125,7 @@ export default function CarritoPage() {
                     </button>
                   </div>
                   <p className="text-sm font-semibold text-gold-400 min-w-[80px] text-right">
-                    {formatPrice(Number(item.price) * item.cantidad)}
+                    {formatPrice(item.price * item.quantity)}
                   </p>
                   <button
                     onClick={() => handleRemove(item.id)}

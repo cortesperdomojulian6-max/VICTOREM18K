@@ -346,12 +346,92 @@ function NewsletterSection() {
   )
 }
 
+function TestimonialsSection() {
+  const testimonials = [
+    { name: 'María Camila R.', role: 'Cliente frecuente', text: 'Compré una pulsera personalizada y el resultado superó mis expectativas. La atención al detalle es increíble, se nota que es hecho a mano con amor.', rating: 5 },
+    { name: 'Carlos A. Gutiérrez', role: 'Coleccionista', text: 'He comprado joyas en varios lugares, pero Victorem tiene algo especial. La calidad del oro laminado y la precisión del tejido artesanal no tienen comparación.', rating: 5 },
+    { name: 'Valentina S. López', role: 'Novia Victorem 2025', text: 'Encargué las joyas para mi matrimonio. Cada invitado preguntó dónde las había comprado. Recibí mi pedido antes de lo esperado y en un empaque hermoso.', rating: 5 },
+    { name: 'Andrés F. Martínez', role: 'Cliente mayorista', text: 'Como joyero, valoro la consistencia. Compro insumos regularmente y siempre recibo balines de primera calidad. Excelente relación calidad-precio.', rating: 5 },
+  ]
+  
+  const [active, setActive] = useState(0)
+  
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActive(prev => (prev + 1) % testimonials.length)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [testimonials.length])
+
+  return (
+    <section className="py-24 md:py-28 bg-ebony">
+      <div className="container-main">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-14"
+        >
+          <span className="text-gold-400 text-xs font-semibold uppercase tracking-[0.15em] block mb-3">Testimonios</span>
+          <h2 className="font-heading text-3xl md:text-5xl font-medium text-white tracking-wide">
+            Lo Que Dicen Nuestros Clientes
+          </h2>
+        </motion.div>
+
+        <div className="max-w-3xl mx-auto">
+          <div className="relative min-h-[280px]">
+            {testimonials.map((t, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: 40 }}
+                animate={active === i ? { opacity: 1, x: 0 } : { opacity: 0, x: -40 }}
+                transition={{ duration: 0.5 }}
+                className={`absolute inset-0 ${active === i ? 'relative' : 'absolute pointer-events-none'}`}
+              >
+                <div className="bg-white/[0.03] border border-white/[0.06] p-8 md:p-10 text-center">
+                  <div className="flex justify-center gap-1 mb-6">
+                    {Array.from({ length: t.rating }).map((_, s) => (
+                      <Star key={s} className="size-4 fill-gold-400 text-gold-400" />
+                    ))}
+                  </div>
+                  <p className="text-base md:text-lg text-silver/80 leading-relaxed mb-8 italic font-light">
+                    &ldquo;{t.text}&rdquo;
+                  </p>
+                  <div>
+                    <p className="font-heading text-base font-medium text-white">{t.name}</p>
+                    <p className="text-xs text-gold-400/60 mt-1">{t.role}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="flex justify-center gap-2 mt-8">
+            {testimonials.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setActive(i)}
+                className={`size-2 rounded-full transition-all duration-300 ${
+                  active === i ? 'bg-gold-400 w-6' : 'bg-white/20 hover:bg-white/40'
+                }`}
+                aria-label={`Testimonio ${i + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 export default function HomePage() {
   return (
     <>
       <HeroSection />
       <CraftsmanshipSection />
       <ProductsSection />
+      <TestimonialsSection />
       <ProcessSection />
       <NewsletterSection />
     </>

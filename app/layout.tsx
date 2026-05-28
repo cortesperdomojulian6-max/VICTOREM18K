@@ -43,6 +43,32 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  other: {
+    'application/ld+json': JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'JewelryStore',
+      name: 'Victorem',
+      description: 'Joyas artesanales en balinería con oro laminado 18K. Hechas a mano en Campoalegre, Huila.',
+      url: 'https://victorem.co',
+      logo: 'https://victorem.co/assets/images/logo.png',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Calle 20 #9-59',
+        addressLocality: 'Campoalegre',
+        addressRegion: 'Huila',
+        addressCountry: 'CO',
+      },
+      telephone: '+57-310-787-5531',
+      email: 'info@victorem.co',
+      sameAs: [],
+      openingHoursSpecification: {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        opens: '09:00',
+        closes: '18:00',
+      },
+    }),
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

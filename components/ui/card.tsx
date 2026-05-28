@@ -4,9 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from './button'
-import { api } from '@/lib/api'
 import { toast } from 'sonner'
-import { useAuthStore } from '@/store/useAuthStore'
 import { useCartStore } from '@/store/useCartStore'
 import { Users } from 'lucide-react'
 
@@ -27,7 +25,6 @@ const shimmer = 'data:image/svg+xml;base64,' + Buffer.from(
 
 export function ProductCard({ id, name, description, price, imageUrl, priority, view_count, onViewDetail }: ProductCardProps) {
   const [adding, setAdding] = useState(false)
-  const { isAuthenticated } = useAuthStore()
   const { addItem } = useCartStore()
 
   const formattedPrice = new Intl.NumberFormat('es-CO', {
@@ -35,13 +32,9 @@ export function ProductCard({ id, name, description, price, imageUrl, priority, 
   }).format(price)
 
   const handleAddToCart = async () => {
-    if (!isAuthenticated) {
-      window.dispatchEvent(new CustomEvent('openAuth'))
-      return
-    }
     setAdding(true)
     try {
-      await addItem(id, 1)
+      await addItem(id, 1, { name, price, imageUrl: imageUrl ?? '' })
       toast.success(`${name} agregado al carrito`)
     } catch {
       toast.error('Error al agregar al carrito')
