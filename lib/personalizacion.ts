@@ -135,21 +135,47 @@ export function sequenceDescription(items: SequenceItem[]): string {
   return desc
 }
 
+export interface BalinVariant {
+  size: string
+  prices: {
+    qty10: number
+    qty50: number
+    qty100: number
+  }
+}
+
 export interface InsumoProduct {
   id: string
   name: string
   category: 'balin' | 'neopreno' | 'dije' | 'hilo' | 'tabla' | 'otro'
-  image: string
-  retailPrice: number
-  wholesalePrice: number
-  wholesaleMinQty: number
+  image?: string
+  retailPrice?: number
+  wholesalePrice?: number
+  wholesaleMinQty?: number
   unit: string
   colors?: string[]
+  balinVariants?: BalinVariant[]
 }
 
+export const BALIN_LISO_VARIANTS: BalinVariant[] = [
+  { size: '#3', prices: { qty10: 3300, qty50: 2900, qty100: 2400 } },
+  { size: '#4', prices: { qty10: 4000, qty50: 3400, qty100: 3100 } },
+  { size: '#5', prices: { qty10: 5500, qty50: 5100, qty100: 4600 } },
+  { size: '#6', prices: { qty10: 7000, qty50: 7000, qty100: 6950 } },
+  { size: '#8', prices: { qty10: 14000, qty50: 11000, qty100: 10800 } },
+]
+
+export const BALIN_DIAMANTADO_VARIANTS: BalinVariant[] = [
+  { size: '#3', prices: { qty10: 5000, qty50: 4000, qty100: 3700 } },
+  { size: '#4', prices: { qty10: 7000, qty50: 5600, qty100: 5200 } },
+  { size: '#5', prices: { qty10: 8000, qty50: 7400, qty100: 7200 } },
+  { size: '#6', prices: { qty10: 9500, qty50: 9400, qty100: 9200 } },
+  { size: '#8', prices: { qty10: 13800, qty50: 13600, qty100: 13600 } },
+]
+
 export const INSUMOS: InsumoProduct[] = [
-  { id: 'balin-liso', name: 'Balín Liso', category: 'balin', image: '/assets/optimized/balines/balin-liso.webp', retailPrice: 5000, wholesalePrice: 3500, wholesaleMinQty: 50, unit: 'unidad' },
-  { id: 'balin-diamantado', name: 'Balín Diamantado', category: 'balin', image: '/assets/optimized/balines/balin-diamantado.webp', retailPrice: 6000, wholesalePrice: 4200, wholesaleMinQty: 50, unit: 'unidad' },
+  { id: 'balin-liso', name: 'Balín Liso', category: 'balin', image: '/assets/optimized/balines/balin-liso-premium.webp', unit: 'unidad', balinVariants: BALIN_LISO_VARIANTS },
+  { id: 'balin-diamantado', name: 'Balín Diamantado', category: 'balin', image: '/assets/optimized/balines/balin-diamantado-premium.webp', unit: 'unidad', balinVariants: BALIN_DIAMANTADO_VARIANTS },
   { id: 'neopreno-negro', name: 'Neopreno Negro', category: 'neopreno', image: '/assets/optimized/neoprenos/neopreno-negro.webp', retailPrice: 2000, wholesalePrice: 1200, wholesaleMinQty: 100, unit: 'unidad' },
   { id: 'neopreno-rojo', name: 'Neopreno Rojo', category: 'neopreno', image: '/assets/optimized/neoprenos/neopreno-rojo.webp', retailPrice: 2000, wholesalePrice: 1200, wholesaleMinQty: 100, unit: 'unidad' },
   { id: 'neopreno-azul', name: 'Neopreno Azul', category: 'neopreno', image: '/assets/optimized/neoprenos/neopreno-azul.webp', retailPrice: 2000, wholesalePrice: 1200, wholesaleMinQty: 100, unit: 'unidad' },

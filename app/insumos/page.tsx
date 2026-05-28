@@ -3,15 +3,22 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Search, Package, Check, RefreshCw } from 'lucide-react'
+import { Search, Package, Check, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import { INSUMOS, INSUMO_CATEGORIES } from '@/lib/personalizacion'
-import type { InsumoProduct } from '@/lib/personalizacion'
+import type { InsumoProduct, BalinVariant } from '@/lib/personalizacion'
+
+const QTY_TIERS = [
+  { key: 'qty10', label: '10 und', value: 10 },
+  { key: 'qty50', label: '50 und', value: 50 },
+  { key: 'qty100', label: '100 und', value: 100 },
+] as const
 
 export default function InsumosPage() {
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState<string | null>(null)
   const [pricingMode, setPricingMode] = useState<'retail' | 'wholesale'>('retail')
+  const [expandedBalin, setExpandedBalin] = useState<string | null>(null)
 
   const filtered = INSUMOS.filter((p) => {
     if (category && p.category !== category) return false
@@ -107,9 +114,19 @@ export default function InsumosPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {filtered.map((product) => (
-              <InsumoCard key={product.id} product={product} mode={pricingMode} />
-            ))}
+            {filtered.map((product) =>
+              product.balinVariants ? (
+                <BalinCard
+                  key={product.id}
+                  product={product}
+                  mode={pricingMode}
+                  expanded={expandedBalin === product.id}
+                  onToggle={() => setExpandedBalin(expandedBalin === product.id ? null : product.id)}
+                />
+              ) : (
+                <InsumoCard key={product.id} product={product} mode={pricingMode} />
+              )
+            )}
           </div>
         )}
 
@@ -124,6 +141,93 @@ export default function InsumosPage() {
         )}
       </div>
     </>
+  )
+}
+
+function BalinCard({ product, mode, expanded, onToggle }: {
+  product: InsumoProduct
+  mode: 'retail' | 'wholesale'
+  expanded: boolean
+  onToggle: () => void
+}) {
+  const variants = product.balinVariants!
+
+  return (
+    <div className="group bg-white border border-pearl hover:border-gold-400/60 transition-all duration-300 flex flex-col">
+      <div className="aspect-square bg-stone-50 flex items-center justify-center p-4 relative overflow-hidden">
+        {product.image && (
+          <Image
+            src={product.image}
+            alt={product.name}
+            width={240}
+            height={175}
+            className="object-contain max-h-full transition-transform duration-500 group-hover:scale-105"
+          />
+        )}
+      </div>
+
+      <div className="p-4 flex flex-col flex-1">
+        <span className="text-[10px] uppercase tracking-widest text-stone/40 mb-1">Balines</span>
+        <h3 className="font-heading text-sm font-medium text-ebony mb-2">{product.name}</h3>
+
+        <button
+          onClick={onToggle}
+          className="flex items-center justify-between w-full text-[11px] font-medium text-gold-600 hover:text-gold-700 transition-colors mb-2 pb-2 border-b border-pearl/50"
+        >
+          <span>{expanded ? 'Ocultar precios' : 'Ver precios por tamaño'}</span>
+          {expanded ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
+        </button>
+
+        {expanded && (
+          <div className="overflow-x-auto -mx-1">
+            <table className="w-full text-[10px]">
+              <thead>
+                <tr className="border-b border-pearl/50">
+                  <th className="text-left py-1.5 px-1 text-stone font-medium">Talla</th>
+                  {mode === 'retail' ? (
+                    <th className="text-right py-1.5 px-1 text-stone font-medium">10 und</th>
+                  ) : (
+                    QTY_TIERS.slice(1).map((t) => (
+                      <th key={t.key} className="text-right py-1.5 px-1 text-stone font-medium">{t.label}</th>
+                    ))
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {variants.map((v) => (
+                  <tr key={v.size} className="border-b border-pearl/30 hover:bg-stone-50 transition-colors">
+                    <td className="py-2 px-1 font-semibold text-ebony">{v.size}</td>
+                    {mode === 'retail' ? (
+                      <td className="text-right py-2 px-1 text-gold-600 font-medium">
+                        {formatPrice(v.prices.qty10)} <span className="text-[9px] text-stone/50">c/u</span>
+                      </td>
+                    ) : (
+                      <>
+                        <td className="text-right py-2 px-1">
+                          <span className="text-gold-600 font-medium">{formatPrice(v.prices.qty50)}</span>
+                          <span className="text-[9px] text-stone/40 ml-0.5">c/u</span>
+                        </td>
+                        <td className="text-right py-2 px-1">
+                          <span className="text-gold-600 font-medium">{formatPrice(v.prices.qty100)}</span>
+                          <span className="text-[9px] text-stone/40 ml-0.5">c/u</span>
+                        </td>
+                      </>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        <div className="mt-auto pt-3">
+          <div className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
+            <Check className="size-2.5" />
+            {mode === 'retail' ? 'Precio por unidad' : 'Precio por cantidad'}
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -171,14 +275,16 @@ function InsumoCard({ product, mode }: { product: InsumoProduct; mode: 'retail' 
         <p className="text-[10px] text-stone/50 mb-3">Por {product.unit}</p>
 
         <div className="mt-auto">
-          <div className="flex items-baseline gap-2">
-            <span className="font-semibold text-gold-600 text-lg">{formatPrice(price)}</span>
-            {mode === 'retail' && (
-              <span className="text-[10px] text-stone/40 line-through">{formatPrice(product.wholesalePrice)}</span>
-            )}
-          </div>
+          {price !== undefined && (
+            <div className="flex items-baseline gap-2">
+              <span className="font-semibold text-gold-600 text-lg">{formatPrice(price)}</span>
+              {mode === 'retail' && product.wholesalePrice && (
+                <span className="text-[10px] text-stone/40 line-through">{formatPrice(product.wholesalePrice)}</span>
+              )}
+            </div>
+          )}
 
-          {mode === 'wholesale' && (
+          {mode === 'wholesale' && product.wholesaleMinQty && (
             <p className="text-[10px] text-stone/50 mt-1">
               Mín. {product.wholesaleMinQty} {product.unit}(s)
             </p>
