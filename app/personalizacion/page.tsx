@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import {
-  Check, ArrowRight, ArrowLeft, ShoppingBag, Sparkles, Plus, X, GripVertical, Eye, EyeOff,
+  Check, ArrowRight, ArrowLeft, ShoppingBag, Sparkles, Plus, X, GripVertical,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
@@ -16,9 +16,6 @@ import { useAuthStore } from '@/store/useAuthStore'
 import { useCartStore } from '@/store/useCartStore'
 import BeadSequenceViewer from '@/components/personalizacion/BeadSequenceViewer'
 import ChatAssistant from '@/components/personalizacion/ChatAssistant'
-import dynamic from 'next/dynamic'
-
-const RealisticJewelryViewer = dynamic(() => import('@/components/personalizacion/RealisticJewelryViewer'), { ssr: false })
 import {
   DIJONES, COLORS, NEOPRENO_COLORS,
   BASE_PRICES, BALIN_PRICE, NEOPRENO_BASE_PRICE, DIJON_BASE_PRICE,
@@ -40,7 +37,6 @@ export default function PersonalizacionPage() {
   const [loadingProducts, setLoadingProducts] = useState(false)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [showDijeGrid, setShowDijeGrid] = useState(false)
-  const [view3d, setView3d] = useState(false)
   const { isAuthenticated } = useAuthStore()
   const { addItem } = useCartStore()
   const [description, setDescription] = useState<string | null>(null)
@@ -208,39 +204,13 @@ export default function PersonalizacionPage() {
   }
 
   function PreviewBlock({ onItemClick }: { onItemClick?: (index: number) => void }) {
-    const balines = sequence
-      .filter((s): s is SequenceItem & { kind: 'balin' } => s.kind === 'balin')
-      .map(s => ({ type: s.type as 'liso' | 'diamantado', size: s.size as 'small' | 'medium' | 'large' }))
-
     return (
       <div className="mb-6">
-        <div className="flex items-center justify-end gap-2 mb-2">
-          <button
-            onClick={() => setView3d(!view3d)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-[10px] uppercase tracking-widest border transition-all ${
-              view3d ? 'border-gold-400 bg-gold-400/10 text-gold-600 font-semibold' : 'border-border text-muted hover:border-gold-400'
-            }`}
-          >
-            {view3d ? <EyeOff className="size-3" /> : <Eye className="size-3" />}
-            {view3d ? 'Vista 2D' : 'Vista 3D'}
-          </button>
-        </div>
-        {view3d ? (
-          <div className="h-[320px] bg-black/5 rounded-lg overflow-hidden">
-            <RealisticJewelryViewer
-              type={jewelType || 'pulsera'}
-              color={color}
-              balines={balines}
-              productName={selectedProduct?.name}
-            />
-          </div>
-        ) : (
-          <BeadSequenceViewer
-            items={sequence}
-            material={material}
-            onItemClick={onItemClick}
-          />
-        )}
+        <BeadSequenceViewer
+          items={sequence}
+          material={material}
+          onItemClick={onItemClick}
+        />
       </div>
     )
   }
