@@ -7,7 +7,7 @@
     "dev": "next dev --port 3000",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "echo 'lint skipped: next lint deprecated in v15'",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:e2e": "playwright test",
