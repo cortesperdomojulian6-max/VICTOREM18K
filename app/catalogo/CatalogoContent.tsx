@@ -139,7 +139,7 @@ export default function CatalogoContent() {
                 className={`shrink-0 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all ${
                   categories.includes(cat.value)
                     ? 'bg-gold-400 text-ebony'
-                    : 'bg-white border border-pearl text-stone hover:border-gold-400'
+                    : 'bg-elevated border border-border text-muted hover:border-gold-400'
                 }`}
               >
                 {cat.label}
@@ -151,22 +151,22 @@ export default function CatalogoContent() {
                 placeholder="Min"
                 value={priceRange.min}
                 onChange={(e) => setPriceRange(prev => ({ ...prev, min: e.target.value }))}
-                className="w-20 px-2 py-2.5 text-xs border border-pearl bg-white focus:outline-none focus:border-gold-400"
+                className="w-20 px-2 py-2.5 text-xs border border-border bg-elevated focus:outline-none focus:border-gold-400"
               />
-              <span className="text-stone/40 text-xs">—</span>
+              <span className="text-muted/40 text-xs">—</span>
               <input
                 type="number"
                 placeholder="Max"
                 value={priceRange.max}
                 onChange={(e) => setPriceRange(prev => ({ ...prev, max: e.target.value }))}
-                className="w-20 px-2 py-2.5 text-xs border border-pearl bg-white focus:outline-none focus:border-gold-400"
+                className="w-20 px-2 py-2.5 text-xs border border-border bg-elevated focus:outline-none focus:border-gold-400"
               />
             </div>
             <div className="relative ml-auto">
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortKey)}
-                className="appearance-none px-4 py-2.5 pr-10 border border-pearl bg-white text-xs font-semibold uppercase tracking-wider text-stone cursor-pointer focus:outline-none focus:border-gold-400"
+                className="appearance-none px-4 py-2.5 pr-10 border border-border bg-elevated text-xs font-semibold uppercase tracking-wider text-muted cursor-pointer focus:outline-none focus:border-gold-400"
                 aria-label="Ordenar por"
               >
                 <option value="popularity">Popularidad</option>
@@ -174,7 +174,7 @@ export default function CatalogoContent() {
                 <option value="price-desc">Precio: Mayor a Menor</option>
                 <option value="name">Nombre</option>
               </select>
-              <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 size-3.5 text-stone pointer-events-none" />
+              <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 size-3.5 text-muted pointer-events-none" />
             </div>
           </div>
         </div>
@@ -187,7 +187,7 @@ export default function CatalogoContent() {
           </div>
         ) : filtered.length > 0 ? (
           <>
-            <p className="text-xs text-stone/60 mb-6">{filtered.length} producto{filtered.length !== 1 ? 's' : ''}</p>
+            <p className="text-xs text-muted/60 mb-6">{filtered.length} producto{filtered.length !== 1 ? 's' : ''}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
               {filtered.map((product, i) => (
                 <motion.div
@@ -213,10 +213,10 @@ export default function CatalogoContent() {
         ) : (
           <div className="text-center py-20">
             <SlidersHorizontal className="size-12 text-pearl mx-auto mb-4" />
-            <h2 className="font-heading text-xl font-medium text-ebony mb-2">
+            <h2 className="font-heading text-xl font-medium text-primary mb-2">
               {search ? `No encontramos productos para "${search}"` : 'No encontramos productos'}
             </h2>
-            <p className="text-sm text-stone mb-6">
+            <p className="text-sm text-muted mb-6">
               Intenta con otros términos o limpia los filtros
             </p>
             <button

@@ -72,10 +72,10 @@ export default function TerminosPage() {
           <div className="space-y-12">
             {SECTIONS.map((section) => (
               <div key={section.title}>
-                <h2 className="font-heading text-2xl font-medium text-ebony mb-4 pb-3 border-b border-gold-400/30">
+                <h2 className="font-heading text-2xl font-medium text-primary mb-4 pb-3 border-b border-gold-400/30">
                   {section.title}
                 </h2>
-                <p className="text-sm text-stone leading-relaxed">
+                <p className="text-sm text-muted leading-relaxed">
                   {section.content}
                 </p>
               </div>
@@ -83,7 +83,7 @@ export default function TerminosPage() {
           </div>
 
           <div className="mt-16 p-8 bg-cream border border-gold-400/20">
-            <p className="text-sm text-stone">
+            <p className="text-sm text-muted">
               Última actualización: Enero 2026. Nos reservamos el derecho de modificar estos términos en cualquier momento. Los cambios serán publicados en esta página.
             </p>
           </div>

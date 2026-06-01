@@ -106,7 +106,7 @@ export function Header() {
                 <span className="max-w-[100px] truncate text-xs font-medium">{user.name}</span>
               </button>
               <div className="absolute right-0 top-full pt-2.5 hidden group-hover:block hover:block">
-                <div className="bg-white dark:bg-ebony dark:border-white/10 min-w-[220px] shadow-xl border border-black/6 p-2 space-y-0.5">
+                <div className="bg-white dark:bg-ebony dark:border-white/10 min-w-[220px] shadow-xl border border-subtle p-2 space-y-0.5">
                   <div className="px-3 py-2.5 flex items-center gap-3 border-b border-pearl/50 dark:border-white/10 mb-1">
                     <span className="size-10 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 text-ebony font-bold text-lg flex items-center justify-center shrink-0">
                       {user.name.charAt(0).toUpperCase()}

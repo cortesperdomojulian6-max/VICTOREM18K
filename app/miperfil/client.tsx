@@ -36,9 +36,9 @@ function ProfileTab({ user, onUpdate }: { user: UserType; onUpdate: () => void }
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white p-8 border border-black/4">
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-elevated p-8 border border-subtle">
       <div className="flex items-center justify-between mb-6 pb-3 border-b border-gold-400/30">
-        <h2 className="font-heading text-xl font-medium text-ebony">Mi Perfil</h2>
+        <h2 className="font-heading text-xl font-medium text-primary">Mi Perfil</h2>
         {!editing && (
           <button onClick={() => setEditing(true)} className="text-xs text-gold-400 hover:text-gold-500 font-semibold uppercase tracking-wider flex items-center gap-1.5">
             <Pencil className="size-3.5" /> Editar
@@ -51,8 +51,8 @@ function ProfileTab({ user, onUpdate }: { user: UserType; onUpdate: () => void }
           {user.name.charAt(0).toUpperCase()}
         </span>
         <div>
-          <p className="font-heading text-lg font-medium text-ebony">{user.name}</p>
-          <p className="text-xs text-stone">Miembro desde {new Date(user.registration_date).toLocaleDateString('es-CO', { year: 'numeric', month: 'long' })}</p>
+          <p className="font-heading text-lg font-medium text-primary">{user.name}</p>
+          <p className="text-xs text-muted">Miembro desde {new Date(user.registration_date).toLocaleDateString('es-CO', { year: 'numeric', month: 'long' })}</p>
         </div>
       </div>
 
@@ -72,8 +72,8 @@ function ProfileTab({ user, onUpdate }: { user: UserType; onUpdate: () => void }
       ) : (
         <div className="space-y-3 max-w-md">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-stone">Correo Electrónico</span>
-            <p className="text-sm text-ebony mt-0.5">{user.email}</p>
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted">Correo Electrónico</span>
+            <p className="text-sm text-primary mt-0.5">{user.email}</p>
           </div>
         </div>
       )}
@@ -96,7 +96,7 @@ function OrdersTab() {
     return (
       <div className="animate-pulse space-y-4">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="bg-white p-6 border border-black/4">
+          <div key={i} className="bg-elevated p-6 border border-subtle">
             <div className="h-5 bg-pearl/60 w-48 mb-3" />
             <div className="h-4 bg-pearl/40 w-32" />
           </div>
@@ -107,10 +107,10 @@ function OrdersTab() {
 
   if (orders.length === 0) {
     return (
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white p-8 border border-black/4 text-center">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-elevated p-8 border border-subtle text-center">
         <Package className="size-12 text-pearl mx-auto mb-4" />
-        <h3 className="font-heading text-lg font-medium text-ebony mb-2">Sin pedidos aún</h3>
-        <p className="text-sm text-stone mb-6">Cuando realices tu primera compra, aquí podrás ver el estado de tus pedidos.</p>
+        <h3 className="font-heading text-lg font-medium text-primary mb-2">Sin pedidos aún</h3>
+        <p className="text-sm text-muted mb-6">Cuando realices tu primera compra, aquí podrás ver el estado de tus pedidos.</p>
         <a href="/catalogo">
           <Button>Explorar Catálogo</Button>
         </a>
@@ -126,14 +126,14 @@ function OrdersTab() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i * 0.05 }}
-          className="bg-white p-6 border border-black/4 hover:border-gold-400/25 transition-colors"
+          className="bg-elevated p-6 border border-subtle hover:border-gold-400/25 transition-colors"
         >
           <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="font-heading text-base font-medium text-ebony">
+              <p className="font-heading text-base font-medium text-primary">
                 Pedido #{order.numero_pedido}
               </p>
-              <p className="text-xs text-stone mt-0.5">
+              <p className="text-xs text-muted mt-0.5">
                 {new Date(order.fecha).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })}
               </p>
             </div>
@@ -149,7 +149,7 @@ function OrdersTab() {
               <p className="text-sm font-semibold text-gold-400 mt-1.5">{formatPrice(Number(order.total))}</p>
             </div>
           </div>
-          <p className="text-xs text-stone">
+          <p className="text-xs text-muted">
             Pago: {order.metodo_pago === 'wompi' ? 'Wompi' : 'Transferencia'}
           </p>
         </motion.div>
@@ -225,7 +225,7 @@ function AddressesTab() {
     return (
       <div className="animate-pulse space-y-4">
         {Array.from({ length: 2 }).map((_, i) => (
-          <div key={i} className="bg-white p-6 border border-black/4">
+          <div key={i} className="bg-elevated p-6 border border-subtle">
             <div className="h-5 bg-pearl/60 w-48 mb-3" />
             <div className="h-4 bg-pearl/40 w-64" />
           </div>
@@ -237,7 +237,7 @@ function AddressesTab() {
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="font-heading text-xl font-medium text-ebony">Mis Direcciones</h2>
+        <h2 className="font-heading text-xl font-medium text-primary">Mis Direcciones</h2>
         {!showForm && (
           <Button size="sm" onClick={() => { resetForm(); setShowForm(true) }}>
             <Plus className="size-3.5 mr-1.5" /> Agregar
@@ -246,8 +246,8 @@ function AddressesTab() {
       </div>
 
       {showForm && (
-        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="bg-cream p-6 border border-gold-400/30 mb-6">
-          <h3 className="font-heading text-base font-medium text-ebony mb-4">
+        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="bg-hover p-6 border border-gold-400/30 mb-6">
+          <h3 className="font-heading text-base font-medium text-primary mb-4">
             {editingId ? 'Editar Dirección' : 'Nueva Dirección'}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -271,25 +271,25 @@ function AddressesTab() {
       )}
 
       {addresses.length === 0 && !showForm ? (
-        <div className="bg-white p-8 border border-black/4 text-center">
+        <div className="bg-elevated p-8 border border-subtle text-center">
           <MapPin className="size-12 text-pearl mx-auto mb-4" />
-          <p className="text-sm text-stone">No tienes direcciones guardadas.</p>
+          <p className="text-sm text-muted">No tienes direcciones guardadas.</p>
         </div>
       ) : (
         <div className="space-y-4">
           {addresses.map((addr) => (
-            <div key={addr.id} className="bg-white p-6 border border-black/4 flex items-start justify-between gap-4 hover:border-gold-400/25 transition-colors">
+            <div key={addr.id} className="bg-elevated p-6 border border-subtle flex items-start justify-between gap-4 hover:border-gold-400/25 transition-colors">
               <div>
-                <p className="font-medium text-sm text-ebony">{addr.destinatario}</p>
-                <p className="text-sm text-stone mt-1">{addr.direccion}</p>
-                <p className="text-sm text-stone">{addr.ciudad}, {addr.departamento}</p>
-                <p className="text-sm text-stone">{addr.telefono}</p>
+                <p className="font-medium text-sm text-primary">{addr.destinatario}</p>
+                <p className="text-sm text-muted mt-1">{addr.direccion}</p>
+                <p className="text-sm text-muted">{addr.ciudad}, {addr.departamento}</p>
+                <p className="text-sm text-muted">{addr.telefono}</p>
               </div>
               <div className="flex gap-2 shrink-0">
-                <button onClick={() => startEdit(addr)} className="size-8 flex items-center justify-center text-stone hover:text-gold-400 hover:bg-gold-400/10 transition-all" aria-label="Editar">
+                <button onClick={() => startEdit(addr)} className="size-8 flex items-center justify-center text-muted hover:text-gold-400 hover:bg-gold-400/10 transition-all" aria-label="Editar">
                   <Pencil className="size-4" />
                 </button>
-                <button onClick={() => handleDelete(addr.id)} className="size-8 flex items-center justify-center text-stone hover:text-red-500 hover:bg-red-50 transition-all" aria-label="Eliminar">
+                <button onClick={() => handleDelete(addr.id)} className="size-8 flex items-center justify-center text-muted hover:text-red-500 hover:bg-red-50 transition-all" aria-label="Eliminar">
                   <Trash2 className="size-4" />
                 </button>
               </div>
@@ -359,7 +359,7 @@ export default function MiPerfilClient({ initialTab }: { initialTab?: Tab }) {
       </div>
 
       <div className="container-main py-10">
-        <div className="flex flex-col md:flex-row gap-2 mb-8 border-b border-pearl">
+        <div className="flex flex-col md:flex-row gap-2 mb-8 border-b border-border">
           {TABS.map((t) => (
             <button
               key={t.key}
@@ -367,7 +367,7 @@ export default function MiPerfilClient({ initialTab }: { initialTab?: Tab }) {
               className={`flex items-center gap-2 px-5 py-3 text-xs font-semibold uppercase tracking-wider transition-all border-b-2 -mb-px ${
                 tab === t.key
                   ? 'border-gold-400 text-gold-400'
-                  : 'border-transparent text-stone hover:text-ebony'
+                  : 'border-transparent text-muted hover:text-primary'
               }`}
             >
               <t.icon className="size-4" />

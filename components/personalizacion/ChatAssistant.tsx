@@ -67,7 +67,7 @@ export default function ChatAssistant() {
   return (
     <div className="fixed bottom-6 right-6 z-50">
       {open && (
-        <div className="absolute bottom-16 right-0 w-80 md:w-96 bg-white shadow-2xl border border-black/10 overflow-hidden mb-2">
+        <div className="absolute bottom-16 right-0 w-80 md:w-96 bg-elevated shadow-2xl border border-subtle overflow-hidden mb-2">
           <div className="bg-ebony px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <MessageCircle className="size-4 text-gold-400" />
@@ -78,13 +78,13 @@ export default function ChatAssistant() {
             </button>
           </div>
 
-          <div className="h-72 overflow-y-auto p-4 space-y-3 bg-stone-50/50">
+          <div className="h-72 overflow-y-auto p-4 space-y-3 bg-surface">
             {messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[85%] px-3 py-2 text-sm leading-relaxed ${
                   msg.role === 'user'
                     ? 'bg-gold-400 text-ebony'
-                    : 'bg-white border border-black/5 text-stone shadow-sm'
+                    : 'bg-elevated border border-subtle text-primary shadow-sm'
                 }`}>
                   {msg.text}
                 </div>
@@ -105,13 +105,13 @@ export default function ChatAssistant() {
             <div ref={bottomRef} />
           </div>
 
-          <div className="border-t border-black/5 p-3 flex gap-2">
+          <div className="border-t border-subtle p-3 flex gap-2">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleSend() }}
               placeholder="Escribe tu pregunta..."
-              className="flex-1 border border-black/10 px-3 py-2 text-sm outline-none focus:border-gold-400 transition-colors"
+              className="flex-1 border border-subtle px-3 py-2 text-sm outline-none focus:border-gold-400 transition-colors"
             />
             <button
               onClick={handleSend}

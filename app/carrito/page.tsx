@@ -72,10 +72,10 @@ export default function CarritoPage() {
         {displayItems.length === 0 ? (
           <div className="text-center py-20 max-w-md mx-auto">
             <ShoppingBag className="size-16 text-pearl mx-auto mb-6" />
-            <h2 className="font-heading text-2xl font-medium text-ebony mb-3">
+            <h2 className="font-heading text-2xl font-medium text-primary mb-3">
               Carrito Vacío
             </h2>
-            <p className="text-sm text-stone mb-8">
+            <p className="text-sm text-muted mb-8">
               Aún no has agregado productos a tu carrito. Explora nuestro catálogo y encuentra la pieza perfecta para ti.
             </p>
             <Button onClick={() => router.push('/catalogo')}>
@@ -91,34 +91,34 @@ export default function CarritoPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className={`bg-white p-6 border border-black/4 flex items-center gap-6 ${
+                  className={`bg-elevated p-6 border border-subtle flex items-center gap-6 ${
                     updating === item.id ? 'opacity-50 pointer-events-none' : ''
                   }`}
                 >
-                  <div className="size-20 bg-cream shrink-0 flex items-center justify-center overflow-hidden">
+                  <div className="size-20 bg-hover shrink-0 flex items-center justify-center overflow-hidden">
                     {item.imageUrl ? (
                       <img src={productImageUrl(item.imageUrl) ?? undefined} alt={item.name} className="size-full object-cover" />
                     ) : (
-                      <ShoppingBag className="size-6 text-stone" />
+                      <ShoppingBag className="size-6 text-muted" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-heading text-base font-medium text-ebony truncate">{item.name}</p>
+                    <p className="font-heading text-base font-medium text-primary truncate">{item.name}</p>
                     <p className="text-sm text-gold-400 font-semibold mt-1">{formatPrice(item.price)}</p>
                   </div>
-                  <div className="flex items-center gap-1 border border-pearl">
+                  <div className="flex items-center gap-1 border border-border">
                     <button
                       onClick={() => handleUpdate(item.id, item.quantity - 1)}
                       disabled={item.quantity <= 1}
-                      className="size-9 flex items-center justify-center text-stone hover:text-ebony hover:bg-cream transition-colors disabled:opacity-30"
+                      className="size-9 flex items-center justify-center text-muted hover:text-primary hover:bg-hover transition-colors disabled:opacity-30"
                       aria-label="Reducir cantidad"
                     >
                       <Minus className="size-3.5" />
                     </button>
-                    <span className="w-10 text-center text-sm font-medium text-ebony">{item.quantity}</span>
+                    <span className="w-10 text-center text-sm font-medium text-primary">{item.quantity}</span>
                     <button
                       onClick={() => handleUpdate(item.id, item.quantity + 1)}
-                      className="size-9 flex items-center justify-center text-stone hover:text-ebony hover:bg-cream transition-colors"
+                      className="size-9 flex items-center justify-center text-muted hover:text-primary hover:bg-hover transition-colors"
                       aria-label="Aumentar cantidad"
                     >
                       <Plus className="size-3.5" />
@@ -129,7 +129,7 @@ export default function CarritoPage() {
                   </p>
                   <button
                     onClick={() => handleRemove(item.id)}
-                    className="size-9 flex items-center justify-center text-stone hover:text-red-500 hover:bg-red-50 transition-all shrink-0"
+                    className="size-9 flex items-center justify-center text-muted hover:text-red-500 hover:bg-red-50 transition-all shrink-0"
                     aria-label="Eliminar producto"
                   >
                     <Trash2 className="size-4" />
@@ -139,14 +139,14 @@ export default function CarritoPage() {
             </div>
 
             <div>
-              <div className="bg-white p-8 border border-black/4 sticky top-24">
-                <h2 className="font-heading text-xl font-medium text-ebony mb-6 pb-3 border-b border-gold-400/30">
+              <div className="bg-elevated p-8 border border-subtle sticky top-24">
+                <h2 className="font-heading text-xl font-medium text-primary mb-6 pb-3 border-b border-gold-400/30">
                   Resumen
                 </h2>
                 <div className="space-y-3 text-sm">
                   {total < shippingConfig.freeShippingThreshold ? (
-                    <div className="bg-cream p-3 border border-black/4 space-y-2 mb-4">
-                      <p className="text-xs text-stone font-medium text-center">
+                    <div className="bg-hover p-3 border border-subtle space-y-2 mb-4">
+                      <p className="text-xs text-muted font-medium text-center">
                         ¡Faltan {formatPrice(shippingConfig.freeShippingThreshold - total)} para envío gratis!
                       </p>
                       <div className="w-full bg-pearl h-2 overflow-hidden">
@@ -162,17 +162,17 @@ export default function CarritoPage() {
                     </div>
                   )}
                   
-                  <div className="flex justify-between text-stone">
+                  <div className="flex justify-between text-muted">
                     <span>Subtotal</span>
-                    <span className="font-medium text-ebony">{formatPrice(total)}</span>
+                    <span className="font-medium text-primary">{formatPrice(total)}</span>
                   </div>
-                  <div className="flex justify-between text-stone">
+                  <div className="flex justify-between text-muted">
                     <span>Envío</span>
-                    <span className="font-medium text-ebony">
+                    <span className="font-medium text-primary">
                       {total >= shippingConfig.freeShippingThreshold ? 'Gratis' : formatPrice(shippingConfig.shipping)}
                     </span>
                   </div>
-                  <div className="pt-3 border-t border-pearl flex justify-between font-heading text-xl font-semibold text-gold-400">
+                  <div className="pt-3 border-t border-border flex justify-between font-heading text-xl font-semibold text-gold-400">
                     <span>Total</span>
                     <span>{formatPrice(total + (total >= shippingConfig.freeShippingThreshold ? 0 : shippingConfig.shipping))}</span>
                   </div>
@@ -180,7 +180,7 @@ export default function CarritoPage() {
                 <Button className="w-full mt-6" size="lg" onClick={() => router.push('/checkout')}>
                   Finalizar Compra <ArrowRight className="size-4 ml-2" />
                 </Button>
-                <p className="text-xs text-stone text-center mt-3">Envío: {formatPrice(shippingConfig.shipping)} a todo Colombia</p>
+                <p className="text-xs text-muted text-center mt-3">Envío: {formatPrice(shippingConfig.shipping)} a todo Colombia</p>
               </div>
             </div>
           </div>

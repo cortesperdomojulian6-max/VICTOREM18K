@@ -103,13 +103,13 @@ export default function InsumosPage() {
       <div className="container-main py-10">
         <div className="flex flex-col md:flex-row gap-6 mb-8">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-stone" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar insumo..."
-              className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-pearl focus:border-gold-400 outline-none transition-colors"
+              className="w-full pl-10 pr-4 py-2.5 text-sm bg-elevated border border-border focus:border-gold-400 outline-none transition-colors"
             />
           </div>
           <div className="flex items-center gap-3">
@@ -125,11 +125,11 @@ export default function InsumosPage() {
                 </span>
               )}
             </button>
-            <div className="flex gap-1 bg-stone-100 rounded-lg p-1">
+            <div className="flex gap-1 bg-hover rounded-lg p-1">
               <button
                 onClick={() => setPricingMode('retail')}
                 className={`px-4 py-2 text-xs font-semibold uppercase tracking-wider rounded-md transition-all ${
-                  pricingMode === 'retail' ? 'bg-white text-ebony shadow-sm' : 'text-stone hover:text-ebony'
+                  pricingMode === 'retail' ? 'bg-elevated text-primary shadow-sm' : 'text-muted hover:text-primary'
                 }`}
               >
                 Detal
@@ -137,7 +137,7 @@ export default function InsumosPage() {
               <button
                 onClick={() => setPricingMode('wholesale')}
                 className={`px-4 py-2 text-xs font-semibold uppercase tracking-wider rounded-md transition-all ${
-                  pricingMode === 'wholesale' ? 'bg-white text-ebony shadow-sm' : 'text-stone hover:text-ebony'
+                  pricingMode === 'wholesale' ? 'bg-elevated text-primary shadow-sm' : 'text-muted hover:text-primary'
                 }`}
               >
                 <Package className="size-3 inline-block mr-1" />
@@ -153,7 +153,7 @@ export default function InsumosPage() {
             className={`px-3 py-1.5 text-[11px] uppercase tracking-wider border transition-all ${
               category === null
                 ? 'border-gold-400 bg-gold-400/10 text-gold-600 font-semibold'
-                : 'border-pearl text-stone hover:border-gold-400'
+                : 'border-border text-muted hover:border-gold-400'
             }`}
           >
             Todos
@@ -165,7 +165,7 @@ export default function InsumosPage() {
               className={`px-3 py-1.5 text-[11px] uppercase tracking-wider border transition-all ${
                 category === cat.id
                   ? 'border-gold-400 bg-gold-400/10 text-gold-600 font-semibold'
-                  : 'border-pearl text-stone hover:border-gold-400'
+                  : 'border-border text-muted hover:border-gold-400'
               }`}
             >
               {cat.label}
@@ -175,8 +175,8 @@ export default function InsumosPage() {
 
         {filtered.length === 0 ? (
           <div className="text-center py-20">
-            <Package className="size-10 text-stone/30 mx-auto mb-4" />
-            <p className="text-stone text-sm">No se encontraron insumos con ese filtro.</p>
+            <Package className="size-10 text-muted/30 mx-auto mb-4" />
+            <p className="text-muted text-sm">No se encontraron insumos con ese filtro.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
@@ -200,7 +200,7 @@ export default function InsumosPage() {
         {pricingMode === 'wholesale' && (
           <div className="mt-12 p-6 bg-ebony/5 border border-gold-400/20 rounded-xl text-center">
             <RefreshCw className="size-5 text-gold-400 mx-auto mb-2" />
-            <p className="text-sm text-stone max-w-md mx-auto">
+            <p className="text-sm text-muted max-w-md mx-auto">
               Precios al por mayor válidos a partir de la cantidad mínima indicada.
               Para pedidos superiores a 500 unidades, contáctanos para un precio especial.
             </p>
@@ -269,7 +269,7 @@ function BalinCard({ product, mode, onAddToQuote, selectedSize, onSelectSize }: 
   }
 
   return (
-    <div className="group bg-white border border-pearl hover:border-gold-400/60 transition-all duration-300 flex flex-col">
+    <div className="group bg-elevated border border-border hover:border-gold-400/60 transition-all duration-300 flex flex-col">
       <div className="aspect-square bg-gradient-to-br from-stone-50 to-stone-100 flex flex-col items-center justify-center p-4 relative">
         <div className="flex items-end justify-center gap-2 mb-3 h-20">
           {BEAD_SIZES.map((size) => {
@@ -299,7 +299,7 @@ function BalinCard({ product, mode, onAddToQuote, selectedSize, onSelectSize }: 
                   />
                 </div>
                 <span className={`text-[10px] font-semibold mt-1 transition-colors ${
-                  isSelected ? 'text-gold-600' : 'text-stone/60'
+                  isSelected ? 'text-gold-600' : 'text-muted/60'
                 }`}>
                   #{size}
                 </span>
@@ -307,22 +307,22 @@ function BalinCard({ product, mode, onAddToQuote, selectedSize, onSelectSize }: 
             )
           })}
         </div>
-        <span className="text-[9px] uppercase tracking-widest text-stone/30">Selecciona una talla</span>
+        <span className="text-[9px] uppercase tracking-widest text-muted/30">Selecciona una talla</span>
       </div>
 
       <div className="p-4 flex flex-col flex-1">
-        <span className="text-[10px] uppercase tracking-widest text-stone/40 mb-1">Balines</span>
-        <h3 className="font-heading text-sm font-medium text-ebony mb-2">{product.name}</h3>
+        <span className="text-[10px] uppercase tracking-widest text-muted/40 mb-1">Balines</span>
+        <h3 className="font-heading text-sm font-medium text-primary mb-2">{product.name}</h3>
 
         {selectedVariant && (
           <div className="bg-amber-50/50 border border-amber-200/60 rounded-lg p-3 mb-3 space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-ebony">Talla #{selectedSize}</span>
-              <span className="text-[11px] text-gold-600 font-bold">{formatPrice(unitPrice)} <span className="text-[9px] font-normal text-stone/50">c/u</span></span>
+              <span className="text-[11px] font-semibold text-primary">Talla #{selectedSize}</span>
+              <span className="text-[11px] text-gold-600 font-bold">{formatPrice(unitPrice)} <span className="text-[9px] font-normal text-muted/50">c/u</span></span>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-stone">Cantidad</span>
+              <span className="text-[10px] text-muted">Cantidad</span>
               <div className="flex items-center gap-1">
                 {availableQty.map((a) => (
                   <button
@@ -331,7 +331,7 @@ function BalinCard({ product, mode, onAddToQuote, selectedSize, onSelectSize }: 
                     className={`px-2 py-1 text-[10px] font-medium rounded transition-all ${
                       effectiveQty === a
                         ? 'bg-gold-600 text-white'
-                        : 'bg-white text-stone border border-pearl hover:border-gold-400'
+                        : 'bg-elevated text-muted border border-border hover:border-gold-400'
                     }`}
                   >
                     {a} und
@@ -341,7 +341,7 @@ function BalinCard({ product, mode, onAddToQuote, selectedSize, onSelectSize }: 
             </div>
 
             <div className="flex items-center justify-between pt-1.5 border-t border-amber-200/40">
-              <span className="text-[10px] text-stone">Total</span>
+              <span className="text-[10px] text-muted">Total</span>
               <span className="text-sm font-bold text-gold-600">{formatPrice(totalPrice)}</span>
             </div>
 
@@ -357,8 +357,8 @@ function BalinCard({ product, mode, onAddToQuote, selectedSize, onSelectSize }: 
 
         {!selectedVariant && (
           <div className="text-center py-3">
-            <Circle className="size-5 text-stone/20 mx-auto mb-1" />
-            <p className="text-[10px] text-stone/40">Selecciona una talla arriba para ver precios</p>
+            <Circle className="size-5 text-muted/20 mx-auto mb-1" />
+            <p className="text-[10px] text-muted/40">Selecciona una talla arriba para ver precios</p>
           </div>
         )}
       </div>
@@ -377,13 +377,13 @@ function QuoteModal({ items, total, onClose, onRemove, onClear }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white w-full max-w-lg max-h-[80vh] flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between p-4 border-b border-pearl">
+      <div className="bg-elevated w-full max-w-lg max-h-[80vh] flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center gap-2">
             <ShoppingCart className="size-4 text-gold-600" />
-            <h2 className="font-heading text-sm font-semibold text-ebony">Cotización de Insumos</h2>
+            <h2 className="font-heading text-sm font-semibold text-primary">Cotización de Insumos</h2>
           </div>
-          <button onClick={onClose} className="text-stone/40 hover:text-ebony transition-colors">
+          <button onClick={onClose} className="text-muted/40 hover:text-primary transition-colors">
             <X className="size-4" />
           </button>
         </div>
@@ -391,17 +391,17 @@ function QuoteModal({ items, total, onClose, onRemove, onClear }: {
         <div className="flex-1 overflow-y-auto p-4">
           {items.length === 0 ? (
             <div className="text-center py-10">
-              <Package className="size-8 text-stone/20 mx-auto mb-3" />
-              <p className="text-sm text-stone/40">No hay insumos en tu cotización</p>
-              <p className="text-[11px] text-stone/30 mt-1">Selecciona una talla y agrégalo desde la tarjeta del producto</p>
+              <Package className="size-8 text-muted/20 mx-auto mb-3" />
+              <p className="text-sm text-muted/40">No hay insumos en tu cotización</p>
+              <p className="text-[11px] text-muted/30 mt-1">Selecciona una talla y agrégalo desde la tarjeta del producto</p>
             </div>
           ) : (
             <div className="space-y-2">
               {items.map((item) => (
-                <div key={item.id} className="flex items-center justify-between p-3 bg-stone-50 rounded-lg group">
+                <div key={item.id} className="flex items-center justify-between p-3 bg-surface rounded-lg group">
                   <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-medium text-ebony truncate">{typeLabel(item.type)}</p>
-                    <p className="text-[10px] text-stone/50">
+                    <p className="text-[11px] font-medium text-primary truncate">{typeLabel(item.type)}</p>
+                    <p className="text-[10px] text-muted/50">
                       Talla #{item.size} &middot; {item.quantity} und &middot; {formatPrice(item.unitPrice)} c/u
                     </p>
                   </div>
@@ -409,7 +409,7 @@ function QuoteModal({ items, total, onClose, onRemove, onClear }: {
                     <span className="text-[11px] font-semibold text-gold-600 whitespace-nowrap">{formatPrice(item.total)}</span>
                     <button
                       onClick={() => onRemove(item.id)}
-                      className="text-stone/20 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                      className="text-muted/20 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
                     >
                       <Trash2 className="size-3.5" />
                     </button>
@@ -421,15 +421,15 @@ function QuoteModal({ items, total, onClose, onRemove, onClear }: {
         </div>
 
         {items.length > 0 && (
-          <div className="border-t border-pearl p-4 space-y-3">
+          <div className="border-t border-border p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-stone">Total cotización</span>
+              <span className="text-xs text-muted">Total cotización</span>
               <span className="text-lg font-bold text-gold-600">{formatPrice(total)}</span>
             </div>
             <div className="flex gap-2">
               <button
                 onClick={onClear}
-                className="flex-1 py-2.5 text-[11px] font-medium text-stone border border-pearl hover:border-red-300 hover:text-red-600 transition-all rounded"
+                className="flex-1 py-2.5 text-[11px] font-medium text-muted border border-border hover:border-red-300 hover:text-red-600 transition-all rounded"
               >
                 Limpiar todo
               </button>
@@ -460,8 +460,8 @@ function InsumoCard({ product, mode }: { product: InsumoProduct; mode: 'retail' 
   const priceLabel = mode === 'retail' ? 'Precio detal' : 'Precio mayor'
 
   return (
-    <div className="group bg-white border border-pearl hover:border-gold-400/60 transition-all duration-300 flex flex-col">
-      <div className="aspect-square bg-stone-50 flex items-center justify-center p-6 relative overflow-hidden">
+    <div className="group bg-elevated border border-border hover:border-gold-400/60 transition-all duration-300 flex flex-col">
+      <div className="aspect-square bg-surface flex items-center justify-center p-6 relative overflow-hidden">
         {product.image ? (
           <Image
             src={product.image}
@@ -471,7 +471,7 @@ function InsumoCard({ product, mode }: { product: InsumoProduct; mode: 'retail' 
             className="object-contain max-h-full transition-transform duration-500 group-hover:scale-110"
           />
         ) : (
-          <div className="flex flex-col items-center gap-2 text-stone/40">
+          <div className="flex flex-col items-center gap-2 text-muted/40">
             <Package className="size-10" />
             <span className="text-[10px] uppercase tracking-wider">Próximamente</span>
           </div>
@@ -492,24 +492,24 @@ function InsumoCard({ product, mode }: { product: InsumoProduct; mode: 'retail' 
       </div>
 
       <div className="p-4 flex flex-col flex-1">
-        <span className="text-[10px] uppercase tracking-widest text-stone/40 mb-1">
+        <span className="text-[10px] uppercase tracking-widest text-muted/40 mb-1">
           {INSUMO_CATEGORIES.find(c => c.id === product.category)?.label || product.category}
         </span>
-        <h3 className="font-heading text-sm font-medium text-ebony mb-1">{product.name}</h3>
-        <p className="text-[10px] text-stone/50 mb-3">Por {product.unit}</p>
+        <h3 className="font-heading text-sm font-medium text-primary mb-1">{product.name}</h3>
+        <p className="text-[10px] text-muted/50 mb-3">Por {product.unit}</p>
 
         <div className="mt-auto">
           {price !== undefined && (
             <div className="flex items-baseline gap-2">
               <span className="font-semibold text-gold-600 text-lg">{formatPrice(price)}</span>
               {mode === 'retail' && product.wholesalePrice && (
-                <span className="text-[10px] text-stone/40 line-through">{formatPrice(product.wholesalePrice)}</span>
+                <span className="text-[10px] text-muted/40 line-through">{formatPrice(product.wholesalePrice)}</span>
               )}
             </div>
           )}
 
           {mode === 'wholesale' && product.wholesaleMinQty && (
-            <p className="text-[10px] text-stone/50 mt-1">
+            <p className="text-[10px] text-muted/50 mt-1">
               Mín. {product.wholesaleMinQty} {product.unit}(s)
             </p>
           )}

@@ -125,17 +125,17 @@ export function AuthModal() {
     >
       <div
         ref={modalRef}
-        className="bg-white w-full max-w-[400px] p-10 relative animate-in slide-in-from-bottom-4 duration-300 border border-gold-400/20 shadow-2xl"
+        className="bg-elevated w-full max-w-[400px] p-10 relative animate-in slide-in-from-bottom-4 duration-300 border border-gold-400/20 shadow-2xl"
       >
         <button
           onClick={close}
-          className="absolute top-3 right-4 text-silver hover:text-ebony transition-colors"
+          className="absolute top-3 right-4 text-silver hover:text-primary transition-colors"
           aria-label="Cerrar"
         >
           <X className="size-6" />
         </button>
 
-        <h2 className="font-heading text-2xl font-semibold text-center text-ebony tracking-wide mb-1">
+        <h2 className="font-heading text-2xl font-semibold text-center text-primary tracking-wide mb-1">
           {mode === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta'}
         </h2>
         <div className="w-10 h-px bg-gold-400 mx-auto mt-3 mb-8" />
@@ -179,7 +179,7 @@ export function AuthModal() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-[34px] text-silver hover:text-ebony transition-colors"
+              className="absolute right-3 top-[34px] text-silver hover:text-primary transition-colors"
               aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               tabIndex={-1}
             >
@@ -200,7 +200,7 @@ export function AuthModal() {
               <button
                 type="button"
                 onClick={() => setShowConfirm(!showConfirm)}
-                className="absolute right-3 top-[34px] text-silver hover:text-ebony transition-colors"
+                className="absolute right-3 top-[34px] text-silver hover:text-primary transition-colors"
                 aria-label={showConfirm ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                 tabIndex={-1}
               >
@@ -213,7 +213,7 @@ export function AuthModal() {
           </Button>
         </form>
 
-        <p className="text-center text-sm text-stone mt-6">
+        <p className="text-center text-sm text-muted mt-6">
           {mode === 'login' ? (
             <>¿No tienes una cuenta?{' '}
               <button onClick={() => { setMode('register'); setError('') }} className="text-gold-400 font-semibold hover:underline">

@@ -17,7 +17,7 @@ export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivEl
 
 export function ProductCardSkeleton() {
   return (
-    <div className="bg-white border border-black/4">
+    <div className="bg-elevated border border-subtle">
       <Skeleton className="aspect-square" />
       <div className="p-6 space-y-3">
         <Skeleton className="h-5 w-3/4" />

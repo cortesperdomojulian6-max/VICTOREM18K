@@ -150,7 +150,7 @@ function CraftsmanshipSection() {
 
 function ProductsSection() {
   return (
-    <section className="py-20 md:py-28 bg-snow dark:bg-ebony transition-colors duration-500">
+    <section className="py-20 md:py-28 bg-surface dark:bg-ebony transition-colors duration-500">
       <div className="container-main">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -303,7 +303,7 @@ function NewsletterSection() {
   }
 
   return (
-    <section className="relative py-24 md:py-28 overflow-hidden bg-snow dark:bg-ebony">
+    <section className="relative py-24 md:py-28 overflow-hidden bg-surface dark:bg-ebony">
       <div className="container-main">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

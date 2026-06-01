@@ -44,7 +44,7 @@ export function ProductCard({ id, name, description, price, imageUrl, priority, 
   }
 
   return (
-    <article className="group bg-white border border-black/4 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
+    <article className="group bg-elevated border border-subtle transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
       <div className="relative overflow-hidden">
         {imageUrl ? (
           <Image

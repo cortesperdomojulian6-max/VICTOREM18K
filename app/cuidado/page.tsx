@@ -67,7 +67,7 @@ export default function CuidadoPage() {
       <section className="section-padding">
         <div className="container-main">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <p className="text-sm text-stone leading-relaxed">
+            <p className="text-sm text-muted leading-relaxed">
               Cada pieza Victorem es creada con dedicación y los mejores materiales. Para preservar su belleza y garantizar su durabilidad, te compartimos estas recomendaciones esenciales de cuidado y mantenimiento.
             </p>
           </div>
@@ -76,15 +76,15 @@ export default function CuidadoPage() {
             {TIPS.map((tip, i) => (
               <div
                 key={tip.title}
-                className="bg-white p-8 border border-black/4 hover:border-gold-400/25 hover:shadow-md transition-all duration-300 group"
+                className="bg-elevated border border-subtle hover:border-gold-400/25 hover:shadow-md transition-all duration-300 group"
               >
                 <div className="size-12 flex items-center justify-center bg-cream mb-5 group-hover:bg-gold-400/10 transition-colors">
                   <tip.icon className="size-6 text-gold-400" />
                 </div>
-                <h3 className="font-heading text-lg font-medium text-ebony mb-3">
+                <h3 className="font-heading text-lg font-medium text-primary mb-3">
                   {tip.title}
                 </h3>
-                <p className="text-sm text-stone leading-relaxed">
+                <p className="text-sm text-muted leading-relaxed">
                   {tip.description}
                 </p>
               </div>
@@ -92,10 +92,10 @@ export default function CuidadoPage() {
           </div>
 
           <div className="mt-16 p-8 bg-cream border border-gold-400/20 text-center max-w-2xl mx-auto">
-            <h2 className="font-heading text-xl font-medium text-ebony mb-3">
+            <h2 className="font-heading text-xl font-medium text-primary mb-3">
               ¿Necesitas una revisión?
             </h2>
-            <p className="text-sm text-stone mb-5">
+            <p className="text-sm text-muted mb-5">
               Si tu joya necesita mantenimiento o reparación, contáctanos y con gusto la revisaremos. Ofrecemos servicio de mantenimiento para todas nuestras piezas.
             </p>
             <a

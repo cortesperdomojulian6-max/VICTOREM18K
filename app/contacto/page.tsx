@@ -83,7 +83,7 @@ export default function ContactoPage() {
 
           <div className="space-y-8">
             <div>
-              <h2 className="font-heading text-xl font-semibold text-ebony mb-6">
+              <h2 className="font-heading text-xl font-semibold text-primary mb-6">
                 Información de Contacto
               </h2>
               <div className="space-y-5">
@@ -96,8 +96,8 @@ export default function ContactoPage() {
                   <div key={item.label} className="flex items-start gap-4">
                     <item.icon className="size-5 text-gold-400 shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-xs font-semibold text-stone uppercase tracking-wider">{item.label}</p>
-                      <p className="text-sm text-ebony mt-0.5">{item.value}</p>
+                      <p className="text-xs font-semibold text-muted uppercase tracking-wider">{item.label}</p>
+                      <p className="text-sm text-primary mt-0.5">{item.value}</p>
                     </div>
                   </div>
                 ))}

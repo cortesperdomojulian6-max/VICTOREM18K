@@ -177,13 +177,13 @@ export default function AdminPage() {
       </div>
 
       <div className="container-main py-10">
-        <div className="flex gap-1 mb-10 border-b border-pearl">
+        <div className="flex gap-1 mb-10 border-b border-border">
           {TABS.map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
               className={`flex items-center gap-2 px-5 py-3 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 -mb-px ${
-                tab === t.key ? 'border-gold-400 text-gold-400' : 'border-transparent text-stone hover:text-ebony'
+                tab === t.key ? 'border-gold-400 text-gold-400' : 'border-transparent text-muted hover:text-primary'
               }`}
             >
               <t.icon className="size-4" /> {t.label}
@@ -202,11 +202,11 @@ export default function AdminPage() {
                   { icon: DollarSign, label: 'Ingresos', value: formatPrice(stats.ingresos) },
                 ].map((card, i) => (
                   <motion.div key={card.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                    className="bg-white p-6 border border-black/4"
+                    className="bg-elevated p-6 border border-subtle"
                   >
                     <card.icon className="size-8 text-gold-400 mb-3" />
-                    <p className="text-2xl font-heading font-semibold text-ebony">{card.value}</p>
-                    <p className="text-xs text-stone uppercase tracking-wider mt-1">{card.label}</p>
+                    <p className="text-2xl font-heading font-semibold text-primary">{card.value}</p>
+                    <p className="text-xs text-muted uppercase tracking-wider mt-1">{card.label}</p>
                   </motion.div>
                 ))}
               </div>
@@ -216,38 +216,38 @@ export default function AdminPage() {
               <div>
                 <div className="flex items-center justify-between mb-6">
                   <div className="relative flex-1 max-w-xs">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-stone" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted" />
                     <input
                       type="text" placeholder="Buscar productos..." value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-9 pr-4 py-2.5 border border-pearl text-sm focus:outline-none focus:border-gold-400"
+                      className="w-full pl-9 pr-4 py-2.5 border border-border text-sm focus:outline-none focus:border-gold-400"
                     />
                   </div>
                   <ButtonAdd onClick={() => openProductForm()} />
                 </div>
 
-                <div className="bg-white border border-black/4 overflow-x-auto">
+                <div className="bg-elevated border border-subtle overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-pearl/50 bg-snow">
-                        <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-stone">Producto</th>
-                        <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-stone">Precio</th>
-                        <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-stone">Stock</th>
-                        <th className="text-right px-4 py-3 text-xs font-semibold uppercase tracking-wider text-stone">Acciones</th>
+                      <tr className="border-b border-border/50 bg-surface">
+                        <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Producto</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Precio</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Stock</th>
+                        <th className="text-right px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredProducts.map((p) => (
-                        <tr key={p.id} className="border-b border-pearl/30 hover:bg-snow/50 transition-colors">
+                        <tr key={p.id} className="border-b border-border/30 hover:bg-surface/50 transition-colors">
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-3">
-                              <div className="size-10 bg-cream flex items-center justify-center text-xs text-stone overflow-hidden">
+                              <div className="size-10 bg-hover flex items-center justify-center text-xs text-muted overflow-hidden">
                                 {p.image_url ? <img src={productImageUrl(p.image_url) ?? undefined} alt="" className="size-full object-cover" /> : <Package className="size-5" />}
                               </div>
-                              <span className="font-medium text-ebony">{p.name}</span>
+                              <span className="font-medium text-primary">{p.name}</span>
                             </div>
                           </td>
-                          <td className="px-4 py-3 text-stone">{formatPrice(Number(p.price))}</td>
+                          <td className="px-4 py-3 text-muted">{formatPrice(Number(p.price))}</td>
                           <td className="px-4 py-3">
                             <span className={`px-2 py-0.5 text-xs font-medium ${p.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                               {p.stock}
@@ -264,7 +264,7 @@ export default function AdminPage() {
                         </tr>
                       ))}
                       {filteredProducts.length === 0 && (
-                        <tr><td colSpan={4} className="px-4 py-12 text-center text-stone text-sm">No hay productos</td></tr>
+                        <tr><td colSpan={4} className="px-4 py-12 text-center text-muted text-sm">No hay productos</td></tr>
                       )}
                   </tbody>
                 </table>
@@ -273,24 +273,24 @@ export default function AdminPage() {
             )}
 
             {tab === 'orders' && (
-              <div className="bg-white border border-black/4 overflow-x-auto">
+              <div className="bg-elevated border border-subtle overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-pearl/50 bg-snow">
-                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-stone">Pedido</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-stone">Cliente</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-stone">Total</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-stone">Estado</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-stone">Fecha</th>
+                    <tr className="border-b border-border/50 bg-surface">
+                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Pedido</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Cliente</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Total</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Estado</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Fecha</th>
                     </tr>
                   </thead>
                   <tbody>
                     {orders.map((o) => (
-                      <tr key={o.id} className="border-b border-pearl/30 hover:bg-snow/50 transition-colors">
-                        <td className="px-4 py-3 font-mono text-xs text-stone">#{o.numero_pedido}</td>
+                      <tr key={o.id} className="border-b border-border/30 hover:bg-surface/50 transition-colors">
+                        <td className="px-4 py-3 font-mono text-xs text-muted">#{o.numero_pedido}</td>
                         <td className="px-4 py-3">
-                          <p className="font-medium text-ebony">{o.user_name}</p>
-                          <p className="text-xs text-stone">{o.user_email}</p>
+                          <p className="font-medium text-primary">{o.user_name}</p>
+                          <p className="text-xs text-muted">{o.user_email}</p>
                         </td>
                         <td className="px-4 py-3 font-heading font-semibold text-gold-400">{formatPrice(Number(o.total))}</td>
                         <td className="px-4 py-3">
@@ -298,18 +298,18 @@ export default function AdminPage() {
                             value={o.estado}
                             onChange={(e) => handleUpdateStatus(o.id, e.target.value)}
                             disabled={updatingOrder === o.id}
-                            className={`text-xs font-semibold px-2 py-1 border-none cursor-pointer ${STATUS_COLORS[o.estado] || 'bg-pearl text-stone'}`}
+                            className={`text-xs font-semibold px-2 py-1 border-none cursor-pointer ${STATUS_COLORS[o.estado] || 'bg-pearl text-muted'}`}
                           >
                             {[...STATUS_FLOW, 'cancelado'].map((s) => (
                               <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
                             ))}
                           </select>
                         </td>
-                        <td className="px-4 py-3 text-xs text-stone">{new Date(o.fecha).toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: 'numeric' })}</td>
+                        <td className="px-4 py-3 text-xs text-muted">{new Date(o.fecha).toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: 'numeric' })}</td>
                       </tr>
                     ))}
                     {orders.length === 0 && (
-                      <tr><td colSpan={5} className="px-4 py-12 text-center text-stone text-sm">No hay pedidos</td></tr>
+                      <tr><td colSpan={5} className="px-4 py-12 text-center text-muted text-sm">No hay pedidos</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -317,36 +317,36 @@ export default function AdminPage() {
             )}
 
             {tab === 'users' && (
-              <div className="bg-white border border-black/4">
-                <div className="flex items-center justify-between p-4 pb-3 border-b border-pearl">
-                  <h2 className="font-heading text-lg font-medium text-ebony">Usuarios Registrados</h2>
-                  <span className="text-xs text-stone">{users.length} usuarios</span>
+              <div className="bg-elevated border border-subtle">
+                <div className="flex items-center justify-between p-4 pb-3 border-b border-border">
+                  <h2 className="font-heading text-lg font-medium text-primary">Usuarios Registrados</h2>
+                  <span className="text-xs text-muted">{users.length} usuarios</span>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-pearl/50">
-                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-stone">ID</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-stone">Nombre</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-stone">Email</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-stone">Registro</th>
-                      <th className="text-right px-4 py-3 text-xs font-semibold uppercase tracking-wider text-stone">Acciones</th>
+                    <tr className="border-b border-border/50">
+                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">ID</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Nombre</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Email</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Registro</th>
+                      <th className="text-right px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
                     {users.map((user) => (
-                      <tr key={user.id} className="border-b border-pearl/30 hover:bg-snow/50 transition-colors">
-                        <td className="px-4 py-3 text-stone font-mono text-xs">#{user.id}</td>
+                      <tr key={user.id} className="border-b border-border/30 hover:bg-surface/50 transition-colors">
+                        <td className="px-4 py-3 text-muted font-mono text-xs">#{user.id}</td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
                             <span className="size-8 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 text-ebony font-bold text-xs flex items-center justify-center shrink-0">
                               {user.name.charAt(0).toUpperCase()}
                             </span>
-                            <span className="font-medium text-ebony">{user.name}</span>
+                            <span className="font-medium text-primary">{user.name}</span>
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-stone">{user.email}</td>
-                        <td className="px-4 py-3 text-stone text-xs">
+                        <td className="px-4 py-3 text-muted">{user.email}</td>
+                        <td className="px-4 py-3 text-muted text-xs">
                           {new Date(user.registration_date).toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: 'numeric' })}
                         </td>
                         <td className="px-4 py-3 text-right">
@@ -360,7 +360,7 @@ export default function AdminPage() {
                       </tr>
                     ))}
                     {users.length === 0 && (
-                      <tr><td colSpan={5} className="px-4 py-12 text-center text-stone text-sm">No hay usuarios</td></tr>
+                      <tr><td colSpan={5} className="px-4 py-12 text-center text-muted text-sm">No hay usuarios</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -378,13 +378,13 @@ export default function AdminPage() {
             onClick={(e) => { if (e.target === e.currentTarget) setShowProductModal(false) }}
           >
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white w-full max-w-lg p-8 mx-4 border border-gold-400/20 shadow-2xl"
+              className="bg-elevated w-full max-w-lg p-8 mx-4 border border-gold-400/20 shadow-2xl"
             >
               <div className="flex items-center justify-between mb-6">
-                <h3 className="font-heading text-xl font-semibold text-ebony">
+                <h3 className="font-heading text-xl font-semibold text-primary">
                   {editingProduct ? 'Editar Producto' : 'Nuevo Producto'}
                 </h3>
-                <button onClick={() => setShowProductModal(false)} className="text-silver hover:text-ebony transition-colors">
+                <button onClick={() => setShowProductModal(false)} className="text-silver hover:text-primary transition-colors">
                   <X className="size-5" />
                 </button>
               </div>
@@ -392,29 +392,29 @@ export default function AdminPage() {
                 <div>
                   <label className="block text-xs font-medium text-iron tracking-wide mb-1">Nombre</label>
                   <input value={productForm.name} onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
-                    className="w-full px-3.5 py-3 border border-pearl text-sm focus:outline-none focus:border-gold-400" />
+                    className="w-full px-3.5 py-3 border border-border text-sm focus:outline-none focus:border-gold-400" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-iron tracking-wide mb-1">Descripción</label>
                   <textarea value={productForm.description} onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
-                    className="w-full px-3.5 py-3 border border-pearl text-sm focus:outline-none focus:border-gold-400 min-h-[80px]" />
+                    className="w-full px-3.5 py-3 border border-border text-sm focus:outline-none focus:border-gold-400 min-h-[80px]" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-medium text-iron tracking-wide mb-1">Precio</label>
                     <input type="number" value={productForm.price} onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
-                      className="w-full px-3.5 py-3 border border-pearl text-sm focus:outline-none focus:border-gold-400" />
+                      className="w-full px-3.5 py-3 border border-border text-sm focus:outline-none focus:border-gold-400" />
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-iron tracking-wide mb-1">Stock</label>
                     <input type="number" value={productForm.stock} onChange={(e) => setProductForm({ ...productForm, stock: Number(e.target.value) })}
-                      className="w-full px-3.5 py-3 border border-pearl text-sm focus:outline-none focus:border-gold-400" />
+                      className="w-full px-3.5 py-3 border border-border text-sm focus:outline-none focus:border-gold-400" />
                   </div>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-iron tracking-wide mb-1">Categoría</label>
                   <select value={productForm.category_id} onChange={(e) => setProductForm({ ...productForm, category_id: e.target.value })}
-                    className="w-full px-3.5 py-3 border border-pearl text-sm focus:outline-none focus:border-gold-400 bg-white">
+                    className="w-full px-3.5 py-3 border border-border text-sm focus:outline-none focus:border-gold-400 bg-elevated">
                     <option value="">Seleccionar categoría...</option>
                     {categories.map((c) => (
                       <option key={c.id} value={c.id}>{c.name}</option>
@@ -427,7 +427,7 @@ export default function AdminPage() {
                     <div className="flex-1">
                       <input value={productForm.image_url} onChange={(e) => setProductForm({ ...productForm, image_url: e.target.value })}
                         placeholder="URL de imagen..."
-                        className="w-full px-3.5 py-3 border border-pearl text-sm focus:outline-none focus:border-gold-400" />
+                        className="w-full px-3.5 py-3 border border-border text-sm focus:outline-none focus:border-gold-400" />
                     </div>
                     <label className="shrink-0 flex items-center gap-2 px-4 py-3 text-xs font-semibold uppercase tracking-wider bg-ebony text-white hover:bg-ebony/80 cursor-pointer transition-colors">
                       <Plus className="size-4" /> Subir
@@ -448,13 +448,13 @@ export default function AdminPage() {
                     </label>
                   </div>
                   {productForm.image_url && (
-                    <img src={productImageUrl(productForm.image_url) ?? undefined} alt="Preview" className="mt-2 h-24 w-24 object-cover border border-pearl" />
+                    <img src={productImageUrl(productForm.image_url) ?? undefined} alt="Preview" className="mt-2 h-24 w-24 object-cover border border-border" />
                   )}
                 </div>
               </div>
               <div className="flex gap-3 mt-8 justify-end">
                 <button onClick={() => setShowProductModal(false)}
-                  className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-stone hover:text-ebony transition-colors">
+                  className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted hover:text-primary transition-colors">
                   Cancelar
                 </button>
                 <button onClick={handleSaveProduct}

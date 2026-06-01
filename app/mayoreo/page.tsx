@@ -83,7 +83,7 @@ export default function MayoreoPage() {
           </div>
         ) : filtered.length > 0 ? (
           <>
-            <p className="text-xs text-stone/60 mb-6">{filtered.length} producto{filtered.length !== 1 ? 's' : ''}</p>
+            <p className="text-xs text-muted/60 mb-6">{filtered.length} producto{filtered.length !== 1 ? 's' : ''}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
               {filtered.map((product, i) => (
                 <motion.div
@@ -109,7 +109,7 @@ export default function MayoreoPage() {
         ) : (
           <div className="text-center py-20">
             <SlidersHorizontal className="size-12 text-pearl mx-auto mb-4" />
-            <h2 className="font-heading text-xl font-medium text-ebony mb-2">
+            <h2 className="font-heading text-xl font-medium text-primary mb-2">
               {search ? `No encontramos insumos para "${search}"` : 'No encontramos insumos'}
             </h2>
             <button

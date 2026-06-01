@@ -194,7 +194,7 @@ export default function PersonalizacionPage() {
             <div className={`size-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
               i < current ? 'bg-gold-400 text-ebony' :
               i === current ? 'bg-ebony text-white' :
-              'bg-pearl text-stone'
+              'bg-pearl text-muted'
             }`}>
               {i < current ? <Check className="size-4" /> : i + 1}
             </div>
@@ -218,7 +218,7 @@ export default function PersonalizacionPage() {
           <button
             onClick={() => setView3d(!view3d)}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-[10px] uppercase tracking-widest border transition-all ${
-              view3d ? 'border-gold-400 bg-gold-400/10 text-gold-600 font-semibold' : 'border-pearl text-stone hover:border-gold-400'
+              view3d ? 'border-gold-400 bg-gold-400/10 text-gold-600 font-semibold' : 'border-border text-muted hover:border-gold-400'
             }`}
           >
             {view3d ? <EyeOff className="size-3" /> : <Eye className="size-3" />}
@@ -253,8 +253,8 @@ export default function PersonalizacionPage() {
             <PreviewBlock onItemClick={removeItem} />
             <div className="space-y-6">
               <div className="text-center mb-8">
-                <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-2">Configura tu Secuencia</p>
-                <p className="text-sm text-stone/60 font-light">Arrastra para reordenar, haz clic en un elemento para eliminarlo. Usa los + para insertar entre balines.</p>
+                <p className="text-xs text-muted font-semibold uppercase tracking-wider mb-2">Configura tu Secuencia</p>
+                <p className="text-sm text-muted/60 font-light">Arrastra para reordenar, haz clic en un elemento para eliminarlo. Usa los + para insertar entre balines.</p>
               </div>
 
               <div className="flex flex-wrap justify-center gap-3 mb-8">
@@ -263,7 +263,7 @@ export default function PersonalizacionPage() {
                     key={t}
                     onClick={() => setDefaultBalinType(t)}
                     className={`px-4 py-2 text-xs uppercase tracking-widest border transition-all ${
-                      defaultBalinType === t ? 'border-gold-400 bg-gold-400/10 text-gold-600 font-bold' : 'border-pearl text-stone hover:border-gold-400'
+                      defaultBalinType === t ? 'border-gold-400 bg-gold-400/10 text-gold-600 font-bold' : 'border-border text-muted hover:border-gold-400'
                     }`}
                   >
                     Predet: {t === 'liso' ? 'Lisos' : 'Diamantados'}
@@ -280,12 +280,12 @@ export default function PersonalizacionPage() {
                     <Plus className="size-3.5 mr-1.5" /> Neopreno
                   </Button>
                   <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 hidden group-hover:block z-20">
-                    <div className="bg-white shadow-xl border border-black/6 p-3 grid grid-cols-4 gap-2 min-w-[200px]">
+                    <div className="bg-elevated shadow-xl border border-subtle p-3 grid grid-cols-4 gap-2 min-w-[200px]">
                       {NEOPRENO_COLORS.map((n) => (
                         <button
                           key={n.color}
                           onClick={() => addNeopreno(n.color, n.label)}
-                          className="flex flex-col items-center gap-1 p-2 hover:bg-stone-50 transition-colors rounded"
+                          className="flex flex-col items-center gap-1 p-2 hover:bg-surface transition-colors rounded"
                           title={n.label}
                         >
                           {n.image ? (
@@ -293,7 +293,7 @@ export default function PersonalizacionPage() {
                           ) : (
                             <div className="size-6 rounded-sm border border-black/10" style={{ backgroundColor: n.color }} />
                           )}
-                          <span className="text-[10px] text-stone">{n.label}</span>
+                          <span className="text-[10px] text-muted">{n.label}</span>
                         </button>
                       ))}
                     </div>
@@ -306,14 +306,14 @@ export default function PersonalizacionPage() {
 
               {showDijeGrid && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setShowDijeGrid(false)}>
-                  <div className="bg-white p-6 rounded-xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+                  <div className="bg-elevated p-6 rounded-xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-heading text-lg font-medium text-ebony">Selecciona un Dije</h3>
-                      <button onClick={() => setShowDijeGrid(false)} className="p-1 hover:bg-stone-100 rounded-full transition-colors">
-                        <X className="size-4 text-stone" />
+                      <h3 className="font-heading text-lg font-medium text-primary">Selecciona un Dije</h3>
+                      <button onClick={() => setShowDijeGrid(false)} className="p-1 hover:bg-hover rounded-full transition-colors">
+                        <X className="size-4 text-muted" />
                       </button>
                     </div>
-                    <p className="text-xs text-stone mb-4">
+                    <p className="text-xs text-muted mb-4">
                       El dije se agregará al final de la secuencia. Luego puedes reordenarlo arrastrando.
                     </p>
                     <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
@@ -321,11 +321,11 @@ export default function PersonalizacionPage() {
                         <button
                           key={d.id}
                           onClick={() => addDijon(d.id)}
-                          className="flex flex-col items-center gap-1.5 p-3 hover:bg-stone-50 transition-colors rounded-lg border border-pearl hover:border-gold-400"
+                          className="flex flex-col items-center gap-1.5 p-3 hover:bg-surface transition-colors rounded-lg border border-border hover:border-gold-400"
                           title={d.label}
                         >
                           <Image src={d.image} alt={d.label} width={48} height={48} className="shrink-0" />
-                          <span className="text-[10px] text-stone text-center leading-tight">{d.label}</span>
+                          <span className="text-[10px] text-muted text-center leading-tight">{d.label}</span>
                         </button>
                       ))}
                     </div>
@@ -335,8 +335,8 @@ export default function PersonalizacionPage() {
 
               <div className="space-y-2 max-h-[360px] overflow-y-auto px-2">
                 {sequence.length === 0 && (
-                  <div className="py-12 text-center border-2 border-dashed border-pearl rounded-xl">
-                    <p className="text-stone text-sm italic">Secuencia vacía. Agrega balines y neoprenos.</p>
+                  <div className="py-12 text-center border-2 border-dashed border-border rounded-xl">
+                    <p className="text-muted text-sm italic">Secuencia vacía. Agrega balines y neoprenos.</p>
                   </div>
                 )}
                 {sequence.map((item, i) => (
@@ -346,11 +346,11 @@ export default function PersonalizacionPage() {
                     onDragStart={() => handleDragStart(i)}
                     onDragOver={(e) => handleDragOver(e, i)}
                     onDragEnd={handleDragEnd}
-                    className={`flex items-center gap-3 bg-white border border-pearl p-3 rounded-lg transition-all hover:border-gold-400/50 ${
+                    className={`flex items-center gap-3 bg-elevated border border-border p-3 rounded-lg transition-all hover:border-gold-400/50 ${
                       dragIndex === i ? 'opacity-50 border-gold-400' : ''
                     }`}
                   >
-                    <div className="cursor-grab active:cursor-grabbing text-stone hover:text-gold-600 transition-colors">
+                    <div className="cursor-grab active:cursor-grabbing text-muted hover:text-gold-600 transition-colors">
                       <GripVertical className="size-4" />
                     </div>
 
@@ -364,12 +364,12 @@ export default function PersonalizacionPage() {
                           className="shrink-0"
                         />
                         <div className="flex-1 min-w-0">
-                          <span className="text-xs font-semibold text-ebony uppercase">Balín #{i + 1}</span>
+                          <span className="text-xs font-semibold text-primary uppercase">Balín #{i + 1}</span>
                           <div className="flex gap-2 mt-1">
                             <select
                               value={item.type}
                               onChange={(e) => updateBalin(i, 'type', e.target.value)}
-                              className="text-[11px] p-1 bg-stone-50 border border-pearl rounded outline-none focus:border-gold-400"
+                              className="text-[11px] p-1 bg-surface border border-border rounded outline-none focus:border-gold-400"
                             >
                               <option value="liso">Liso</option>
                               <option value="diamantado">Diamantado</option>
@@ -377,7 +377,7 @@ export default function PersonalizacionPage() {
                             <select
                               value={item.size}
                               onChange={(e) => updateBalin(i, 'size', e.target.value)}
-                              className="text-[11px] p-1 bg-stone-50 border border-pearl rounded outline-none focus:border-gold-400"
+                              className="text-[11px] p-1 bg-surface border border-border rounded outline-none focus:border-gold-400"
                             >
                               <option value="small">Pequeño</option>
                               <option value="medium">Medio</option>
@@ -390,23 +390,23 @@ export default function PersonalizacionPage() {
                       <>
                         <Image src={item.image} alt={item.label} width={32} height={32} className="shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <span className="text-xs font-semibold text-ebony uppercase">Dije #{i + 1}</span>
-                          <p className="text-[11px] text-stone">{item.label}</p>
+                          <span className="text-xs font-semibold text-primary uppercase">Dije #{i + 1}</span>
+                          <p className="text-[11px] text-muted">{item.label}</p>
                         </div>
                       </>
                     ) : (
                       <>
                         <Image src={getNeoprenoImage(item.color)!} alt={item.label} width={32} height={16} className="shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <span className="text-xs font-semibold text-ebony uppercase">Neopreno #{i + 1}</span>
-                          <p className="text-[11px] text-stone">{item.label}</p>
+                          <span className="text-xs font-semibold text-primary uppercase">Neopreno #{i + 1}</span>
+                          <p className="text-[11px] text-muted">{item.label}</p>
                         </div>
                       </>
                     )}
 
                     <button
                       onClick={() => removeItem(i)}
-                      className="p-1 rounded-full hover:bg-red-50 text-stone hover:text-red-500 transition-colors shrink-0"
+                      className="p-1 rounded-full hover:bg-red-50 text-muted hover:text-red-500 transition-colors shrink-0"
                     >
                       <X className="size-3.5" />
                     </button>
@@ -422,7 +422,7 @@ export default function PersonalizacionPage() {
           <div className="space-y-8">
             <PreviewBlock />
             <div className="text-center">
-              <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Selecciona tu producto base del catálogo</p>
+              <p className="text-xs text-muted font-semibold uppercase tracking-wider mb-6">Selecciona tu producto base del catálogo</p>
               {loadingProducts ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="animate-spin rounded-full size-8 border-b-2 border-gold-400" />
@@ -440,18 +440,18 @@ export default function PersonalizacionPage() {
                           className={`p-3 border-2 text-center transition-all ${
                             isSelected
                               ? 'border-gold-400 bg-gold-400/5 shadow-md ring-1 ring-gold-400/30'
-                              : 'border-pearl hover:border-gold-300 bg-white'
+                              : 'border-border hover:border-gold-300 bg-elevated'
                           }`}
                         >
-                          <div className="aspect-square mb-2 flex items-center justify-center bg-stone-50 overflow-hidden">
+                          <div className="aspect-square mb-2 flex items-center justify-center bg-surface overflow-hidden">
                             {imgUrl ? (
                               <Image src={imgUrl} alt={product.name} width={100} height={100} className="w-full h-full object-contain p-1" />
                             ) : (
-                              <Sparkles className="size-6 text-stone" />
+                              <Sparkles className="size-6 text-muted" />
                             )}
                           </div>
-                          <span className="block text-xs font-medium text-ebony leading-tight line-clamp-2">{product.name}</span>
-                          <span className="block text-[11px] text-stone mt-0.5">{formatPrice(Number(product.price))}</span>
+                          <span className="block text-xs font-medium text-primary leading-tight line-clamp-2">{product.name}</span>
+                          <span className="block text-[11px] text-muted mt-0.5">{formatPrice(Number(product.price))}</span>
                           {isSelected && (
                             <span className="block mt-1 text-[10px] text-gold-400 font-semibold">Seleccionado</span>
                           )}
@@ -462,7 +462,7 @@ export default function PersonalizacionPage() {
                   <div className="mt-6 text-center">
                     <button
                       onClick={() => { setJewelType('pulsera'); setColor('#d4af37') }}
-                      className="text-xs text-stone hover:text-ebony underline underline-offset-2 transition-colors"
+                      className="text-xs text-muted hover:text-primary underline underline-offset-2 transition-colors"
                     >
                       O empezar desde cero sin producto base
                     </button>
@@ -478,25 +478,25 @@ export default function PersonalizacionPage() {
           <div className="space-y-8">
             <PreviewBlock />
             <div className="text-center">
-              <p className="text-xs text-stone font-semibold uppercase tracking-wider mb-6">Selecciona el color del metal</p>
+              <p className="text-xs text-muted font-semibold uppercase tracking-wider mb-6">Selecciona el color del metal</p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {COLORS.map((c) => (
                   <button
                     key={c.name}
                     onClick={() => setColor(c.value)}
                     className={`p-6 border-2 text-center transition-all ${
-                      color === c.value ? 'border-gold-400 bg-gold-400/5 shadow-md ring-1 ring-gold-400/30' : 'border-pearl hover:border-gold-400 bg-white'
+                      color === c.value ? 'border-gold-400 bg-gold-400/5 shadow-md ring-1 ring-gold-400/30' : 'border-border hover:border-gold-400 bg-elevated'
                     }`}
                   >
                     <div className="size-12 rounded-full mx-auto mb-3 border-2 border-white shadow-sm" style={{ backgroundColor: c.value }} />
-                    <span className="block font-heading text-base font-medium text-ebony">{c.label}</span>
+                    <span className="block font-heading text-base font-medium text-primary">{c.label}</span>
                     {color === c.value && (
                       <span className="block mt-1 text-[10px] text-gold-400 font-semibold">Seleccionado</span>
                     )}
                   </button>
                 ))}
               </div>
-              <p className="text-xs text-stone/50 mt-6 italic">
+              <p className="text-xs text-muted/50 mt-6 italic">
                 Los balines se mostrarán en el color seleccionado
               </p>
             </div>
@@ -507,19 +507,19 @@ export default function PersonalizacionPage() {
         return (
           <div className="space-y-8">
             <PreviewBlock />
-            <div className="bg-white p-8 border border-black/4">
+            <div className="bg-elevated p-8 border border-subtle">
               {descLoading ? (
                 <div className="animate-pulse mb-6">
                   <div className="h-4 bg-pearl/60 w-full rounded" />
                   <div className="h-4 bg-pearl/40 w-3/4 rounded mt-2" />
                 </div>
               ) : description ? (
-                <p className="text-sm text-stone/80 italic leading-relaxed mb-6 pb-4 border-b border-gold-400/20">
+                <p className="text-sm text-muted/80 italic leading-relaxed mb-6 pb-4 border-b border-gold-400/20">
                   &ldquo;{description}&rdquo;
                 </p>
               ) : null}
 
-              <h3 className="font-heading text-xl font-medium text-ebony mb-6 pb-3 border-b border-gold-400/30">
+              <h3 className="font-heading text-xl font-medium text-primary mb-6 pb-3 border-b border-gold-400/30">
                 Resumen de tu joya personalizada
               </h3>
               <div className="space-y-4">
@@ -529,11 +529,11 @@ export default function PersonalizacionPage() {
                   ['Composición', sequenceDescription(sequence)],
                 ].map(([label, value]) => (
                   <div key={label} className="flex justify-between text-sm">
-                    <span className="text-stone">{label}</span>
-                    <span className="font-medium text-ebony">{value}</span>
+                    <span className="text-muted">{label}</span>
+                    <span className="font-medium text-primary">{value}</span>
                   </div>
                 ))}
-                <hr className="border-pearl" />
+                <hr className="border-border" />
                 {[
                   [`Base (${jewelType === 'pulsera' ? 'Pulsera' : 'Anillo'})`, formatPrice(basePrice)],
                   [`Balines (${sequence.filter(s => s.kind === 'balin').length})`, `+${formatPrice(balinTotal)}`],
@@ -541,11 +541,11 @@ export default function PersonalizacionPage() {
                   ...(dijonTotal > 0 ? [[`Dijones (${sequence.filter(s => s.kind === 'dijon').length})`, `+${formatPrice(dijonTotal)}`]] : []),
                 ].map(([label, value]) => (
                   <div key={label as string} className="flex justify-between text-sm">
-                    <span className="text-stone">{label as string}</span>
-                    <span className="font-medium text-ebony">{value as string}</span>
+                    <span className="text-muted">{label as string}</span>
+                    <span className="font-medium text-primary">{value as string}</span>
                   </div>
                 ))}
-                <hr className="border-pearl" />
+                <hr className="border-border" />
                 <div className="flex justify-between font-heading text-xl font-semibold text-gold-400">
                   <span>Total</span>
                   <span>{formatPrice(total)}</span>

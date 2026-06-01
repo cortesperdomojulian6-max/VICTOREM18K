@@ -70,12 +70,12 @@ export default function PoliticasPage() {
           <div className="space-y-16">
             {SECTIONS.map((section) => (
               <div key={section.title}>
-                <h2 className="font-heading text-2xl font-medium text-ebony mb-6 pb-3 border-b border-gold-400/30">
+                <h2 className="font-heading text-2xl font-medium text-primary mb-6 pb-3 border-b border-gold-400/30">
                   {section.title}
                 </h2>
                 <div className="space-y-4">
                   {section.content.map((paragraph, i) => (
-                    <p key={i} className="text-sm text-stone leading-relaxed">
+                    <p key={i} className="text-sm text-muted leading-relaxed">
                       {paragraph}
                     </p>
                   ))}
@@ -85,19 +85,19 @@ export default function PoliticasPage() {
           </div>
 
           <div className="mt-16 p-8 bg-cream border border-gold-400/20">
-            <h3 className="font-heading text-lg font-medium text-ebony mb-3">
+            <h3 className="font-heading text-lg font-medium text-primary mb-3">
               Contacto para temas legales
             </h3>
-            <p className="text-sm text-stone mb-1">
+            <p className="text-sm text-muted mb-1">
               Si tienes preguntas sobre nuestras políticas o deseas ejercer tus derechos de protección de datos, contáctanos:
             </p>
-            <p className="text-sm text-ebony mt-3">
+            <p className="text-sm text-primary mt-3">
               <strong>Email:</strong> info@victorem.co
             </p>
-            <p className="text-sm text-ebony">
+            <p className="text-sm text-primary">
               <strong>Dirección:</strong> Calle 20 #9-59, Campoalegre, Huila
             </p>
-            <p className="text-sm text-ebony">
+            <p className="text-sm text-primary">
               <strong>Teléfono:</strong> +57 310 787 5531
             </p>
           </div>

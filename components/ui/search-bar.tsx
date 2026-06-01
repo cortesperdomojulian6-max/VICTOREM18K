@@ -81,7 +81,7 @@ export function SearchBar({ initialValue = '', onSearch, placeholder = "Buscar j
   return (
     <div ref={wrapperRef} className="relative flex-1 w-full z-40">
       <div className="relative">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-stone" />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted" />
         <input
           type="text"
           value={query}
@@ -89,7 +89,7 @@ export function SearchBar({ initialValue = '', onSearch, placeholder = "Buscar j
           onKeyDown={handleKeyDown}
           onFocus={() => { if (query.length >= 2 && results.length > 0) setIsOpen(true) }}
           placeholder={placeholder}
-          className="w-full pl-10 pr-10 py-3 border border-pearl bg-white text-sm text-iron placeholder:text-stone/50 focus:outline-none focus:border-gold-400 focus:shadow-[0_0_0_3px_rgba(212,175,55,0.08)] transition-all"
+          className="w-full pl-10 pr-10 py-3 border border-border bg-elevated text-sm text-iron placeholder:text-muted/50 focus:outline-none focus:border-gold-400 focus:shadow-[0_0_0_3px_rgba(212,175,55,0.08)] transition-all"
         />
         {query && (
           <button 
@@ -101,30 +101,30 @@ export function SearchBar({ initialValue = '', onSearch, placeholder = "Buscar j
             }}
             className="absolute right-3.5 top-1/2 -translate-y-1/2"
           >
-            <X className="size-4 text-stone/50 hover:text-stone transition-colors" />
+            <X className="size-4 text-muted/50 hover:text-muted transition-colors" />
           </button>
         )}
       </div>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-pearl shadow-xl max-h-[400px] overflow-y-auto animate-in fade-in slide-in-from-top-2">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-elevated border border-border shadow-xl max-h-[400px] overflow-y-auto animate-in fade-in slide-in-from-top-2">
           {loading ? (
-            <div className="flex items-center justify-center p-6 text-stone/50">
+            <div className="flex items-center justify-center p-6 text-muted/50">
               <Loader2 className="size-5 animate-spin mr-2" />
               <span className="text-sm">Buscando...</span>
             </div>
           ) : results.length > 0 ? (
             <div className="py-2">
-              <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-stone/50 border-b border-pearl/50">
+              <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-muted/50 border-b border-border/50">
                   Sugerencias
               </div>
               {results.map((product) => (
                 <button
                   key={product.id}
                   onClick={() => handleSelectProduct(product)}
-                  className="w-full flex items-center gap-4 px-4 py-3 hover:bg-stone-50 transition-colors border-b border-pearl/20 last:border-0 text-left"
+                  className="w-full flex items-center gap-4 px-4 py-3 hover:bg-surface transition-colors border-b border-border/20 last:border-0 text-left"
                 >
-                  <div className="size-12 rounded-sm bg-stone-50 overflow-hidden shrink-0">
+                  <div className="size-12 rounded-sm bg-surface overflow-hidden shrink-0">
                     <img 
                       src={productImageUrl(product.image_url) ?? undefined} 
                       alt={product.name}
@@ -132,8 +132,8 @@ export function SearchBar({ initialValue = '', onSearch, placeholder = "Buscar j
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-medium text-ebony truncate">{product.name}</h4>
-                    <p className="text-xs text-stone truncate">{product.category}</p>
+                    <h4 className="text-sm font-medium text-primary truncate">{product.name}</h4>
+                    <p className="text-xs text-muted truncate">{product.category}</p>
                   </div>
                   <div className="text-sm font-semibold text-gold-600 shrink-0">
                     {formatPrice(Number(product.price))}
@@ -141,7 +141,7 @@ export function SearchBar({ initialValue = '', onSearch, placeholder = "Buscar j
                 </button>
               ))}
               <div 
-                className="px-4 py-3 bg-stone-50 hover:bg-stone-100 text-xs font-semibold uppercase tracking-wider text-center text-ebony cursor-pointer border-t border-pearl transition-colors"
+                className="px-4 py-3 bg-surface hover:bg-hover text-xs font-semibold uppercase tracking-wider text-center text-primary cursor-pointer border-t border-border transition-colors"
                 onClick={() => {
                   setIsOpen(false)
                   if (onSearch) onSearch(query)
@@ -152,7 +152,7 @@ export function SearchBar({ initialValue = '', onSearch, placeholder = "Buscar j
               </div>
             </div>
           ) : (
-            <div className="p-6 text-center text-sm text-stone">
+            <div className="p-6 text-center text-sm text-muted">
               No encontramos resultados exactos para "{query}".
             </div>
           )}

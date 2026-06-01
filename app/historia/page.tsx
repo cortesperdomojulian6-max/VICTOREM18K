@@ -38,11 +38,11 @@ export default function HistoriaPage() {
               />
             </div>
             <div className="space-y-6">
-              <h2 className="font-heading text-3xl font-medium text-ebony">
+              <h2 className="font-heading text-3xl font-medium text-primary">
                 El arte de la balinería
               </h2>
               <div className="w-12 h-px bg-gold-400" />
-              <div className="space-y-4 text-stone leading-relaxed text-sm">
+              <div className="space-y-4 text-muted leading-relaxed text-sm">
                 <p>
                   Victorem nace en Campoalegre, Huila, de la pasión por la joyería artesanal y el deseo de preservar una tradición que ha pasado de generación en generación.
                 </p>
@@ -61,11 +61,11 @@ export default function HistoriaPage() {
         </div>
       </section>
 
-      <section className="section-padding bg-cream">
+      <section className="section-padding bg-surface">
         <div className="container-main text-center">
-          <h2 className="font-heading text-3xl font-medium text-ebony mb-4">Misión</h2>
+          <h2 className="font-heading text-3xl font-medium text-primary mb-4">Misión</h2>
           <div className="w-12 h-px bg-gold-400 mx-auto mb-6" />
-          <p className="text-stone max-w-2xl mx-auto text-sm leading-relaxed">
+          <p className="text-muted max-w-2xl mx-auto text-sm leading-relaxed">
             Crear joyas artesanales de alta calidad que fusionen la tradición de la balinería con el diseño contemporáneo, ofreciendo a cada cliente una pieza única que refleje su personalidad y estilo.
           </p>
         </div>
@@ -73,9 +73,9 @@ export default function HistoriaPage() {
 
       <section className="section-padding">
         <div className="container-main text-center">
-          <h2 className="font-heading text-3xl font-medium text-ebony mb-4">Visión</h2>
+          <h2 className="font-heading text-3xl font-medium text-primary mb-4">Visión</h2>
           <div className="w-12 h-px bg-gold-400 mx-auto mb-6" />
-          <p className="text-stone max-w-2xl mx-auto text-sm leading-relaxed">
+          <p className="text-muted max-w-2xl mx-auto text-sm leading-relaxed">
             Ser la marca de joyería artesanal colombiana más reconocida por su calidad, innovación y compromiso con la preservación de las técnicas tradicionales de balinería, llevando el arte de nuestras manos al mundo.
           </p>
         </div>

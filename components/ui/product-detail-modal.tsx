@@ -78,19 +78,19 @@ export function ProductDetailModal({ product, open, onClose }: ProductDetailModa
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="bg-white w-full max-w-5xl max-h-[90vh] overflow-y-auto mx-4 shadow-2xl border border-gold-400/20"
+            className="bg-elevated w-full max-w-5xl max-h-[90vh] overflow-y-auto mx-4 shadow-2xl border border-gold-400/20"
           >
-            <div className="flex items-center justify-between p-4 border-b border-pearl bg-snow/50">
-              <h2 className="font-heading text-lg font-semibold text-ebony truncate pr-4">
+            <div className="flex items-center justify-between p-4 border-b border-border bg-surface/50">
+              <h2 className="font-heading text-lg font-semibold text-primary truncate pr-4">
                 {product.name}
               </h2>
-              <button onClick={onClose} className="text-silver hover:text-ebony transition-colors shrink-0" aria-label="Cerrar">
+              <button onClick={onClose} className="text-silver hover:text-primary transition-colors shrink-0" aria-label="Cerrar">
                 <X className="size-5" />
               </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
-              <div className="border-r border-pearl bg-stone-50 flex items-center justify-center">
+              <div className="border-r border-border bg-surface flex items-center justify-center">
                 {imageUrl ? (
                   <Image
                     src={imageUrl}
@@ -101,7 +101,7 @@ export function ProductDetailModal({ product, open, onClose }: ProductDetailModa
                     priority
                   />
                 ) : (
-                  <div className="w-full aspect-square flex items-center justify-center text-stone text-sm">
+                  <div className="w-full aspect-square flex items-center justify-center text-muted text-sm">
                     Sin imagen
                   </div>
                 )}
@@ -112,7 +112,7 @@ export function ProductDetailModal({ product, open, onClose }: ProductDetailModa
                   <p className="text-xs text-gold-400 font-semibold uppercase tracking-wider mb-1">
                     {product.category || 'Joyas'}
                   </p>
-                  <h3 className="font-heading text-2xl font-semibold text-ebony">
+                  <h3 className="font-heading text-2xl font-semibold text-primary">
                     {product.name}
                   </h3>
                   <p className="font-heading text-3xl font-bold text-gold-400 mt-3">
@@ -121,7 +121,7 @@ export function ProductDetailModal({ product, open, onClose }: ProductDetailModa
                 </div>
 
                 <div>
-                  <p className={`text-sm text-stone leading-relaxed ${!showFullDesc ? 'line-clamp-3' : ''}`}>
+                  <p className={`text-sm text-muted leading-relaxed ${!showFullDesc ? 'line-clamp-3' : ''}`}>
                     {product.description || 'Pieza artesanal elaborada en balinería con oro laminado 18K.'}
                   </p>
                   {product.description && product.description.length > 120 && (
@@ -136,7 +136,7 @@ export function ProductDetailModal({ product, open, onClose }: ProductDetailModa
 
                 {product.features && Array.isArray(product.features) && product.features.length > 0 && (
                   <div>
-                    <p className="text-xs font-semibold text-stone uppercase tracking-wider mb-2">Características</p>
+                    <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">Características</p>
                     <ul className="space-y-1">
                       {product.features.map((f: string, i: number) => (
                         <li key={i} className="flex items-start gap-2 text-sm text-iron">
@@ -149,7 +149,7 @@ export function ProductDetailModal({ product, open, onClose }: ProductDetailModa
                 )}
 
                 <div>
-                  <p className="text-xs font-semibold text-stone uppercase tracking-wider mb-2">Colores disponibles</p>
+                  <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">Colores disponibles</p>
                   <div className="flex gap-2">
                     {COLORS.map((c) => (
                       <button
@@ -169,26 +169,26 @@ export function ProductDetailModal({ product, open, onClose }: ProductDetailModa
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center border border-pearl">
+                  <div className="flex items-center border border-border">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="size-10 flex items-center justify-center text-stone hover:text-ebony hover:bg-snow transition-colors"
+                      className="size-10 flex items-center justify-center text-muted hover:text-primary hover:bg-surface transition-colors"
                       aria-label="Reducir cantidad"
                     >
                       <Minus className="size-3.5" />
                     </button>
-                    <span className="min-w-[40px] text-center text-sm font-semibold text-ebony select-none">
+                    <span className="min-w-[40px] text-center text-sm font-semibold text-primary select-none">
                       {quantity}
                     </span>
                     <button
                       onClick={() => setQuantity(Math.min(99, quantity + 1))}
-                      className="size-10 flex items-center justify-center text-stone hover:text-ebony hover:bg-snow transition-colors"
+                      className="size-10 flex items-center justify-center text-muted hover:text-primary hover:bg-surface transition-colors"
                       aria-label="Aumentar cantidad"
                     >
                       <Plus className="size-3.5" />
                     </button>
                   </div>
-                  <span className="text-sm text-stone">
+                  <span className="text-sm text-muted">
                     {formatPrice(Number(product.price) * quantity)}
                   </span>
                 </div>
@@ -207,7 +207,7 @@ export function ProductDetailModal({ product, open, onClose }: ProductDetailModa
                   </Button>
                 </div>
 
-                <div className="text-xs text-stone space-y-1 pt-2 border-t border-pearl">
+                <div className="text-xs text-muted space-y-1 pt-2 border-t border-border">
                   <p>✓ Envíos a toda Colombia</p>
                   <p>✓ Pago seguro con Nequi</p>
                   <p>✓ Hecho a mano con oro laminado 18K</p>
@@ -216,7 +216,7 @@ export function ProductDetailModal({ product, open, onClose }: ProductDetailModa
             </div>
 
             {recsLoading ? (
-              <div className="border-t border-pearl p-6">
+              <div className="border-t border-border p-6">
                 <div className="animate-pulse space-y-3">
                   <div className="h-4 bg-pearl/60 w-48" />
                   <div className="flex gap-4">
@@ -225,16 +225,16 @@ export function ProductDetailModal({ product, open, onClose }: ProductDetailModa
                 </div>
               </div>
             ) : recommendations.length > 0 && (
-              <div className="border-t border-pearl p-6 bg-snow/30">
-                <p className="text-xs font-semibold text-stone uppercase tracking-wider mb-4">También te puede interesar</p>
+              <div className="border-t border-border p-6 bg-surface/30">
+                <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-4">También te puede interesar</p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {recommendations.map((rec) => (
                     <button
                       key={rec.id}
                       onClick={() => window.location.href = `/catalogo?id=${rec.id}`}
-                      className="flex items-center gap-3 p-3 bg-white border border-pearl hover:border-gold-400/50 transition-all text-left"
+                      className="flex items-center gap-3 p-3 bg-elevated border border-border hover:border-gold-400/50 transition-all text-left"
                     >
-                      <div className="size-14 shrink-0 bg-stone-50 flex items-center justify-center overflow-hidden">
+                      <div className="size-14 shrink-0 bg-surface flex items-center justify-center overflow-hidden">
                         {rec.image_url ? (
                           <Image src={productImageUrl(rec.image_url) ?? ''} alt={rec.name} width={56} height={56} className="object-contain" />
                         ) : (
@@ -242,7 +242,7 @@ export function ProductDetailModal({ product, open, onClose }: ProductDetailModa
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-ebony truncate">{rec.name}</p>
+                        <p className="text-sm font-medium text-primary truncate">{rec.name}</p>
                         <p className="text-xs text-gold-400 font-semibold">{formatPrice(Number(rec.price))}</p>
                       </div>
                     </button>
