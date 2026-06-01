@@ -42,6 +42,7 @@ export function Header() {
       <div className="container-main flex items-center justify-between h-16">
         <Link href="/" className="flex items-center gap-3">
           <img src="/assets/images/logo.png" alt="Victorem" className="h-8 w-auto" />
+          <span className="font-heading text-lg font-semibold text-white tracking-wide hidden sm:inline">Victorem</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-1" aria-label="Navegación principal">
