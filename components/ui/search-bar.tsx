@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Search, Loader2, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { api } from '@/lib/api'
 import { productImageUrl, formatPrice } from '@/lib/utils'
 import type { Product } from '@/types'
@@ -125,9 +126,11 @@ export function SearchBar({ initialValue = '', onSearch, placeholder = "Buscar j
                   className="w-full flex items-center gap-4 px-4 py-3 hover:bg-surface transition-colors border-b border-border/20 last:border-0 text-left"
                 >
                   <div className="size-12 rounded-sm bg-surface overflow-hidden shrink-0">
-                    <img 
-                      src={productImageUrl(product.image_url) ?? undefined} 
+                    <Image
+                      src={productImageUrl(product.image_url) ?? ''}
                       alt={product.name}
+                      width={48}
+                      height={48}
                       className="w-full h-full object-cover mix-blend-multiply"
                     />
                   </div>

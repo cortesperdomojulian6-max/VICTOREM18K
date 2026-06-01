@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { ShoppingBag, Menu, X, User, LogOut, Package, MapPin, Sun, Moon } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -41,7 +42,7 @@ export function Header() {
     <header className="sticky top-0 z-50 bg-ebony border-b border-gold-400/15">
       <div className="container-main flex items-center justify-between h-16">
         <Link href="/" className="flex items-center gap-3">
-          <img src="/assets/images/logo.png" alt="Victorem" className="h-8 w-auto" />
+          <Image src="/assets/images/logo.png" alt="Victorem" width={32} height={32} className="h-8 w-auto" priority />
           <span className="font-heading text-lg font-semibold text-white tracking-wide hidden sm:inline">Victorem</span>
         </Link>
 

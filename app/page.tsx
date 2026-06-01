@@ -183,10 +183,13 @@ function ProductsSection() {
             >
               <Link href="/catalogo">
                 <div className="aspect-[4/5] overflow-hidden relative bg-stone-950">
-                  <img
+                  <Image
                     src={product.img}
                     alt={product.name}
+                    width={600}
+                    height={750}
                     className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
+                    loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-4">
                     <span className="w-full py-2.5 bg-gold-400 text-ebony text-[10px] uppercase font-bold tracking-widest text-center block hover:bg-gold-300 transition-all">

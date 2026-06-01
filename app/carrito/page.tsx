@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { Trash2, Minus, Plus, ShoppingBag, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
@@ -96,9 +97,14 @@ export default function CarritoPage() {
                   }`}
                 >
                   <div className="size-20 bg-hover shrink-0 flex items-center justify-center overflow-hidden">
-                    {item.imageUrl ? (
-                      <img src={productImageUrl(item.imageUrl) ?? undefined} alt={item.name} className="size-full object-cover" />
-                    ) : (
+                    {item.imageUrl ? (() => {
+                      const src = productImageUrl(item.imageUrl)
+                      return src ? (
+                        <Image src={src} alt={item.name} width={80} height={80} className="size-full object-cover" />
+                      ) : (
+                        <ShoppingBag className="size-6 text-muted" />
+                      )
+                    })() : (
                       <ShoppingBag className="size-6 text-muted" />
                     )}
                   </div>
