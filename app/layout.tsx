@@ -77,7 +77,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es" className={`scroll-smooth ${cormorant.variable} ${inter.variable}`}>
       <head>
         <meta name="theme-color" content="#0d0d0d" />
-        <link rel="icon" type="image/png" href="/assets/images/logo.png" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32" />
+        <link rel="icon" type="image/png" href="/favicon-16.png" sizes="16x16" />
       </head>
       <body className="min-h-screen flex flex-col">
         <a
