@@ -50,18 +50,23 @@ async function createPayment(userId, { amount, currency = 'COP', reference, cust
     } : {}),
   };
 
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 30000)
+
   const wompiResponse = await fetch(`${WOMPI_API_URL}/transactions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${WOMPI_API_KEY}`
+      'Authorization': `Bearer ${WOMPI_API_KEY}`,
+      'Idempotency-Key': reference,
     },
-    body: JSON.stringify(paymentData)
-  });
+    body: JSON.stringify(paymentData),
+    signal: controller.signal,
+  }).finally(() => clearTimeout(timeout))
 
   if (!wompiResponse.ok) {
     const errorData = await wompiResponse.text();
-    throw new ValidationError(`Error al procesar pago en Wompi: ${errorData}`);
+    throw new ValidationError('Error al procesar pago en Wompi');
   }
 
   const transaction = await wompiResponse.json();
@@ -94,23 +99,32 @@ const crypto = require('crypto');
 
 const WOMPI_EVENTS_SECRET = process.env.WOMPI_EVENTS_SECRET;
 
-function verifyWebhookSignature(body, signature) {
+function verifyWebhookSignature(rawBody, signature) {
   if (!WOMPI_EVENTS_SECRET) {
     throw new Error('WOMPI_EVENTS_SECRET no está configurado');
   }
-  if (!signature) {
+  if (!signature || typeof signature !== 'string') {
     return false;
   }
   const calculated = crypto
     .createHmac('sha256', WOMPI_EVENTS_SECRET)
-    .update(JSON.stringify(body))
+    .update(rawBody, 'utf8')
     .digest('hex');
-  return crypto.timingSafeEqual(Buffer.from(calculated), Buffer.from(signature));
+
+  if (calculated.length !== signature.length) {
+    return false;
+  }
+
+  try {
+    return crypto.timingSafeEqual(Buffer.from(calculated, 'utf8'), Buffer.from(signature, 'utf8'));
+  } catch {
+    return false;
+  }
 }
 
-async function handleWebhook(body, headers) {
+async function handleWebhook(body, rawBody, headers) {
   const signature = headers['x-wompi-signature'];
-  if (!verifyWebhookSignature(body, signature)) {
+  if (!verifyWebhookSignature(rawBody || JSON.stringify(body), signature)) {
     throw new ForbiddenError('Firma de webhook inválida');
   }
 
@@ -143,6 +157,16 @@ async function handleWebhook(body, headers) {
       );
 
       if (status === 'APPROVED') {
+        const orderItems = await db.query(
+          'SELECT product_id, quantity FROM order_items WHERE order_id = $1',
+          [order.id]
+        )
+        for (const item of orderItems.rows) {
+          await db.query(
+            'UPDATE products SET stock = GREATEST(stock - $1, 0) WHERE id = $2',
+            [item.quantity, item.product_id]
+          )
+        }
         await db.query('DELETE FROM cart_items WHERE user_id = $1', [order.user_id]);
       }
     }

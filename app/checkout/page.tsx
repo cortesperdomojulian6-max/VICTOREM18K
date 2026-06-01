@@ -84,8 +84,24 @@ export default function CheckoutPage() {
     const status = searchParams.get('status')
     const transactionId = searchParams.get('transaction_id')
     if (status === 'success' && transactionId) {
-      toast.success('Pago exitoso. Tu pedido está siendo procesado.')
-      router.push('/miperfil?tab=orders')
+      const verify = async () => {
+        try {
+          const result = await api.get<{ status: string }>(`/wompi/transaction/${transactionId}`)
+          if (result.status === 'APPROVED') {
+            toast.success('Pago exitoso. Tu pedido está siendo procesado.')
+            router.push('/miperfil?tab=orders')
+          } else if (result.status === 'PENDING') {
+            toast.info('Pago pendiente de confirmación. Te notificaremos cuando se confirme.')
+            router.push('/miperfil?tab=orders')
+          } else {
+            toast.error('El pago no pudo ser completado. Intenta de nuevo.')
+          }
+        } catch {
+          toast.error('Error verificando tu pago. Contacta a soporte si el cargo ya fue realizado.')
+          router.push('/miperfil?tab=orders')
+        }
+      }
+      verify()
     } else if (status === 'failure') {
       toast.error('El pago fue cancelado o rechazado. Intenta de nuevo.')
     }
