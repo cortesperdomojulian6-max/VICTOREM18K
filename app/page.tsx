@@ -5,10 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import dynamic from 'next/dynamic'
 import { motion, useScroll, useTransform } from 'framer-motion'
-
-const Hero3D = dynamic(() => import('@/components/ui/hero-3d').then(m => ({ default: m.Hero3D })), { ssr: false })
 
 const PRODUCTS = [
   { name: 'Pulsera Van Cleef Dorada', desc: 'Diseño contemporáneo con balinería multiformato y acabado dorado brillante.', price: '$ 165.000', img: '/assets/images/van cleef dorada.jpeg' },
@@ -25,11 +22,10 @@ function HeroSection() {
   return (
     <section ref={ref} className="relative min-h-screen flex items-center justify-center overflow-hidden bg-ebony">
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-b from-ebony/80 via-charcoal/60 to-ebony/80 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-b from-ebony via-charcoal to-ebony" />
         <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 50% 40%, rgba(212,175,55,0.12) 0%, transparent 70%)' }} />
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full border border-gold-400/5 animate-pulse-slow pointer-events-none" />
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full border border-gold-400/10 animate-pulse-slower pointer-events-none" />
-        <Hero3D />
       </div>
 
       <motion.div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/10 to-black/50 z-[2]" style={{ opacity }} />
