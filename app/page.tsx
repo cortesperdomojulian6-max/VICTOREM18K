@@ -24,8 +24,8 @@ function HeroSection() {
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-b from-ebony via-charcoal to-ebony" />
         <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 50% 40%, rgba(212,175,55,0.12) 0%, transparent 70%)' }} />
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full border border-gold-400/5 animate-pulse-slow pointer-events-none" />
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full border border-gold-400/10 animate-pulse-slower pointer-events-none" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[300px] sm:w-[400px] md:w-[600px] h-[300px] sm:h-[400px] md:h-[600px] rounded-full border border-gold-400/5 animate-pulse-slow pointer-events-none" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[200px] sm:w-[280px] md:w-[400px] h-[200px] sm:h-[280px] md:h-[400px] rounded-full border border-gold-400/10 animate-pulse-slower pointer-events-none" />
       </div>
 
       <motion.div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/10 to-black/50 z-[2]" style={{ opacity }} />
@@ -133,8 +133,8 @@ function CraftsmanshipSection() {
             <div className="absolute inset-0 bg-gradient-to-br from-gold-400/5 to-transparent" />
             <div className="absolute inset-0 flex items-center justify-center p-12">
               <Image
-                src="https://lh3.googleusercontent.com/aida/ADBb0uhJGO4B-c-kKEzG6855LTP-6LUGXF7LU07OWlb__OMYxQyxy_y1qbHL9KiJACRgXW_t8RP-sNqD1q1sjYrVMTTbRhTQKNKWROoKhoFLgAr6aYi3zZfVAWXkANlTRiVaXkyyxg-Z3B8OT9eqyNBtBXsTDMgYmOLmQQdXNx1CuTmOohlTL4Ae1oItAMkhK5LMYT9DF5NcBctnO1xCwUS5bb8Ich_cJua6IdZFRGMcB3OfFON855fQ_aWG4OA"
-                alt="Craftsmanship"
+                src="/assets/images/Historia.jpg"
+                alt="Artesanía Victorem"
                 width={400}
                 height={500}
                 className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-700"

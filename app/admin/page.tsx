@@ -226,7 +226,7 @@ export default function AdminPage() {
                   <ButtonAdd onClick={() => openProductForm()} />
                 </div>
 
-                <div className="bg-white border border-black/4 overflow-hidden">
+                <div className="bg-white border border-black/4 overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-pearl/50 bg-snow">
@@ -266,14 +266,14 @@ export default function AdminPage() {
                       {filteredProducts.length === 0 && (
                         <tr><td colSpan={4} className="px-4 py-12 text-center text-stone text-sm">No hay productos</td></tr>
                       )}
-                    </tbody>
-                  </table>
+                  </tbody>
+                </table>
                 </div>
               </div>
             )}
 
             {tab === 'orders' && (
-              <div className="bg-white border border-black/4">
+              <div className="bg-white border border-black/4 overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-pearl/50 bg-snow">
@@ -322,7 +322,8 @@ export default function AdminPage() {
                   <h2 className="font-heading text-lg font-medium text-ebony">Usuarios Registrados</h2>
                   <span className="text-xs text-stone">{users.length} usuarios</span>
                 </div>
-                <table className="w-full text-sm">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-pearl/50">
                       <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-stone">ID</th>
@@ -363,6 +364,7 @@ export default function AdminPage() {
                     )}
                   </tbody>
                 </table>
+                </div>
               </div>
             )}
           </motion.div>

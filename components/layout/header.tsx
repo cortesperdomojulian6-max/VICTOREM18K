@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useCartStore } from '@/store/useCartStore'
+import { useTheme } from '@/components/layout/theme-provider'
 
 const NAV_ITEMS = [
   { href: '/', label: 'Inicio' },
@@ -23,32 +24,7 @@ export function Header() {
   const [open, setOpen] = useState(false)
   const { user, isAuthenticated, logout, refresh } = useAuthStore()
   const { cartCount, syncFromServer } = useCartStore()
-  const [theme, setTheme] = useState<'light' | 'dark'>('light')
-
-  useEffect(() => {
-    refresh()
-  }, [refresh])
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      syncFromServer()
-    }
-  }, [isAuthenticated, syncFromServer])
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-    setTheme(savedTheme as 'light' | 'dark')
-    if (savedTheme === 'dark') document.documentElement.classList.add('dark')
-    else document.documentElement.classList.remove('dark')
-  }, [])
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light'
-    setTheme(newTheme)
-    localStorage.setItem('theme', newTheme)
-    if (newTheme === 'dark') document.documentElement.classList.add('dark')
-    else document.documentElement.classList.remove('dark')
-  }
+  const { theme, toggleTheme } = useTheme()
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'
@@ -130,34 +106,34 @@ export function Header() {
                 <span className="max-w-[100px] truncate text-xs font-medium">{user.name}</span>
               </button>
               <div className="absolute right-0 top-full pt-2.5 hidden group-hover:block hover:block">
-                <div className="bg-white min-w-[220px] shadow-xl border border-black/6 p-2 space-y-0.5">
-                  <div className="px-3 py-2.5 flex items-center gap-3 border-b border-pearl/50 mb-1">
+                <div className="bg-white dark:bg-ebony dark:border-white/10 min-w-[220px] shadow-xl border border-black/6 p-2 space-y-0.5">
+                  <div className="px-3 py-2.5 flex items-center gap-3 border-b border-pearl/50 dark:border-white/10 mb-1">
                     <span className="size-10 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 text-ebony font-bold text-lg flex items-center justify-center shrink-0">
                       {user.name.charAt(0).toUpperCase()}
                     </span>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-ebony truncate">{user.name}</p>
-                      <p className="text-xs text-stone truncate">{user.email}</p>
+                      <p className="text-sm font-semibold text-ebony dark:text-white truncate">{user.name}</p>
+                      <p className="text-xs text-stone dark:text-silver truncate">{user.email}</p>
                     </div>
                   </div>
-                  <Link href="/miperfil" className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-iron hover:bg-gold-400/5 hover:text-gold-400 transition-colors rounded-none">
+                  <Link href="/miperfil" className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-iron dark:text-silver hover:bg-gold-400/5 hover:text-gold-400 transition-colors rounded-none">
                     <User className="size-4" /> Mi Perfil
                   </Link>
-                  <Link href="/miperfil?tab=orders" className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-iron hover:bg-gold-400/5 hover:text-gold-400 transition-colors rounded-none">
+                  <Link href="/miperfil?tab=orders" className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-iron dark:text-silver hover:bg-gold-400/5 hover:text-gold-400 transition-colors rounded-none">
                     <Package className="size-4" /> Mis Pedidos
                   </Link>
-                  <Link href="/miperfil?tab=addresses" className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-iron hover:bg-gold-400/5 hover:text-gold-400 transition-colors rounded-none">
+                  <Link href="/miperfil?tab=addresses" className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-iron dark:text-silver hover:bg-gold-400/5 hover:text-gold-400 transition-colors rounded-none">
                     <MapPin className="size-4" /> Direcciones
                   </Link>
                   {user.role === 'admin' && (
-                    <Link href="/admin" className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-iron hover:bg-gold-400/5 hover:text-gold-400 transition-colors rounded-none">
+                    <Link href="/admin" className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-iron dark:text-silver hover:bg-gold-400/5 hover:text-gold-400 transition-colors rounded-none">
                       <Package className="size-4" /> Panel Admin
                     </Link>
                   )}
-                  <hr className="border-pearl/50 my-1 mx-2" />
+                  <hr className="border-pearl/50 dark:border-white/10 my-1 mx-2" />
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-2.5 w-full px-3 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors rounded-none"
+                    className="flex items-center gap-2.5 w-full px-3 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors rounded-none"
                   >
                     <LogOut className="size-4" /> Cerrar Sesión
                   </button>

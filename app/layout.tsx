@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Inter } from 'next/font/google'
 import './globals.css'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { ThemeProvider } from '@/components/layout/theme-provider'
 import { AuthModal } from '@/components/layout/auth-modal'
 import { ScrollToTop } from '@/components/ui/scroll-to-top'
 import { CursorTrail } from '@/components/ui/cursor-trail'
@@ -84,9 +85,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Saltar al contenido
         </a>
-        <Header />
-        <main id="main-content" className="flex-1">{children}</main>
-        <Footer />
+        <ThemeProvider>
+          <Header />
+          <main id="main-content" className="flex-1">{children}</main>
+          <Footer />
+        </ThemeProvider>
         <AuthModal />
         <ScrollToTop />
         <CursorTrail />
