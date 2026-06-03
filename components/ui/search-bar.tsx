@@ -151,12 +151,12 @@ export function SearchBar({ initialValue = '', onSearch, placeholder = "Buscar j
                   else router.push(`/${tipo}?search=${encodeURIComponent(query)}`)
                 }}
               >
-                Ver todos los resultados para "{query}"
+                {`Ver todos los resultados para "${query}"`}
               </div>
             </div>
           ) : (
             <div className="p-6 text-center text-sm text-muted">
-              No encontramos resultados exactos para "{query}".
+              {`No encontramos resultados exactos para "${query}".`}
             </div>
           )}
         </div>

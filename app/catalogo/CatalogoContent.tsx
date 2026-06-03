@@ -60,6 +60,7 @@ export default function CatalogoContent() {
           if (found) setSelectedProduct(found)
         }
       } catch (err) {
+        console.error('Error fetching products:', err)
         setProducts([])
       } finally {
         setLoading(false)
@@ -102,7 +103,7 @@ export default function CatalogoContent() {
     }
 
     return result
-  }, [products, categories, priceRange, search, sort])
+  }, [products, categories, priceRange, sort])
 
   return (
     <>

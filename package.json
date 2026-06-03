@@ -7,7 +7,7 @@
     "dev": "next dev --port 3000",
     "build": "next build",
     "start": "next start",
-    "lint": "echo 'lint skipped: next lint deprecated in v15'",
+    "lint": "eslint . --ext .ts,.tsx",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:e2e": "playwright test",
@@ -16,11 +16,7 @@
     "api:dev": "node backend/server.js"
   },
   "dependencies": {
-    "@react-three/drei": "^10.7.7",
-    "@react-three/fiber": "^9.6.1",
-    "@react-three/postprocessing": "^3.0.4",
     "@types/cookie-parser": "^1.4.10",
-    "@types/three": "^0.184.1",
     "bcrypt": "^5.1.0",
     "clsx": "^2.1.0",
     "cookie-parser": "^1.4.7",
@@ -39,7 +35,6 @@
     "sharp": "^0.34.5",
     "sonner": "^1.7.0",
     "tailwind-merge": "^2.6.0",
-    "three": "^0.184.0",
     "zustand": "^5.0.13"
   },
   "devDependencies": {

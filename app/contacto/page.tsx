@@ -7,6 +7,14 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { api } from '@/lib/api'
 import { toast } from 'sonner'
+import { CONTACT } from '@/lib/config'
+
+const CONTACT_ITEMS = [
+  { icon: MapPin, label: 'Dirección', value: CONTACT.address },
+  { icon: Phone, label: 'Teléfono', value: CONTACT.phone },
+  { icon: Mail, label: 'Email', value: CONTACT.email },
+  { icon: Clock, label: 'Horario', value: CONTACT.hours },
+] as const
 
 export default function ContactoPage() {
   const [form, setForm] = useState({ name: '', email: '', message: '' })
@@ -87,12 +95,7 @@ export default function ContactoPage() {
                 Información de Contacto
               </h2>
               <div className="space-y-5">
-                {[
-                  { icon: MapPin, label: 'Dirección', value: 'Campoalegre, Huila, Colombia' },
-                  { icon: Phone, label: 'Teléfono', value: '+57 314 567 8910' },
-                  { icon: Mail, label: 'Email', value: 'info@victorem.co' },
-                  { icon: Clock, label: 'Horario', value: 'Lun - Sáb: 8:00 AM - 6:00 PM' },
-                ].map((item) => (
+                {CONTACT_ITEMS.map((item) => (
                   <div key={item.label} className="flex items-start gap-4">
                     <item.icon className="size-5 text-gold-400 shrink-0 mt-0.5" />
                     <div>

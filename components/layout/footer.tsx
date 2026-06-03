@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { CONTACT } from '@/lib/config'
 
 const FOOTER_LINKS = [
   { href: '/catalogo', label: 'Catálogo' },
@@ -61,19 +62,19 @@ export function Footer() {
             <ul className="space-y-3 text-sm text-silver">
               <li>
                 <span className="block text-white/60 text-xs uppercase tracking-wider mb-0.5">Dirección</span>
-                Calle 20 #9-59, Campoalegre, Huila
+                {CONTACT.address}
               </li>
               <li>
                 <span className="block text-white/60 text-xs uppercase tracking-wider mb-0.5">Teléfono</span>
-                +57 310 787 5531
+                {CONTACT.phone}
               </li>
               <li>
                 <span className="block text-white/60 text-xs uppercase tracking-wider mb-0.5">Email</span>
-                info@victorem.co
+                {CONTACT.email}
               </li>
               <li>
                 <span className="block text-white/60 text-xs uppercase tracking-wider mb-0.5">Horario</span>
-                Lun - Sáb: 9:00 AM - 6:00 PM
+                {CONTACT.hours}
               </li>
             </ul>
           </div>

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { ArrowRight, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { motion, useScroll, useTransform } from 'framer-motion'
+import { toast } from 'sonner'
 
 const PRODUCTS = [
   { name: 'Pulsera Van Cleef Dorada', desc: 'Diseño contemporáneo con balinería multiformato y acabado dorado brillante.', price: '$ 165.000', img: '/assets/images/van cleef dorada.jpeg' },
@@ -298,10 +299,12 @@ function NewsletterSection() {
     if (res.ok) {
       setStatus('success')
       setEmail('')
+      toast.success('¡Te has suscrito exitosamente!')
     } else {
       setStatus('error')
       const data = await res.json().catch(() => ({}))
       setErrorMsg(data?.error || 'Ocurrió un error. Intenta de nuevo.')
+      toast.error(data?.error || 'Ocurrió un error. Intenta de nuevo.')
     }
   }
 

@@ -30,12 +30,12 @@ export const metadata: Metadata = {
   },
   description:
     'Arte en cada balín, elegancia en cada detalle. Joyas artesanales en balinería con oro laminado 18K. Hechas a mano en Campoalegre, Huila.',
-  metadataBase: new URL('https://victorem.co'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://victorem.co'),
   openGraph: {
     type: 'website',
     locale: 'es_CO',
     siteName: 'Victorem',
-    images: [{ url: '/images/og.jpg', width: 1200, height: 630 }],
+    images: [{ url: '/api/og', width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
