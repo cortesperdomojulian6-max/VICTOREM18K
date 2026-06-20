@@ -54,6 +54,9 @@ async function changePassword(userId, { old_password, new_password }) {
   if (!old_password || !new_password) {
     throw new ValidationError('Contraseñas requeridas');
   }
+  if (new_password.length < 6) {
+    throw new ValidationError('La nueva contraseña debe tener al menos 6 caracteres');
+  }
 
   const userResult = await db.query('SELECT password FROM users WHERE id = $1', [userId]);
   const user = userResult.rows[0];

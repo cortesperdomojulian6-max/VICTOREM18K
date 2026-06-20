@@ -66,7 +66,8 @@ async function createPayment(userId, { amount, currency = 'COP', reference, cust
 
   if (!wompiResponse.ok) {
     const errorData = await wompiResponse.text();
-    throw new ValidationError('Error al procesar pago en Wompi');
+    console.error('Error Wompi API:', wompiResponse.status, errorData);
+    throw new ValidationError(`Error al procesar pago en Wompi (HTTP ${wompiResponse.status})`);
   }
 
   const transaction = await wompiResponse.json();

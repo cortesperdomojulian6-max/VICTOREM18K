@@ -19,6 +19,23 @@ async function addItem(userId, product_id, quantity) {
     throw new ValidationError('Datos inválidos');
   }
 
+  const product = await db.query(
+    'SELECT id, stock, active FROM products WHERE id = $1',
+    [product_id]
+  );
+  if (product.rows.length === 0 || !product.rows[0].active) {
+    throw new NotFoundError('Producto no encontrado');
+  }
+
+  const existingQuantity = await db.query(
+    'SELECT COALESCE(SUM(cantidad), 0) AS total FROM cart_items WHERE user_id = $1 AND product_id = $2',
+    [userId, product_id]
+  );
+  const requestedTotal = parseInt(existingQuantity.rows[0].total, 10) + quantity;
+  if (requestedTotal > product.rows[0].stock) {
+    throw new ValidationError(`Stock insuficiente. Disponible: ${product.rows[0].stock}`);
+  }
+
   const existing = await db.query(
     'SELECT id, cantidad FROM cart_items WHERE user_id = $1 AND product_id = $2',
     [userId, product_id]

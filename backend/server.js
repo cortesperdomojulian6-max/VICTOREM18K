@@ -50,6 +50,7 @@ const limiter = rateLimit({
   message: 'Demasiadas solicitudes, intenta más tarde',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => req.path === '/wompi/webhook',
 });
 
 const authLimiter = rateLimit({
