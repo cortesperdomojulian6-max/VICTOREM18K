@@ -86,14 +86,14 @@ export function Header() {
         className={cn(
           'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
           scrolled
-            ? 'bg-black/70 backdrop-blur-xl border-b border-white/5 shadow-[0_4px_30px_rgba(0,0,0,0.3)]'
-            : 'bg-transparent'
+            ? 'bg-background/95 backdrop-blur-md border-b border-border-subtle shadow-sm'
+            : 'bg-background/80 backdrop-blur-sm'
         )}
       >
         <div className="container-main flex items-center justify-between h-16 md:h-20">
           <Link href="/" className="flex items-center gap-3 relative z-10">
             <Image src="/assets/images/logo.png" alt="Victorem" width={32} height={32} className="h-8 md:h-9 w-auto" priority />
-            <span className="font-heading text-lg md:text-xl font-semibold text-white tracking-wide hidden sm:inline">Victorem</span>
+            <span className="font-heading text-lg md:text-xl font-semibold text-charcoal-obsidian tracking-wide hidden sm:inline">Victorem</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-1" aria-label="Navegación principal">
@@ -104,10 +104,10 @@ export function Header() {
                   aria-current={isActive(item.href) ? 'page' : undefined}
                   className={cn(
                     'relative px-4 py-2 text-[0.6875rem] font-medium uppercase tracking-[0.06em] transition-colors duration-300',
-                    'after:absolute after:bottom-1 after:left-4 after:right-4 after:h-px after:bg-gold-400 after:scale-x-0 after:transition-transform after:duration-300 after:origin-center',
-                    'hover:text-gold-400 hover:after:scale-x-100',
-                    isActive(item.href) && 'text-gold-400 after:scale-x-100',
-                    scrolled ? 'text-white/80' : 'text-white/90'
+                    'after:absolute after:bottom-1 after:left-4 after:right-4 after:h-px after:bg-metallic-gold after:scale-x-0 after:transition-transform after:duration-300 after:origin-center',
+                    'hover:text-metallic-gold hover:after:scale-x-100',
+                    isActive(item.href) && 'text-metallic-gold after:scale-x-100',
+                    'text-on-surface-variant'
                   )}
                 >
                   {item.label}
@@ -120,7 +120,7 @@ export function Header() {
             <Magnetic strength={0.2}>
               <button
                 onClick={toggleTheme}
-                className="flex items-center justify-center size-10 text-white/70 hover:text-gold-400 transition-all duration-300 rounded-full hover:bg-white/5"
+                className="flex items-center justify-center size-10 text-on-surface-variant hover:text-metallic-gold transition-all duration-300 rounded-full hover:bg-surface-container"
                 aria-label="Alternar modo oscuro"
               >
                 {theme === 'dark' ? <Sun className="size-[18px]" /> : <Moon className="size-[18px]" />}
@@ -130,7 +130,7 @@ export function Header() {
             <Magnetic strength={0.2}>
               <Link
                 href="/carrito"
-                className="relative flex items-center justify-center size-10 text-white/70 hover:text-gold-400 transition-all duration-300 rounded-full hover:bg-white/5"
+                className="relative flex items-center justify-center size-10 text-on-surface-variant hover:text-metallic-gold transition-all duration-300 rounded-full hover:bg-surface-container"
                 aria-label="Carrito de compras"
               >
                 <ShoppingBag className="size-[18px]" />
@@ -142,7 +142,7 @@ export function Header() {
                       animate={{ scale: 1 }}
                       exit={{ scale: 0 }}
                       transition={{ type: 'spring', stiffness: 500, damping: 15 }}
-                      className="absolute top-0 right-0 min-w-[18px] h-[18px] flex items-center justify-center bg-gold-400 text-ebony text-[0.625rem] font-bold px-1"
+                      className="absolute top-0 right-0 min-w-[18px] h-[18px] flex items-center justify-center bg-metallic-gold text-white text-[0.625rem] font-bold px-1"
                     >
                       {cartCount}
                     </motion.span>
@@ -155,11 +155,11 @@ export function Header() {
               <div className="relative group hidden md:block">
                 <Magnetic strength={0.2}>
                   <button
-                    className="flex items-center gap-2 px-2.5 py-1.5 rounded-full text-sm text-white/70 hover:bg-white/5 transition-all duration-300"
+                    className="flex items-center gap-2 px-2.5 py-1.5 rounded-full text-sm text-on-surface-variant hover:bg-surface-container transition-all duration-300"
                     aria-expanded="false"
                     aria-haspopup="true"
                   >
-                    <span className="size-7 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 text-ebony font-bold text-xs flex items-center justify-center">
+                    <span className="size-7 rounded-full bg-primary text-on-primary font-bold text-xs flex items-center justify-center">
                       {user.name.charAt(0).toUpperCase()}
                     </span>
                     <span className="max-w-[100px] truncate text-xs font-medium">{user.name}</span>
@@ -171,32 +171,32 @@ export function Header() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -4, scale: 0.96 }}
                     transition={{ duration: 0.2 }}
-                    className="bg-black/80 backdrop-blur-xl border border-white/10 min-w-[220px] shadow-2xl p-2 space-y-0.5"
+                    className="bg-surface-container-high backdrop-blur-xl border border-border-subtle min-w-[220px] shadow-2xl p-2 space-y-0.5"
                   >
-                    <div className="px-3 py-2.5 flex items-center gap-3 border-b border-white/10 mb-1">
-                      <span className="size-10 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 text-ebony font-bold text-lg flex items-center justify-center shrink-0">
+                    <div className="px-3 py-2.5 flex items-center gap-3 border-b border-border-subtle mb-1">
+                      <span className="size-10 rounded-full bg-primary text-on-primary font-bold text-lg flex items-center justify-center shrink-0">
                         {user.name.charAt(0).toUpperCase()}
                       </span>
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-white truncate">{user.name}</p>
-                        <p className="text-xs text-white/50 truncate">{user.email}</p>
+                        <p className="text-sm font-semibold text-on-background truncate">{user.name}</p>
+                        <p className="text-xs text-on-surface-variant truncate">{user.email}</p>
                       </div>
                     </div>
-                    <Link href="/miperfil" className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-white/70 hover:bg-white/5 hover:text-gold-400 transition-all duration-200 rounded-none">
+                    <Link href="/miperfil" className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-on-surface-variant hover:bg-surface-container hover:text-metallic-gold transition-all duration-200 rounded-none">
                       <User className="size-4" /> Mi Perfil
                     </Link>
-                    <Link href="/miperfil?tab=orders" className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-white/70 hover:bg-white/5 hover:text-gold-400 transition-all duration-200 rounded-none">
+                    <Link href="/miperfil?tab=orders" className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-on-surface-variant hover:bg-surface-container hover:text-metallic-gold transition-all duration-200 rounded-none">
                       <Package className="size-4" /> Mis Pedidos
                     </Link>
-                    <Link href="/miperfil?tab=addresses" className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-white/70 hover:bg-white/5 hover:text-gold-400 transition-all duration-200 rounded-none">
+                    <Link href="/miperfil?tab=addresses" className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-on-surface-variant hover:bg-surface-container hover:text-metallic-gold transition-all duration-200 rounded-none">
                       <MapPin className="size-4" /> Direcciones
                     </Link>
                     {user.role === 'admin' && (
-                      <Link href="/admin" className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-white/70 hover:bg-white/5 hover:text-gold-400 transition-all duration-200 rounded-none">
+                      <Link href="/admin" className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-on-surface-variant hover:bg-surface-container hover:text-metallic-gold transition-all duration-200 rounded-none">
                         <Package className="size-4" /> Panel Admin
                       </Link>
                     )}
-                    <hr className="border-white/10 my-1 mx-2" />
+                    <hr className="border-border-subtle my-1 mx-2" />
                     <button
                       onClick={handleLogout}
                       className="flex items-center gap-2.5 w-full px-3 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-all duration-200 rounded-none"
@@ -210,7 +210,7 @@ export function Header() {
               <Magnetic strength={0.2}>
                 <button
                   onClick={() => window.dispatchEvent(new CustomEvent('openAuth'))}
-                  className="hidden md:inline-flex px-5 py-2 text-[0.6875rem] font-semibold uppercase tracking-[0.08em] bg-gold-400 text-ebony hover:bg-gold-300 transition-all duration-300 hover:shadow-[0_0_30px_rgba(212,175,55,0.3)]"
+                  className="hidden md:inline-flex px-5 py-2 text-[0.6875rem] font-semibold uppercase tracking-[0.08em] bg-primary text-on-primary hover:bg-charcoal-obsidian transition-all duration-300"
                 >
                   Iniciar Sesión
                 </button>
@@ -241,7 +241,7 @@ export function Header() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-40 flex flex-col bg-black/95 backdrop-blur-2xl md:hidden"
+            className="fixed inset-0 z-40 flex flex-col bg-background/95 backdrop-blur-2xl md:hidden"
           >
             <div className="flex-1 flex flex-col justify-center items-center gap-2 px-6">
               {NAV_ITEMS.map((item, i) => (
@@ -258,8 +258,8 @@ export function Header() {
                     className={cn(
                       'block text-center py-3 text-2xl font-heading font-light tracking-widest transition-all duration-300',
                       isActive(item.href)
-                        ? 'text-gold-400'
-                        : 'text-white/60 hover:text-white'
+                        ? 'text-metallic-gold'
+                        : 'text-on-surface-variant hover:text-charcoal-obsidian'
                     )}
                   >
                     {item.label}
@@ -275,7 +275,7 @@ export function Header() {
                 >
                   <button
                     onClick={() => { setOpen(false); window.dispatchEvent(new CustomEvent('openAuth')) }}
-                    className="px-8 py-3 text-sm font-semibold uppercase tracking-[0.12em] bg-gold-400 text-ebony hover:bg-gold-300 transition-all duration-300"
+                    className="px-8 py-3 text-sm font-semibold uppercase tracking-[0.12em] bg-primary text-on-primary hover:bg-charcoal-obsidian transition-all duration-300"
                   >
                     Iniciar Sesión
                   </button>
@@ -287,7 +287,7 @@ export function Header() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
-                className="text-[10px] uppercase tracking-[0.3em] text-white/20"
+                className="text-[10px] uppercase tracking-[0.3em] text-on-surface-variant/50"
               >
                 Victorem — Joyas Artesanales
               </motion.p>

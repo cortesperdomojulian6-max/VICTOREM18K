@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Cormorant_Garamond, Inter } from 'next/font/google'
+import { Playfair_Display, Montserrat } from 'next/font/google'
 import './globals.css'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
@@ -9,14 +9,14 @@ import { ScrollToTop } from '@/components/ui/scroll-to-top'
 import { CursorTrail } from '@/components/ui/cursor-trail'
 import { Toaster } from 'sonner'
 
-const cormorant = Cormorant_Garamond({
+const playfair = Playfair_Display({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700'],
   variable: '--font-heading',
   display: 'swap',
 })
 
-const inter = Inter({
+const montserrat = Montserrat({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700'],
   variable: '--font-body',
@@ -74,9 +74,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`scroll-smooth ${cormorant.variable} ${inter.variable}`}>
+    <html lang="es" className={`scroll-smooth ${playfair.variable} ${montserrat.variable}`}>
       <head>
-        <meta name="theme-color" content="#0d0d0d" />
+        <meta name="theme-color" content="#fff8f0" />
         <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32" />
         <link rel="icon" type="image/png" href="/favicon-16.png" sizes="16x16" />
@@ -100,8 +100,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           position="top-right"
           toastOptions={{
             style: {
-              background: '#0d0d0d',
-              color: '#fff',
+              background: '#1f1b13',
+              color: '#fff8f0',
               border: 'none',
               fontSize: '0.8125rem',
               fontWeight: 500,

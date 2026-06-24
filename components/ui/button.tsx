@@ -5,11 +5,11 @@ import { cn } from '@/lib/utils'
 
 const variants = {
   primary:
-    'bg-ebony text-white hover:bg-gold-400 hover:text-ebony active:bg-gold-500',
+    'bg-primary text-on-primary hover:bg-charcoal-obsidian active:bg-ebony',
   outline:
-    'border border-gold-400 text-gold-400 hover:bg-gold-400 hover:text-ebony',
-  ghost: 'text-stone hover:text-ebony hover:bg-snow',
-  danger: 'bg-red-600 text-white hover:bg-red-700',
+    'border border-charcoal-obsidian text-charcoal-obsidian hover:bg-charcoal-obsidian hover:text-white',
+  ghost: 'text-on-surface-variant hover:text-charcoal-obsidian hover:bg-surface-container',
+  danger: 'bg-error text-on-error hover:bg-red-700',
 } as const
 
 const sizes = {
