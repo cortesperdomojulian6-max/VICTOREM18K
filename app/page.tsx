@@ -93,28 +93,12 @@ function LetterReveal({ text, className, delay = 0 }: { text: string; className?
 
 function HeroSection() {
   const ref = useRef<HTMLDivElement>(null)
-  const productRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0])
   const scale = useTransform(scrollYProgress, [0, 0.8], [1, 0.9])
-
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!productRef.current) return
-    const { left, top, width, height } = productRef.current.getBoundingClientRect()
-    const x = (e.clientX - left) / width - 0.5
-    const y = (e.clientY - top) / height - 0.5
-    setMousePos({ x, y })
-  }, [])
-
-  const productRotateX = mousePos.y * -20
-  const productRotateY = mousePos.x * 20
 
   return (
     <section
       ref={ref}
-      onMouseMove={handleMouseMove}
       className="relative min-h-[90vh] flex items-center overflow-hidden bg-background"
     >
       {/* Warm ambient glow */}
@@ -189,17 +173,10 @@ function HeroSection() {
           </motion.div>
 
           <motion.div
-            ref={productRef}
             initial={{ opacity: 0, x: 60 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1.2, delay: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="hidden md:flex md:col-span-7 items-center justify-center relative"
-            style={{
-              rotateX: productRotateX,
-              rotateY: productRotateY,
-              transformStyle: 'preserve-3d',
-              perspective: '1000px',
-            }}
           >
             <motion.div
               animate={{ y: [0, -8, 0] }}
