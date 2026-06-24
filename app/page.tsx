@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, Star } from 'lucide-react'
+import { ArrowRight, Star, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { cn } from '@/lib/utils'
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion'
 import { toast } from 'sonner'
 
 const PRODUCTS = [
@@ -15,79 +16,216 @@ const PRODUCTS = [
   { name: 'Manilla Dollar', desc: 'Símbolo de sofisticación y estatus con placa central y balines labrados.', price: '$ 195.000', img: '/assets/images/ManillaDollar.jpg' },
 ]
 
-function HeroSection() {
+function MagneticButton({ children, className, asLink, href, onClick, ...props }: any) {
   const ref = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0])
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  const springX = useSpring(x, { stiffness: 200, damping: 15 })
+  const springY = useSpring(y, { stiffness: 200, damping: 15 })
+
+  const handleMouse = useCallback((e: React.MouseEvent) => {
+    if (!ref.current) return
+    const { left, top, width, height } = ref.current.getBoundingClientRect()
+    const cx = (e.clientX - left - width / 2) * 0.4
+    const cy = (e.clientY - top - height / 2) * 0.4
+    x.set(cx)
+    y.set(cy)
+  }, [x, y])
+
+  const handleLeave = useCallback(() => {
+    x.set(0)
+    y.set(0)
+  }, [x, y])
+
+  const content = (
+    <motion.div
+      style={{ x: springX, y: springY }}
+      className={className}
+      {...props}
+    >
+      {children}
+    </motion.div>
+  )
 
   return (
-    <section ref={ref} className="relative min-h-screen flex items-center justify-center overflow-hidden bg-ebony">
+    <div
+      ref={ref}
+      onMouseMove={handleMouse}
+      onMouseLeave={handleLeave}
+      className="inline-block"
+    >
+      {asLink ? <Link href={href || '#'}>{content}</Link> : content}
+    </div>
+  )
+}
+
+function LetterReveal({ text, className, delay = 0 }: { text: string; className?: string; delay?: number }) {
+  return (
+    <span className={cn("inline-flex flex-wrap", className)}>
+      {text.split('').map((char, i) => (
+        <motion.span
+          key={i}
+          initial={{ opacity: 0, y: 40, rotateX: -90 }}
+          animate={{ opacity: 1, y: 0, rotateX: 0 }}
+          transition={{
+            duration: 0.6,
+            delay: delay + i * 0.035,
+            ease: [0.25, 0.46, 0.45, 0.94],
+          }}
+          className="inline-block"
+          style={{ perspective: '800px' }}
+        >
+          {char === ' ' ? '\u00A0' : char}
+        </motion.span>
+      ))}
+    </span>
+  )
+}
+
+function HeroSection() {
+  const ref = useRef<HTMLDivElement>(null)
+  const productRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
+  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0])
+  const scale = useTransform(scrollYProgress, [0, 0.8], [1, 0.9])
+
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!productRef.current) return
+    const { left, top, width, height } = productRef.current.getBoundingClientRect()
+    const x = (e.clientX - left) / width - 0.5
+    const y = (e.clientY - top) / height - 0.5
+    setMousePos({ x, y })
+  }, [])
+
+  const productRotateX = mousePos.y * -20
+  const productRotateY = mousePos.x * 20
+
+  return (
+    <section
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      className="relative min-h-screen flex items-center overflow-hidden bg-ebony"
+    >
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-b from-ebony via-charcoal to-ebony" />
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 50% 40%, rgba(212,175,55,0.12) 0%, transparent 70%)' }} />
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[300px] sm:w-[400px] md:w-[600px] h-[300px] sm:h-[400px] md:h-[600px] rounded-full border border-gold-400/5 animate-pulse-slow pointer-events-none" />
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[200px] sm:w-[280px] md:w-[400px] h-[200px] sm:h-[280px] md:h-[400px] rounded-full border border-gold-400/10 animate-pulse-slower pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-ebony via-ebony to-charcoal" />
+        <div
+          className="absolute inset-0 opacity-30"
+          style={{
+            background:
+              'radial-gradient(ellipse at 20% 50%, rgba(212,175,55,0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(212,175,55,0.04) 0%, transparent 60%)',
+          }}
+        />
+        <motion.div
+          className="absolute top-1/3 left-1/4 w-[400px] h-[400px] rounded-full border border-gold-400/5"
+          animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] rounded-full border border-gold-400/8"
+          animate={{ scale: [1, 1.15, 1], opacity: [0.2, 0.5, 0.2] }}
+          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+        />
       </div>
 
-      <motion.div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/10 to-black/50 z-[2]" style={{ opacity }} />
+      <motion.div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 z-[2]" style={{ opacity }} />
 
-      <div className="container-main relative z-10 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-        >
-          <div className="mx-auto mb-8">
-            <Image
-              src="/images/logo.png"
-              alt="Victorem"
-              width={140}
-              height={140}
-              className="mx-auto drop-shadow-[0_0_50px_rgba(212,175,55,0.25)]"
-              priority
-            />
-          </div>
+      <div className="container-main relative z-10 w-full">
+        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center min-h-[80vh]">
+          <motion.div style={{ scale }} className="text-center md:text-left">
+            <motion.span
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="inline-flex items-center gap-2 text-gold-400 text-[10px] font-semibold uppercase tracking-[0.2em] mb-6"
+            >
+              <Sparkles className="size-3" />
+              Colección Artesanal 2026
+            </motion.span>
+
+            <h1 className="font-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-light tracking-[0.08em] text-white mb-4 leading-none">
+              <LetterReveal text="DONDE EL ORO" delay={0.4} />
+              <br />
+              <LetterReveal text="ENCUENTRA SU FORMA" delay={1.0} className="text-gold-400" />
+            </h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 2.0 }}
+              className="text-sm md:text-base text-white/40 max-w-md mx-auto md:mx-0 mb-10 font-light leading-relaxed tracking-wider"
+            >
+              Artesanía en balinería de oro laminado 18K. Piezas únicas tejidas a mano para quienes entienden la diferencia entre un accesorio y una declaración.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 2.2 }}
+              className="flex flex-col sm:flex-row items-center md:items-start gap-4"
+            >
+              <MagneticButton asLink href="/catalogo">
+                <div className="min-w-[180px] px-6 py-3.5 bg-gold-400 text-ebony text-xs font-bold uppercase tracking-[0.2em] hover:bg-gold-300 transition-all duration-300 cursor-pointer shadow-[0_0_30px_rgba(212,175,55,0.15)] hover:shadow-[0_0_50px_rgba(212,175,55,0.3)] flex items-center justify-center gap-2 group">
+                  Colección
+                  <ArrowRight className="size-3.5 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </MagneticButton>
+              <MagneticButton asLink href="/personalizacion">
+                <div className="min-w-[180px] px-6 py-3.5 border border-gold-400/30 text-gold-400 text-xs font-bold uppercase tracking-[0.2em] hover:bg-gold-400/10 hover:border-gold-400/60 transition-all duration-300 cursor-pointer flex items-center justify-center">
+                  Personaliza
+                </div>
+              </MagneticButton>
+            </motion.div>
+          </motion.div>
 
           <motion.div
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 1.5, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.5 }}
-            className="w-16 h-px bg-gradient-to-r from-transparent via-gold-400 to-transparent mx-auto mb-8 origin-center"
-          />
-
-          <h1 className="font-heading text-5xl md:text-8xl font-light tracking-[0.15em] text-white mb-6 leading-none">
-            DONDE EL ORO
-            <br />
-            <span className="text-gold-400">ENCUENTRA SU FORMA</span>
-          </h1>
-
-          <p className="text-sm md:text-base text-silver/50 max-w-lg mx-auto mb-12 font-light leading-relaxed tracking-wider">
-            Artesanía en balinería de oro laminado 18K. Piezas únicas tejidas a mano para quienes entienden la diferencia entre un accesorio y una declaración.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
-            <Link href="/catalogo">
-              <Button size="lg" className="min-w-[200px] text-xs uppercase tracking-[0.2em] bg-gold-400 text-ebony hover:bg-gold-300 transition-all duration-500 group">
-                Colección <ArrowRight className="size-3.5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-            <Link href="/personalizacion">
-              <Button variant="outline" size="lg" className="min-w-[200px] text-xs uppercase tracking-[0.2em] border-gold-400/30 text-gold-400 hover:bg-gold-400/10 hover:border-gold-400/60 transition-all duration-500">
-                Personaliza
-              </Button>
-            </Link>
-          </div>
-        </motion.div>
+            ref={productRef}
+            initial={{ opacity: 0, x: 60 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1.2, delay: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="hidden md:flex items-center justify-center relative"
+            style={{
+              rotateX: productRotateX,
+              rotateY: productRotateY,
+              transformStyle: 'preserve-3d',
+              perspective: '1000px',
+            }}
+          >
+            <motion.div
+              animate={{ y: [0, -12, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+              className="relative w-[400px] h-[500px] lg:w-[500px] lg:h-[600px]"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-gold-400/10 via-transparent to-gold-400/5 rounded-full blur-3xl" />
+              <div className="relative size-full overflow-hidden">
+                <Image
+                  src="/assets/images/van cleef dorada.jpeg"
+                  alt="Pulsera Van Cleef Dorada"
+                  fill
+                  className="object-contain p-8 drop-shadow-[0_0_60px_rgba(212,175,55,0.15)]"
+                  priority
+                />
+              </div>
+              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-[80%] h-8 bg-gradient-to-r from-transparent via-gold-400/20 to-transparent blur-2xl" />
+            </motion.div>
+          </motion.div>
+        </div>
       </div>
 
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-25">
-        <span className="text-[10px] uppercase tracking-[0.3em] text-silver">Descubre</span>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 3.0 }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+      >
+        <span className="text-[10px] uppercase tracking-[0.3em] text-white/20">Descubre</span>
         <motion.div
           animate={{ y: [0, 6, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
-          className="w-px h-10 bg-gradient-to-b from-gold-400 to-transparent"
+          className="w-px h-8 bg-gradient-to-b from-gold-400/60 to-transparent"
         />
-      </div>
+      </motion.div>
     </section>
   )
 }
@@ -95,70 +233,121 @@ function HeroSection() {
 function CraftsmanshipSection() {
   return (
     <section className="relative py-28 md:py-36 overflow-hidden bg-ebony">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gold-400/5 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gold-400/[0.02] to-transparent pointer-events-none" />
       <div className="container-main relative z-10">
-        <div className="grid md:grid-cols-2 gap-16 md:gap-24 items-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <span className="text-gold-400 text-xs font-semibold uppercase tracking-[0.15em] block mb-3">Artesanía</span>
+          <h2 className="font-heading text-3xl md:text-5xl font-light text-white tracking-wide">
+            El Arte del <span className="text-gold-400">Balín Perfecto</span>
+          </h2>
+        </motion.div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 auto-rows-[200px] md:auto-rows-[240px]">
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.8 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.5 }}
+            className="col-span-2 row-span-2 relative overflow-hidden bg-gradient-to-br from-stone-950 to-ebony border border-white/5 group cursor-pointer"
           >
-            <span className="text-gold-400 text-xs font-semibold uppercase tracking-[0.15em] block mb-4">Artesanía</span>
-            <h2 className="font-heading text-3xl md:text-5xl font-light text-white tracking-wide mb-8 leading-tight">
-              El Arte del<br />
-              <span className="text-gold-400">Balín Perfecto</span>
-            </h2>
-            <div className="space-y-5 text-silver/60 text-sm leading-relaxed">
-              <p>
-                Cada pieza Victorem nace de la paciencia y la precisión. Nuestros maestros artesanos seleccionan, alinean y tejen cada balín de oro laminado 18K uno por uno, creando patrones que fluyen con la luz.
-              </p>
-              <p>
-                No producimos en masa. Cada joya es un diálogo entre el diseñador y el material, un proceso que puede tomar días para una sola pieza. Porque la belleza verdadera no se fabrica — se construye, eslabón por eslabón.
-              </p>
+            <Image
+              src="/assets/images/Historia.jpg"
+              alt="Artesanía Victorem"
+              fill
+              className="object-cover opacity-60 group-hover:opacity-80 transition-all duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-ebony via-transparent to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+              <p className="text-xs text-gold-400/80 uppercase tracking-[0.15em] mb-2">Tradición</p>
+              <h3 className="font-heading text-xl md:text-2xl text-white font-medium">Hecho a Mano en Campoalegre</h3>
             </div>
-            <Link href="/historia">
-              <Button variant="ghost" className="mt-8 text-gold-400 hover:text-gold-300 text-xs uppercase tracking-widest group">
-                Conoce Nuestra Historia <ArrowRight className="size-3.5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative aspect-square md:aspect-[4/5] bg-stone-950/80 border border-white/5 overflow-hidden"
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="col-span-2 md:col-span-1 row-span-1 relative overflow-hidden bg-white/[0.02] border border-white/[0.06] p-6 md:p-8 flex flex-col justify-center group hover:border-gold-400/20 transition-all"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-gold-400/5 to-transparent" />
-            <div className="absolute inset-0 flex items-center justify-center p-12">
-              <Image
-                src="/assets/images/Historia.jpg"
-                alt="Artesanía Victorem"
-                width={400}
-                height={500}
-                className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-700"
-              />
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-ebony to-transparent" />
+            <span className="text-3xl md:text-4xl text-gold-400 mb-3">✦</span>
+            <h3 className="font-heading text-base md:text-lg text-white font-medium mb-2">Selección</h3>
+            <p className="text-xs text-silver/50 leading-relaxed">Cada balín se examina por brillo, tamaño y consistencia antes de ser tejido.</p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="col-span-2 md:col-span-1 row-span-1 relative overflow-hidden bg-white/[0.02] border border-white/[0.06] p-6 md:p-8 flex flex-col justify-center group hover:border-gold-400/20 transition-all"
+          >
+            <span className="text-3xl md:text-4xl text-gold-400 mb-3">◎</span>
+            <h3 className="font-heading text-base md:text-lg text-white font-medium mb-2">Tejido</h3>
+            <p className="text-xs text-silver/50 leading-relaxed">Enhebrado uno por uno sobre hilo de alta resistencia formando patrones precisos.</p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="col-span-2 md:col-span-1 row-span-1 relative overflow-hidden bg-white/[0.02] border border-white/[0.06] p-6 md:p-8 flex flex-col justify-center group hover:border-gold-400/20 transition-all"
+          >
+            <span className="text-3xl md:text-4xl text-gold-400 mb-3">◈</span>
+            <h3 className="font-heading text-base md:text-lg text-white font-medium mb-2">Montaje</h3>
+            <p className="text-xs text-silver/50 leading-relaxed">Incorporación de dijones y ajuste de tensión para simetría perfecta.</p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="col-span-2 md:col-span-1 row-span-1 relative overflow-hidden bg-white/[0.02] border border-white/[0.06] p-6 md:p-8 flex flex-col justify-center group hover:border-gold-400/20 transition-all"
+          >
+            <span className="text-3xl md:text-4xl text-gold-400 mb-3">✨</span>
+            <h3 className="font-heading text-base md:text-lg text-white font-medium mb-2">Acabado</h3>
+            <p className="text-xs text-silver/50 leading-relaxed">Pulido final y control de calidad antes de ser empacada a mano.</p>
           </motion.div>
         </div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+          className="text-center mt-10"
+        >
+          <Link href="/historia">
+            <Button variant="ghost" className="text-gold-400 hover:text-gold-300 text-xs uppercase tracking-widest group">
+              Conoce Nuestra Historia <ArrowRight className="size-3.5 ml-2 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </Link>
+        </motion.div>
       </div>
     </section>
   )
 }
 
 function ProductsSection() {
+  const marqueeRef = useRef<HTMLDivElement>(null)
+
   return (
-    <section className="py-20 md:py-28 bg-surface dark:bg-ebony transition-colors duration-500">
-      <div className="container-main">
+    <section className="py-20 md:py-28 bg-surface dark:bg-ebony transition-colors duration-500 overflow-hidden">
+      <div className="container-main mb-10 md:mb-14">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6"
+          className="flex flex-col md:flex-row justify-between items-end gap-6"
         >
           <div>
             <span className="text-gold-400 text-xs font-semibold uppercase tracking-[0.2em] block mb-3">Colección</span>
@@ -166,21 +355,28 @@ function ProductsSection() {
               Piezas Destacadas
             </h2>
           </div>
-          <Link href="/catalogo" className="group flex items-center gap-3 text-sm text-stone dark:text-silver hover:text-gold-400 transition-colors">
+          <Link href="/catalogo" className="group flex items-center gap-3 text-sm text-stone dark:text-silver hover:text-gold-400 transition-colors shrink-0">
             <span className="text-xs font-semibold uppercase tracking-wider">Ver Todo</span>
             <div className="w-8 h-px bg-stone dark:bg-silver group-hover:bg-gold-400 group-hover:w-12 transition-all" />
           </Link>
         </motion.div>
+      </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {PRODUCTS.map((product, i) => (
+      <div
+        ref={marqueeRef}
+        className="flex gap-4 md:gap-6 px-4 overflow-hidden"
+      >
+        <motion.div
+          animate={{ x: ['0%', '-50%'] }}
+          transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+          className="flex gap-4 md:gap-6 shrink-0"
+          style={{ willChange: 'transform' }}
+        >
+          {[...PRODUCTS, ...PRODUCTS].map((product, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-50px' }}
-              transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="group bg-white dark:bg-white/5 backdrop-blur-md border border-black/5 dark:border-white/10 overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(212,175,55,0.08)]"
+              whileHover={{ scale: 1.02 }}
+              className="group relative w-[260px] md:w-[320px] shrink-0 bg-white dark:bg-white/5 backdrop-blur-md border border-black/5 dark:border-white/10 overflow-hidden transition-all duration-500 hover:shadow-[0_0_40px_rgba(212,175,55,0.08)]"
             >
               <Link href="/catalogo">
                 <div className="aspect-[4/5] overflow-hidden relative bg-stone-950">
@@ -211,22 +407,22 @@ function ProductsSection() {
               </div>
             </motion.div>
           ))}
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="text-center mt-12"
-        >
-          <Link href="/catalogo">
-            <Button variant="outline" className="text-xs uppercase tracking-[0.2em] border-stone/30 text-stone hover:border-gold-400 hover:text-gold-400 transition-all">
-              Explorar Catálogo Completo <ArrowRight className="size-3.5 ml-2" />
-            </Button>
-          </Link>
         </motion.div>
       </div>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="text-center mt-12 container-main"
+      >
+        <Link href="/catalogo">
+          <Button variant="outline" className="text-xs uppercase tracking-[0.2em] border-stone/30 text-stone hover:border-gold-400 hover:text-gold-400 transition-all">
+            Explorar Catálogo Completo <ArrowRight className="size-3.5 ml-2" />
+          </Button>
+        </Link>
+      </motion.div>
     </section>
   )
 }

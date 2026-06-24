@@ -13,26 +13,26 @@ const FOOTER_LINKS = [
 
 export function Footer() {
   return (
-    <footer className="bg-ebony text-white border-t border-gold-400/10">
-      <div className="container-main py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
-          <div className="space-y-4">
-            <h3 className="font-heading text-lg font-medium tracking-wide text-gold-400">
-              VICTOREM
+    <footer className="bg-ebony text-white border-t border-white/5">
+      <div className="container-main py-16 md:py-20">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-16">
+          <div className="col-span-2 md:col-span-1 space-y-5">
+            <h3 className="font-heading text-2xl font-medium tracking-wide text-gold-400">
+              Victorem
             </h3>
-            <p className="text-sm text-silver leading-relaxed">
+            <p className="text-sm text-white/40 leading-relaxed max-w-xs">
               Arte en cada balín, elegancia en cada detalle. Joyas artesanales en balinería con oro laminado 18K, hechas a mano en Campoalegre, Huila.
             </p>
           </div>
 
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-[0.12em] text-gold-400 mb-4">
-              Enlaces
+            <h4 className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/30 mb-4">
+              Explorar
             </h4>
             <ul className="space-y-2.5">
               {FOOTER_LINKS.slice(0, 4).map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-silver hover:text-gold-400 transition-colors duration-300">
+                  <Link href={link.href} className="text-sm text-white/60 hover:text-gold-400 transition-colors duration-300">
                     {link.label}
                   </Link>
                 </li>
@@ -41,13 +41,13 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-[0.12em] text-gold-400 mb-4">
-              Ayuda
+            <h4 className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/30 mb-4">
+              Información
             </h4>
             <ul className="space-y-2.5">
               {FOOTER_LINKS.slice(4).map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-silver hover:text-gold-400 transition-colors duration-300">
+                  <Link href={link.href} className="text-sm text-white/60 hover:text-gold-400 transition-colors duration-300">
                     {link.label}
                   </Link>
                 </li>
@@ -56,43 +56,45 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-[0.12em] text-gold-400 mb-4">
+            <h4 className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/30 mb-4">
               Contacto
             </h4>
-            <ul className="space-y-3 text-sm text-silver">
+            <ul className="space-y-3 text-sm">
               <li>
-                <span className="block text-white/60 text-xs uppercase tracking-wider mb-0.5">Dirección</span>
-                {CONTACT.address}
+                <span className="block text-white/30 text-[10px] uppercase tracking-wider mb-0.5">Ubicación</span>
+                <span className="text-white/60">{CONTACT.address}</span>
               </li>
               <li>
-                <span className="block text-white/60 text-xs uppercase tracking-wider mb-0.5">Teléfono</span>
-                {CONTACT.phone}
+                <span className="block text-white/30 text-[10px] uppercase tracking-wider mb-0.5">WhatsApp</span>
+                <a href={CONTACT.whatsapp} target="_blank" rel="noopener noreferrer" className="text-gold-400 hover:text-gold-300 transition-colors">
+                  {CONTACT.phone}
+                </a>
               </li>
               <li>
-                <span className="block text-white/60 text-xs uppercase tracking-wider mb-0.5">Email</span>
-                {CONTACT.email}
-              </li>
-              <li>
-                <span className="block text-white/60 text-xs uppercase tracking-wider mb-0.5">Horario</span>
-                {CONTACT.hours}
+                <span className="block text-white/30 text-[10px] uppercase tracking-wider mb-0.5">Email</span>
+                <a href={`mailto:${CONTACT.email}`} className="text-white/60 hover:text-gold-400 transition-colors">
+                  {CONTACT.email}
+                </a>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex flex-wrap gap-2">
-            {['NEQUI'].map((method) => (
-              <span key={method} className="px-3 py-1.5 text-[0.625rem] font-semibold tracking-wider bg-white/5 text-silver border border-white/5">
-                {method}
-              </span>
-            ))}
-          </div>
-          <p className="text-xs text-silver/60">
-            © {new Date().getFullYear()} Victorem. Todos los derechos reservados.
+        <div className="mt-14 pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-xs text-white/20">
+            © {new Date().getFullYear()} Victorem. Hecho a mano en Colombia.
           </p>
+          <div className="flex items-center gap-3">
+            <span className="px-3 py-1 text-[10px] font-semibold tracking-wider bg-white/5 text-white/30 border border-white/5">
+              NEQUI
+            </span>
+            <span className="px-3 py-1 text-[10px] font-semibold tracking-wider bg-white/5 text-white/30 border border-white/5">
+              WOMPI
+            </span>
+          </div>
         </div>
       </div>
     </footer>
   )
 }
+
