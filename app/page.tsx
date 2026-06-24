@@ -60,23 +60,32 @@ function MagneticButton({ children, className, asLink, href, onClick, ...props }
 }
 
 function LetterReveal({ text, className, delay = 0 }: { text: string; className?: string; delay?: number }) {
+  const words = text.split(' ')
+  let charIndex = 0
   return (
-    <span className={cn("inline-flex flex-wrap", className)}>
-      {text.split('').map((char, i) => (
-        <motion.span
-          key={i}
-          initial={{ opacity: 0, y: 40, rotateX: -90 }}
-          animate={{ opacity: 1, y: 0, rotateX: 0 }}
-          transition={{
-            duration: 0.6,
-            delay: delay + i * 0.035,
-            ease: [0.25, 0.46, 0.45, 0.94],
-          }}
-          className="inline-block"
-          style={{ perspective: '800px' }}
-        >
-          {char === ' ' ? '\u00A0' : char}
-        </motion.span>
+    <span className={cn("inline flex-wrap", className)}>
+      {words.map((word, w) => (
+        <span key={w} className="inline-flex whitespace-nowrap">
+          {word.split('').map((char) => {
+            const currentIndex = charIndex++
+            return (
+              <motion.span
+                key={currentIndex}
+                initial={{ opacity: 0, y: 40, rotateX: -90 }}
+                animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                transition={{
+                  duration: 0.6,
+                  delay: delay + currentIndex * 0.035,
+                  ease: [0.25, 0.46, 0.45, 0.94],
+                }}
+                style={{ perspective: '800px' }}
+              >
+                {char}
+              </motion.span>
+            )
+          })}
+          {w < words.length - 1 && '\u00A0'}
+        </span>
       ))}
     </span>
   )
