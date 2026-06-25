@@ -1,12 +1,14 @@
 'use client'
 
-import { useRef, useCallback, useState } from 'react'
+import { useRef, useCallback, useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from './button'
 import { toast } from 'sonner'
 import { useCartStore } from '@/store/useCartStore'
-import { Users, Eye } from 'lucide-react'
+import { useFavoritesStore } from '@/store/useFavoritesStore'
+import { useAuthStore } from '@/store/useAuthStore'
+import { Users, Eye, Heart } from 'lucide-react'
 import { motion, useMotionValue, useSpring } from 'framer-motion'
 
 interface ProductCardProps {
@@ -27,7 +29,26 @@ const shimmer = 'data:image/svg+xml;base64,' + Buffer.from(
 export function ProductCard({ id, name, description, price, imageUrl, priority, view_count, onViewDetail }: ProductCardProps) {
   const [adding, setAdding] = useState(false)
   const { addItem } = useCartStore()
+  const { ids, toggle, syncFromServer } = useFavoritesStore()
+  const { isAuthenticated } = useAuthStore()
   const cardRef = useRef<HTMLDivElement>(null)
+  const [favorite, setFavorite] = useState(false)
+
+  useEffect(() => {
+    if (isAuthenticated) syncFromServer()
+  }, [isAuthenticated])
+
+  useEffect(() => {
+    setFavorite(ids.includes(id))
+  }, [id, ids])
+
+  const handleToggleFavorite = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    e.preventDefault()
+    await toggle(id, { name, price, imageUrl: imageUrl ?? '' })
+    setFavorite(ids.includes(id))
+    toast.success(favorite ? 'Eliminado de favoritos' : 'Agregado a favoritos')
+  }
 
   const x = useMotionValue(0)
   const y = useMotionValue(0)
@@ -125,7 +146,16 @@ export function ProductCard({ id, name, description, price, imageUrl, priority, 
       </div>
 
       <div className="p-5 space-y-2">
-        <h3 className="font-heading text-lg font-medium text-iron tracking-wide">{name}</h3>
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-heading text-lg font-medium text-iron tracking-wide">{name}</h3>
+          <button
+            onClick={handleToggleFavorite}
+            className="shrink-0 p-1.5 -mr-1.5 -mt-1 text-stone hover:text-red-400 transition-colors"
+            aria-label={favorite ? 'Eliminar de favoritos' : 'Agregar a favoritos'}
+          >
+            <Heart className={`size-4 transition-all ${favorite ? 'fill-red-400 text-red-400' : ''}`} />
+          </button>
+        </div>
         <p className="text-xs text-stone leading-relaxed line-clamp-2">{description}</p>
         <p className="font-heading text-lg font-semibold text-gold-400 pt-1">{formattedPrice}</p>
       </div>

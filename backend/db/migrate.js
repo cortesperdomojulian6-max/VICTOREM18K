@@ -66,6 +66,20 @@ const MIGRATIONS = [
       CREATE INDEX IF NOT EXISTS idx_custom_orders_user  ON custom_orders(user_id);
     `,
   },
+  {
+    name: '006_create_favorites',
+    sql: `
+      CREATE TABLE IF NOT EXISTS favorites (
+        id          SERIAL PRIMARY KEY,
+        user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        product_id  INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+        created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        UNIQUE(user_id, product_id)
+      );
+      CREATE INDEX IF NOT EXISTS idx_favorites_user    ON favorites(user_id);
+      CREATE INDEX IF NOT EXISTS idx_favorites_product ON favorites(product_id);
+    `,
+  },
 ];
 
 (async () => {

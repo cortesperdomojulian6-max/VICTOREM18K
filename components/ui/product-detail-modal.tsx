@@ -8,6 +8,7 @@ import { formatPrice, productImageUrl } from '@/lib/utils'
 import { api } from '@/lib/api'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useFavoritesStore } from '@/store/useFavoritesStore'
 import type { Product } from '@/types'
 
 interface ProductDetailModalProps {
@@ -28,6 +29,21 @@ export function ProductDetailModal({ product, open, onClose }: ProductDetailModa
   const [adding, setAdding] = useState(false)
   const [selectedColor, setSelectedColor] = useState('#d4af37')
   const [showFullDesc, setShowFullDesc] = useState(false)
+  const { ids, toggle, syncFromServer } = useFavoritesStore()
+  const [favorite, setFavorite] = useState(false)
+
+  useEffect(() => { syncFromServer() }, [])
+
+  useEffect(() => {
+    if (product) setFavorite(ids.includes(product.id))
+  }, [product, ids])
+
+  const handleToggleFavorite = async () => {
+    if (!product) return
+    await toggle(product.id, { name: product.name, price: Number(product.price), imageUrl: product.image_url ?? '' })
+    setFavorite(ids.includes(product.id))
+    toast.success(favorite ? 'Eliminado de favoritos' : 'Agregado a favoritos')
+  }
   const [recommendations, setRecommendations] = useState<Product[]>([])
   const [recsLoading, setRecsLoading] = useState(false)
 
@@ -202,8 +218,8 @@ export function ProductDetailModal({ product, open, onClose }: ProductDetailModa
                   >
                     <ShoppingBag className="size-4 mr-2" /> Agregar al Carrito
                   </Button>
-                  <Button variant="outline" size="icon" aria-label="Guardar">
-                    <Heart className="size-4" />
+                  <Button variant="outline" size="icon" aria-label="Guardar" onClick={handleToggleFavorite}>
+                    <Heart className={`size-4 transition-all ${favorite ? 'fill-red-400 text-red-400' : ''}`} />
                   </Button>
                 </div>
 

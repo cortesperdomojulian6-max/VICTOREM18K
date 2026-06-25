@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, Star, Sparkles } from 'lucide-react'
+import { ArrowRight, Sparkles, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion'
@@ -386,9 +386,6 @@ function ProductsSection() {
                 <p className="text-xs text-on-surface-variant mb-3 line-clamp-2 leading-relaxed">{product.desc}</p>
                 <div className="flex justify-between items-center pt-3 border-t border-border-subtle">
                   <span className="text-metallic-gold font-bold text-sm md:text-base">{product.price}</span>
-                  <button className="text-on-surface-variant hover:text-metallic-gold transition-colors">
-                    <Star className="size-4" />
-                  </button>
                 </div>
               </div>
             </motion.div>

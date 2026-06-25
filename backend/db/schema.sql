@@ -181,6 +181,22 @@ CREATE INDEX idx_custom_orders_order ON custom_orders(order_id);
 CREATE INDEX idx_custom_orders_user  ON custom_orders(user_id);
 
 -- ============================================================
+-- TABLA: favorites
+-- Productos favoritos / wishlist de cada usuario
+-- ============================================================
+DROP TABLE IF EXISTS favorites CASCADE;
+CREATE TABLE favorites (
+    id          SERIAL PRIMARY KEY,
+    user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    product_id  INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(user_id, product_id)
+);
+
+CREATE INDEX idx_favorites_user    ON favorites(user_id);
+CREATE INDEX idx_favorites_product ON favorites(product_id);
+
+-- ============================================================
 -- TRIGGER: actualizar 'updated_at' automáticamente
 -- ============================================================
 CREATE OR REPLACE FUNCTION trigger_set_updated_at()

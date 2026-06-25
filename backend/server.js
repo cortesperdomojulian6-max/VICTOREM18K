@@ -105,6 +105,7 @@ app.use('/api/custom-orders', require('./routes/customOrders'));
 app.use('/api/describe',  require('./routes/describe'));
 app.use('/api/recommendations', require('./routes/recommendations'));
 app.use('/api/search', require('./routes/search'));
+app.use('/api/favorites', require('./routes/favorites'));
 
 // Health check
 app.get('/api/health', async (req, res) => {
