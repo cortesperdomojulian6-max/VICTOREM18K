@@ -61,13 +61,23 @@ async function updateItem(userId, itemId, quantity) {
   if (!quantity || quantity < 1) {
     throw new ValidationError('Cantidad debe ser mayor a 0');
   }
+  const item = await db.query(
+    `SELECT ci.product_id, p.stock
+     FROM cart_items ci
+     JOIN products p ON ci.product_id = p.id
+     WHERE ci.id = $1 AND ci.user_id = $2`,
+    [itemId, userId]
+  );
+  if (item.rows.length === 0) {
+    throw new NotFoundError('Item no encontrado');
+  }
+  if (quantity > item.rows[0].stock) {
+    throw new ValidationError(`Stock insuficiente. Disponible: ${item.rows[0].stock}`);
+  }
   const result = await db.query(
     'UPDATE cart_items SET cantidad = $1 WHERE id = $2 AND user_id = $3 RETURNING *',
     [quantity, itemId, userId]
   );
-  if (result.rowCount === 0) {
-    throw new NotFoundError('Item no encontrado');
-  }
   return result.rows[0];
 }
 

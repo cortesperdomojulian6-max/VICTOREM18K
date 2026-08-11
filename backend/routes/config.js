@@ -3,8 +3,7 @@ const router = express.Router();
 
 router.get('/', (req, res) => {
   res.json({
-    shipping: 10000,
-    freeShippingThreshold: 200000
+    shipping: 10000
   });
 });
 

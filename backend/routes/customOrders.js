@@ -2,7 +2,7 @@ const express = require('express');
 const db = require('../db');
 const asyncHandler = require('../middleware/asyncHandler');
 const { requireAuth } = require('../middleware/auth');
-const { ValidationError, NotFoundError } = require('../services/errors');
+const { ValidationError, ForbiddenError, NotFoundError } = require('../services/errors');
 
 const router = express.Router();
 
@@ -11,6 +11,14 @@ router.post('/', requireAuth, asyncHandler(async (req, res) => {
 
   if (!order_id || !configuracion) {
     throw new ValidationError('order_id y configuracion requeridos');
+  }
+
+  const order = await db.query(
+    'SELECT id FROM orders WHERE id = $1 AND user_id = $2',
+    [order_id, req.user.id]
+  );
+  if (order.rows.length === 0) {
+    throw new ForbiddenError('Orden no encontrada');
   }
 
   const existing = await db.query(

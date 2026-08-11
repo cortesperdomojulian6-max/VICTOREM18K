@@ -36,7 +36,7 @@ export function ProductCard({ id, name, description, price, imageUrl, priority, 
 
   useEffect(() => {
     if (isAuthenticated) syncFromServer()
-  }, [isAuthenticated])
+  }, [isAuthenticated, syncFromServer])
 
   useEffect(() => {
     setFavorite(ids.includes(id))

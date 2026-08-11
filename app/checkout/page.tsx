@@ -29,7 +29,7 @@ export default function CheckoutPage() {
   const searchParams = useSearchParams()
   const { items: cartItems, total, syncFromServer: syncCart, clearCart } = useCartStore()
   const { isAuthenticated, isLoading: authLoading, user } = useAuthStore()
-  const [shippingConfig, setShippingConfig] = useState({ shipping: 10000, freeShippingThreshold: 200000 })
+  const [shipping, setShipping] = useState(10000)
   const [userProfile, setUserProfile] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -54,10 +54,10 @@ export default function CheckoutPage() {
         const [userData, addresses, configRes] = await Promise.all([
           api.get<User>('/users/profile'),
           api.get<Address[]>('/addresses'),
-          api.get<{ shipping: number, freeShippingThreshold: number }>('/config').catch(() => ({ shipping: 10000, freeShippingThreshold: 200000 }))
+          api.get<{ shipping: number }>('/config').catch(() => ({ shipping: 10000 }))
         ])
         setUserProfile(userData)
-        setShippingConfig(configRes)
+        setShipping(configRes.shipping)
 
         if (addresses.length > 0) {
           const addr = addresses[0]
@@ -384,14 +384,12 @@ export default function CheckoutPage() {
 
               <div className="flex justify-between text-sm text-muted mb-2">
                 <span>Envío</span>
-                <span className="font-medium text-primary">
-                  {total >= shippingConfig.freeShippingThreshold ? 'Gratis' : formatPrice(shippingConfig.shipping)}
-                </span>
+                <span className="font-medium text-primary">{formatPrice(shipping)}</span>
               </div>
 
               <div className="flex justify-between font-heading text-xl font-semibold text-gold-400 pt-4 border-t-2 border-border">
                 <span>Total</span>
-                <span>{formatPrice(total + (total >= shippingConfig.freeShippingThreshold ? 0 : shippingConfig.shipping))}</span>
+                <span>{formatPrice(total + shipping)}</span>
               </div>
 
               <Button

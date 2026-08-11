@@ -16,7 +16,7 @@ export default function CarritoPage() {
   const router = useRouter()
   const { items, localItems, total, isLoading, updateQuantity, removeItem } = useCartStore()
   const { isAuthenticated, isLoading: authLoading } = useAuthStore()
-  const [shippingConfig, setShippingConfig] = useState({ shipping: 10000, freeShippingThreshold: 200000 })
+  const [shipping, setShipping] = useState(10000)
   const [updating, setUpdating] = useState<string | number | null>(null)
 
   const displayItems = isAuthenticated
@@ -24,8 +24,8 @@ export default function CarritoPage() {
     : localItems.map(i => ({ id: i.localId, name: i.name, price: i.price, quantity: i.quantity, imageUrl: i.imageUrl }))
 
   useEffect(() => {
-    api.get<{ shipping: number, freeShippingThreshold: number }>('/config')
-      .then(res => setShippingConfig(res))
+    api.get<{ shipping: number }>('/config')
+      .then(res => setShipping(res.shipping))
       .catch(() => {})
   }, [])
 
@@ -150,43 +150,23 @@ export default function CarritoPage() {
                   Resumen
                 </h2>
                 <div className="space-y-3 text-sm">
-                  {total < shippingConfig.freeShippingThreshold ? (
-                    <div className="bg-hover p-3 border border-subtle space-y-2 mb-4">
-                      <p className="text-xs text-muted font-medium text-center">
-                        ¡Faltan {formatPrice(shippingConfig.freeShippingThreshold - total)} para envío gratis!
-                      </p>
-                      <div className="w-full bg-pearl h-2 overflow-hidden">
-                        <div 
-                          className="bg-gold-400 h-full transition-all duration-500" 
-                          style={{ width: `${Math.min(100, (total / shippingConfig.freeShippingThreshold) * 100)}%` }}
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="bg-green-50 text-green-700 p-3 text-sm font-medium text-center mb-4 border border-green-200">
-                      ¡Tienes envío gratis!
-                    </div>
-                  )}
-                  
                   <div className="flex justify-between text-muted">
                     <span>Subtotal</span>
                     <span className="font-medium text-primary">{formatPrice(total)}</span>
                   </div>
                   <div className="flex justify-between text-muted">
                     <span>Envío</span>
-                    <span className="font-medium text-primary">
-                      {total >= shippingConfig.freeShippingThreshold ? 'Gratis' : formatPrice(shippingConfig.shipping)}
-                    </span>
+                    <span className="font-medium text-primary">{formatPrice(shipping)}</span>
                   </div>
                   <div className="pt-3 border-t border-border flex justify-between font-heading text-xl font-semibold text-gold-400">
                     <span>Total</span>
-                    <span>{formatPrice(total + (total >= shippingConfig.freeShippingThreshold ? 0 : shippingConfig.shipping))}</span>
+                    <span>{formatPrice(total + shipping)}</span>
                   </div>
                 </div>
                 <Button className="w-full mt-6" size="lg" onClick={() => router.push('/checkout')}>
                   Finalizar Compra <ArrowRight className="size-4 ml-2" />
                 </Button>
-                <p className="text-xs text-muted text-center mt-3">Envío: {formatPrice(shippingConfig.shipping)} a todo Colombia</p>
+                <p className="text-xs text-muted text-center mt-3">Envío: {formatPrice(shipping)} a todo Colombia</p>
               </div>
             </div>
           </div>

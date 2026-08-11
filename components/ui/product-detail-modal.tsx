@@ -32,7 +32,7 @@ export function ProductDetailModal({ product, open, onClose }: ProductDetailModa
   const { ids, toggle, syncFromServer } = useFavoritesStore()
   const [favorite, setFavorite] = useState(false)
 
-  useEffect(() => { syncFromServer() }, [])
+  useEffect(() => { syncFromServer() }, [syncFromServer])
 
   useEffect(() => {
     if (product) setFavorite(ids.includes(product.id))

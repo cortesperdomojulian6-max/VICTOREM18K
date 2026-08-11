@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { IncomingMessage } from 'http'
+import { Duplex } from 'stream'
 import type { RequestListener } from 'http'
-import { Readable } from 'stream'
-
-function toBuffer(chunk: unknown): Buffer {
-  if (chunk instanceof Buffer) return chunk
-  if (chunk instanceof Uint8Array) return Buffer.from(chunk)
-  if (typeof chunk === 'string') return Buffer.from(chunk)
-  return Buffer.from(String(chunk))
-}
 
 function fromHeaders(headers: Record<string, string | string[]>): Headers {
   const h = new Headers()
@@ -21,32 +15,34 @@ function fromHeaders(headers: Record<string, string | string[]>): Headers {
   return h
 }
 
+function createIncomingMessage(request: NextRequest, bodyBuffer?: Buffer): IncomingMessage {
+  const msg = new IncomingMessage(null as unknown as import('net').Socket)
+  msg.method = request.method
+  msg.url = request.nextUrl.pathname + request.nextUrl.search
+  msg.headers = Object.fromEntries(request.headers.entries()) as Record<string, string>
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || request.headers.get('x-real-ip')
+    || '127.0.0.1'
+  const socket = new Duplex({ read() {}, write(_c, _e, cb) { cb() } })
+  ;(socket as unknown as { remoteAddress: string }).remoteAddress = ip
+  const enhanced = msg as IncomingMessage & { ip?: string; socket: unknown }
+  enhanced.ip = ip
+  enhanced.socket = socket as unknown as import('net').Socket
+  if (bodyBuffer) {
+    msg.push(bodyBuffer)
+  }
+  msg.push(null)
+  return msg
+}
+
 export function createExpressHandler(app: RequestListener) {
   return async (request: NextRequest): Promise<NextResponse> => {
-    const url = new URL(request.url)
-
     const bodyBuffer =
       request.method !== 'GET' && request.method !== 'HEAD'
         ? Buffer.from(await request.arrayBuffer())
         : undefined
 
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-      || request.headers.get('x-real-ip')
-      || '127.0.0.1'
-
-    const req = Object.assign(new Readable({
-      read() {
-        if (bodyBuffer) this.push(bodyBuffer)
-        this.push(null)
-      },
-    }), {
-      method: request.method,
-      url: url.pathname + url.search,
-      headers: Object.fromEntries(request.headers.entries()),
-      ip,
-      socket: { setTimeout: () => {}, destroy: () => {} },
-      connection: { setTimeout: () => {} },
-    })
+    const req = createIncomingMessage(request, bodyBuffer)
 
     const chunks: Buffer[] = []
     const responseHeaders: Record<string, string | string[]> = {}
@@ -79,12 +75,21 @@ export function createExpressHandler(app: RequestListener) {
       },
 
       write(chunk: unknown) {
-        if (chunk !== null && chunk !== undefined) chunks.push(toBuffer(chunk))
+        if (chunk !== null && chunk !== undefined) {
+          chunks.push(
+            chunk instanceof Buffer ? chunk
+              : chunk instanceof Uint8Array ? Buffer.from(chunk)
+                : typeof chunk === 'string' ? Buffer.from(chunk)
+                  : Buffer.from(String(chunk))
+          )
+        }
         return true
       },
 
       end(chunk?: unknown) {
-        if (chunk !== null && chunk !== undefined) chunks.push(toBuffer(chunk))
+        if (chunk !== null && chunk !== undefined) {
+          serverRes.write(chunk)
+        }
         serverRes.headersSent = true
         if (resolvePromise) resolvePromise()
         return this
@@ -128,4 +133,3 @@ export function createExpressHandler(app: RequestListener) {
     })
   }
 }
-

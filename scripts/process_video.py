@@ -3,9 +3,22 @@ import cv2
 import numpy as np
 from rembg import remove
 import os
+import argparse
 
-input_video = r'C:\Users\Julian Cortes\Desktop\PROGRAMACION WEB\CODIGO\VICTOREM18K\public\assets\images\animacion\PixVerse_V6_Image_Text_360P_necesito_al_tio_ri.mp4'
-output_folder = r'C:\Users\Julian Cortes\Desktop\PROGRAMACION WEB\CODIGO\VICTOREM18K\public\assets\images\animacion\frames'
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+parser = argparse.ArgumentParser(description='Extrae frames con fondo transparente del video de animación del hero.')
+parser.add_argument('--input', default=os.path.join(
+    PROJECT_ROOT, 'public', 'assets', 'images', 'animacion',
+    'PixVerse_V6_Image_Text_360P_necesito_al_tio_ri.mp4'
+), help='Ruta al video fuente')
+parser.add_argument('--output', default=os.path.join(
+    PROJECT_ROOT, 'public', 'assets', 'images', 'animacion', 'frames'
+), help='Carpeta de salida para los frames PNG')
+args = parser.parse_args()
+
+input_video = args.input
+output_folder = args.output
 
 if not os.path.exists(output_folder):
     os.makedirs(output_folder)
