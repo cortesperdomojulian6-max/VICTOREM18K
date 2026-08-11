@@ -197,6 +197,18 @@ CREATE INDEX idx_favorites_user    ON favorites(user_id);
 CREATE INDEX idx_favorites_product ON favorites(product_id);
 
 -- ============================================================
+-- TABLA: newsletter_subscribers
+-- Suscriptores al boletín de novedades
+-- ============================================================
+CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+    id          SERIAL PRIMARY KEY,
+    email       VARCHAR(254) NOT NULL UNIQUE,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_newsletter_email ON newsletter_subscribers(email);
+
+-- ============================================================
 -- TRIGGER: actualizar 'updated_at' automáticamente
 -- ============================================================
 CREATE OR REPLACE FUNCTION trigger_set_updated_at()
