@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import {
-  Check, ArrowRight, ArrowLeft, ShoppingBag, Sparkles, Plus, X, GripVertical,
+  Check, ArrowRight, ArrowLeft, ShoppingBag, Sparkles, Plus, X, GripVertical, ChevronLeft, ChevronRight,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
@@ -37,6 +37,8 @@ export default function PersonalizacionPage() {
   const [loadingProducts, setLoadingProducts] = useState(false)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [showDijeGrid, setShowDijeGrid] = useState(false)
+  const [insertDijeIndex, setInsertDijeIndex] = useState<number | null>(null)
+  const [showNeoprenoMenu, setShowNeoprenoMenu] = useState(false)
   const { isAuthenticated } = useAuthStore()
   const { addItem } = useCartStore()
   const [description, setDescription] = useState<string | null>(null)
@@ -82,8 +84,38 @@ export default function PersonalizacionPage() {
   const addDijon = useCallback((id: string) => {
     const d = getDijon(id)
     if (!d) return
-    setSequence((prev) => [...prev, { kind: 'dijon', id: d.id, label: d.label, image: d.image }])
+    if (insertDijeIndex !== null) {
+      setSequence((prev) => {
+        const next = [...prev]
+        next.splice(insertDijeIndex, 0, { kind: 'dijon', id: d.id, label: d.label, image: d.image })
+        return next
+      })
+      setInsertDijeIndex(null)
+    } else {
+      setSequence((prev) => [...prev, { kind: 'dijon', id: d.id, label: d.label, image: d.image }])
+    }
     setShowDijeGrid(false)
+  }, [insertDijeIndex])
+
+  const insertBalinAt = useCallback((index: number) => {
+    setSequence((prev) => {
+      const next = [...prev]
+      next.splice(index, 0, { kind: 'balin', type: defaultBalinType, size: 'medium' })
+      return next
+    })
+  }, [defaultBalinType])
+
+  const insertDijonAt = useCallback((index: number) => {
+    setInsertDijeIndex(index)
+    setShowDijeGrid(true)
+  }, [])
+
+  const insertNeoprenoAt = useCallback((index: number, color: string, label: string) => {
+    setSequence((prev) => {
+      const next = [...prev]
+      next.splice(index, 0, { kind: 'neopreno', color, label })
+      return next
+    })
   }, [])
 
   const removeItem = useCallback((index: number) => {
@@ -203,13 +235,16 @@ export default function PersonalizacionPage() {
     )
   }
 
-  function PreviewBlock({ onItemClick }: { onItemClick?: (index: number) => void }) {
+  function PreviewBlock({ onItemClick, editable }: { onItemClick?: (index: number) => void; editable?: boolean }) {
     return (
       <div className="mb-6">
         <BeadSequenceViewer
           items={sequence}
           material={material}
           onItemClick={onItemClick}
+          onInsertBalin={editable ? insertBalinAt : undefined}
+          onInsertDijon={editable ? insertDijonAt : undefined}
+          onInsertNeopreno={editable ? insertNeoprenoAt : undefined}
         />
       </div>
     )
@@ -220,11 +255,11 @@ export default function PersonalizacionPage() {
       case 0:
         return (
           <div className="space-y-8">
-            <PreviewBlock onItemClick={removeItem} />
+            <PreviewBlock onItemClick={removeItem} editable />
             <div className="space-y-6">
               <div className="text-center mb-8">
                 <p className="text-xs text-muted font-semibold uppercase tracking-wider mb-2">Configura tu Secuencia</p>
-                <p className="text-sm text-muted/60 font-light">Arrastra para reordenar, haz clic en un elemento para eliminarlo. Usa los + para insertar entre balines.</p>
+                <p className="text-sm text-muted/60 font-light">Toca los + para insertar balines, dijones o neoprenos en la posición que quieras. Clic en una pieza para eliminarla.</p>
               </div>
 
               <div className="flex flex-wrap justify-center gap-3 mb-8">
@@ -245,29 +280,31 @@ export default function PersonalizacionPage() {
                 <Button size="sm" variant="outline" onClick={addBalin}>
                   <Plus className="size-3.5 mr-1.5" /> Balín
                 </Button>
-                <div className="relative group">
-                  <Button size="sm" variant="outline">
+                <div className="relative">
+                  <Button size="sm" variant="outline" onClick={() => setShowNeoprenoMenu(!showNeoprenoMenu)}>
                     <Plus className="size-3.5 mr-1.5" /> Neopreno
                   </Button>
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 hidden group-hover:block z-20">
-                    <div className="bg-elevated shadow-xl border border-subtle p-3 grid grid-cols-4 gap-2 min-w-[200px]">
-                      {NEOPRENO_COLORS.map((n) => (
-                        <button
-                          key={n.color}
-                          onClick={() => addNeopreno(n.color, n.label)}
-                          className="flex flex-col items-center gap-1 p-2 hover:bg-surface transition-colors rounded"
-                          title={n.label}
-                        >
-                          {n.image ? (
-                            <Image src={n.image} alt={n.label} width={32} height={16} className="shrink-0" />
-                          ) : (
-                            <div className="size-6 rounded-sm border border-black/10" style={{ backgroundColor: n.color }} />
-                          )}
-                          <span className="text-[10px] text-muted">{n.label}</span>
-                        </button>
-                      ))}
+                  {showNeoprenoMenu && (
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 z-20">
+                      <div className="bg-elevated shadow-xl border border-subtle p-3 grid grid-cols-4 gap-2 min-w-[200px]">
+                        {NEOPRENO_COLORS.map((n) => (
+                          <button
+                            key={n.color}
+                            onClick={() => { addNeopreno(n.color, n.label); setShowNeoprenoMenu(false) }}
+                            className="flex flex-col items-center gap-1 p-2 hover:bg-surface transition-colors rounded"
+                            title={n.label}
+                          >
+                            {n.image ? (
+                              <Image src={n.image} alt={n.label} width={32} height={16} className="shrink-0" />
+                            ) : (
+                              <div className="size-6 rounded-sm border border-black/10" style={{ backgroundColor: n.color }} />
+                            )}
+                            <span className="text-[10px] text-muted">{n.label}</span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
                 <Button size="sm" variant="outline" onClick={() => setShowDijeGrid(true)}>
                   <Plus className="size-3.5 mr-1.5" /> Dije
@@ -275,16 +312,18 @@ export default function PersonalizacionPage() {
               </div>
 
               {showDijeGrid && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setShowDijeGrid(false)}>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => { setShowDijeGrid(false); setInsertDijeIndex(null) }}>
                   <div className="bg-elevated p-6 rounded-xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-heading text-lg font-medium text-primary">Selecciona un Dije</h3>
-                      <button onClick={() => setShowDijeGrid(false)} className="p-1 hover:bg-hover rounded-full transition-colors">
+                      <button onClick={() => { setShowDijeGrid(false); setInsertDijeIndex(null) }} className="p-1 hover:bg-hover rounded-full transition-colors">
                         <X className="size-4 text-muted" />
                       </button>
                     </div>
                     <p className="text-xs text-muted mb-4">
-                      El dije se agregará al final de la secuencia. Luego puedes reordenarlo arrastrando.
+                      {insertDijeIndex !== null
+                        ? 'El dije se insertará en la posición seleccionada.'
+                        : 'El dije se agregará al final de la secuencia.'}
                     </p>
                     <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
                       {DIJONES.map((d) => (
@@ -374,6 +413,24 @@ export default function PersonalizacionPage() {
                       </>
                     )}
 
+                    <button
+                      onClick={() => moveItem(i, i - 1)}
+                      disabled={i === 0}
+                      className="p-1 rounded-full hover:bg-surface text-muted hover:text-gold-600 transition-colors shrink-0 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-muted"
+                      title="Mover a la izquierda"
+                      aria-label="Mover a la izquierda"
+                    >
+                      <ChevronLeft className="size-3.5" />
+                    </button>
+                    <button
+                      onClick={() => moveItem(i, i + 1)}
+                      disabled={i === sequence.length - 1}
+                      className="p-1 rounded-full hover:bg-surface text-muted hover:text-gold-600 transition-colors shrink-0 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-muted"
+                      title="Mover a la derecha"
+                      aria-label="Mover a la derecha"
+                    >
+                      <ChevronRight className="size-3.5" />
+                    </button>
                     <button
                       onClick={() => removeItem(i)}
                       className="p-1 rounded-full hover:bg-red-50 text-muted hover:text-red-500 transition-colors shrink-0"
