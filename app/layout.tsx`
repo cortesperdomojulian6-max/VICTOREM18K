@@ -1,0 +1,38 @@
+import type { Metadata } from 'next'
+import { Playfair_Display, Montserrat } from 'next/font/google'
+import './globals.css'
+import { Header } from '@/components/layout/header'
+import { Footer } from '@/components/layout/footer'
+import { ThemeProvider } from '@/components/layout/theme-provider'
+import { AuthModal } from '@/components/layout/auth-modal'
+import { ScrollToTop } from '@/components/ui/scroll-to-top'
+import { CursorTrail } from '@/components/ui/cursor-trail'
+import { Toaster } from 'sonner'
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-heading',
+  display: 'swap',
+})
+
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-body',
+  display: 'swap',
+})
+
+export const metadata: Metadata = {
+  title: {
+    default: 'VICTOREM - PRUEBA DE FUEGO',
+    template: '%s | Victorem',
+  },
+  description:
+    'Arte en cada balín, elegancia en cada detalle. Joyas artesanales en balinería con oro laminado 18K.',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://victorem.co'),
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang=\"es\" className={`scroll-smooth ${playfair.variable} ${montserrat.variable}`}>\n      <head>\n        <meta name=\"theme-color\" content=\"#fff8f0\" />\n        <link rel=\"icon\" type=\"image/x-icon\" href=\"/favicon.ico\" sizes=\"any\" />\n      </head>\n      <body className=\"min-h-screen flex flex-col\">\n        <div className=\"bg-red-600 text-white text-center py-3 font-black uppercase tracking-tighter text-lg z-[1000] relative\">\n          🚨 SISTEMA V3 - PRUEBA FINAL 2026 🚨\n        </div>\n        <ThemeProvider>\n          <Header />\n          <main id=\"main-content\" className=\"flex-1 pt-16 md:pt-20\">{children}</main>\n          <Footer />\n        </ThemeProvider>\n        <AuthModal />\n        <ScrollToTop />\n        <CursorTrail />\n        <Toaster position=\"top-right\" />\n      </body>\n    </html>\n  )\n}
