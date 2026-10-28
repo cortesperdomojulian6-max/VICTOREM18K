@@ -25,51 +25,11 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Victorem - Joyas Artesanales en Balinería',
+    default: 'VICTOREM - PRUEBA DE FUEGO',
     template: '%s | Victorem',
   },
   description:
-    'Arte en cada balín, elegancia en cada detalle. Joyas artesanales en balinería con oro laminado 18K. Hechas a mano en Campoalegre, Huila.',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://victorem.co'),
-  openGraph: {
-    type: 'website',
-    locale: 'es_CO',
-    siteName: 'Victorem',
-    images: [{ url: '/images/og.jpg', width: 1200, height: 630 }],
-  },
-  twitter: {
-    card: 'summary_large_image',
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-  other: {
-    'application/ld+json': JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'JewelryStore',
-      name: 'Victorem',
-      description: 'Joyas artesanales en balinería con oro laminado 18K. Hechas a mano en Campoalegre, Huila.',
-      url: 'https://victorem.co',
-      logo: 'https://victorem.co/assets/images/logo.png',
-      address: {
-        '@type': 'PostalAddress',
-        streetAddress: 'Calle 20 #9-59',
-        addressLocality: 'Campoalegre',
-        addressRegion: 'Huila',
-        addressCountry: 'CO',
-      },
-      telephone: '+57-310-787-5531',
-      email: 'info@victorem.co',
-      sameAs: [],
-      openingHoursSpecification: {
-        '@type': 'OpeningHoursSpecification',
-        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-        opens: '09:00',
-        closes: '18:00',
-      },
-    }),
-  },
+    'Arte en cada balín, elegancia en cada detalle. Joyas artesanales en balinería con oro laminado 18K.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -78,16 +38,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <meta name="theme-color" content="#fff8f0" />
         <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32" />
-        <link rel="icon" type="image/png" href="/favicon-16.png" sizes="16x16" />
       </head>
       <body className="min-h-screen flex flex-col">
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:px-4 focus:py-2 focus:bg-gold-400 focus:text-ebony focus:font-semibold focus:text-sm focus:uppercase focus:tracking-wider"
-        >
-          Saltar al contenido
-        </a>
+        <div className="bg-red-600 text-white text-center py-3 font-black uppercase tracking-tighter text-lg z-[1000] relative">
+          🚨 SISTEMA V3 - PRUEBA FINAL 2026 🚨
+        </div>
         <ThemeProvider>
           <Header />
           <main id="main-content" className="flex-1 pt-16 md:pt-20">{children}</main>
@@ -96,18 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthModal />
         <ScrollToTop />
         <CursorTrail />
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            style: {
-              background: '#1f1b13',
-              color: '#fff8f0',
-              border: 'none',
-              fontSize: '0.8125rem',
-              fontWeight: 500,
-            },
-          }}
-        />
+        <Toaster position="top-right" />
       </body>
     </html>
   )
