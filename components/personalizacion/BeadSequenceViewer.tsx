@@ -58,8 +58,7 @@ export default function BeadSequenceViewer({
             <span className="text-zinc-500 text-[10px] uppercase tracking-widest">Secuencia vacía</span>
             <button 
               onClick={() => setMenuIndex(0)}
-              style={{ backgroundColor: '#FFFF00', color: '#000' }}
-              className="size-6 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg font-bold"
+              className="size-6 rounded-full bg-yellow-400 text-black flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
             >
               <Plus className="size-4" />
             </button>
@@ -72,8 +71,7 @@ export default function BeadSequenceViewer({
   }
 
   return (
-    <div className="w-full relative overflow-hidden bg-red-600 rounded-xl border-4 border-yellow-400">
-      <div className="absolute top-0 left-0 bg-yellow-400 text-black font-black p-2 z-50">SISTEMA ACTUALIZADO - VERSIÓN 2.0</div>
+    <div className="w-full relative overflow-hidden bg-zinc-900 rounded-xl border border-zinc-800">
       <div
         ref={containerRef}
         className="flex items-center justify-center py-8 px-4 overflow-x-auto no-scrollbar"
@@ -84,17 +82,16 @@ export default function BeadSequenceViewer({
             <div className="relative flex items-center">
               <button 
                 onClick={() => setMenuIndex(0)}
-                style={{ backgroundColor: '#FFFF00', color: '#000' }}
-                className="size-4 rounded-full flex items-center justify-center z-10 hover:bg-yellow-300 transition-colors shadow-md"
+                className="size-5 rounded-full bg-yellow-400 text-black flex items-center justify-center z-10 hover:bg-yellow-300 transition-colors shadow-md"
               >
-                <Plus className="size-2.5" />
+                <Plus className="size-3" />
               </button>
               {menuIndex === 0 && (
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 z-50 bg-white rounded-lg shadow-2xl border-2 border-yellow-400 p-3 flex flex-col gap-2 min-w-[140px]" style={{ color: 'black' }}>
-                  <div className="text-[10px] font-black text-zinc-500 uppercase text-center mb-1">Agregar pieza</div>
-                  <button onClick={() => { onInsertBalin?.(0); setMenuIndex(null) }} className="text-left px-3 py-2 text-xs font-bold text-black hover:bg-zinc-100 rounded-lg border border-zinc-200 transition-colors">✨ Balín</button>
-                  <button onClick={() => { onInsertDijon?.(0); setMenuIndex(null) }} className="text-left px-3 py-2 text-xs font-bold text-black hover:bg-zinc-100 rounded-lg border border-zinc-200 transition-colors">💎 Dije</button>
-                  <div className="grid grid-cols-4 gap-2 p-1 border-t border-zinc-200 mt-1">
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 z-50 bg-white rounded-lg shadow-2xl border border-zinc-200 p-3 flex flex-col gap-2 min-w-[140px]">
+                  <div className="text-[10px] font-bold text-zinc-400 uppercase text-center mb-1">Agregar pieza</div>
+                  <button onClick={() => { onInsertBalin?.(0); setMenuIndex(null) }} className="text-left px-3 py-2 text-xs font-bold text-black hover:bg-zinc-100 rounded-lg transition-colors">✨ Balín</button>
+                  <button onClick={() => { onInsertDijon?.(0); setMenuIndex(null) }} className="text-left px-3 py-2 text-xs font-bold text-black hover:bg-zinc-100 rounded-lg transition-colors">💎 Dije</button>
+                  <div className="grid grid-cols-4 gap-2 p-1 border-t border-zinc-100 mt-1">
                     {NEOPRENO_COLORS.map(n => (
                       <button 
                         key={n.color} 
@@ -145,7 +142,7 @@ export default function BeadSequenceViewer({
                 <div
                   className={`flex items-center transition-opacity ${onItemClick ? 'cursor-pointer hover:opacity-50' : ''}`}
                   onClick={() => onItemClick?.(i)}
-                  style={{ margin: '0 -8px' }} 
+                  style={{ margin: '0 -3px' }} 
                 >
                   {img}
                 </div>
@@ -153,22 +150,20 @@ export default function BeadSequenceViewer({
                   <div className="relative flex items-center">
                     <button 
                       onClick={() => setMenuIndex(i + 1)}
-                      style={{ backgroundColor: '#FFFF00', color: '#000' }}
-                      className="size-4 rounded-full flex items-center justify-center z-10 hover:bg-yellow-300 transition-colors shadow-md"
+                      className="size-5 rounded-full bg-yellow-400 text-black flex items-center justify-center z-10 hover:bg-yellow-300 transition-colors shadow-md"
                     >
-                      <Plus className="size-2.5" />
+                      <Plus className="size-3" />
                     </button>
                     {menuIndex === i + 1 && (
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 z-50 bg-white rounded-lg shadow-2xl border-2 border-yellow-400 p-3 flex flex-col gap-2 min-w-[140px]" style={{ color: 'black' }}>
-                        <div className="text-[10px] font-black text-zinc-500 uppercase text-center mb-1">Agregar pieza</div>
-                        <button onClick={() => { onInsertBalin?.(i + 1); setMenuIndex(null) }} className="text-left px-3 py-2 text-xs font-bold text-black hover:bg-zinc-100 rounded-lg border border-zinc-200 transition-colors">✨ Balín</button>
-                        <button onClick={() => { onInsertDijon?.(i + 1); setMenuIndex(null) }} className="text-left px-3 py-2 text-xs font-bold text-black hover:bg-zinc-100 rounded-lg border border-zinc-200 transition-colors">💎 Dije</button>
-                        <div className="grid grid-cols-4 gap-2 p-1 border-t border-zinc-200 mt-1">
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 z-50 bg-white rounded-lg shadow-2xl border border-zinc-200 p-3 flex flex-col gap-2 min-w-[140px]">
+                        <div className="text-[10px] font-bold text-zinc-400 uppercase text-center mb-1">Agregar pieza</div>
+                        <button onClick={() => { onInsertBalin?.(i + 1); setMenuIndex(null) }} className="text-left px-3 py-2 text-xs font-bold text-black hover:bg-zinc-100 rounded-lg transition-colors">✨ Balín</button>
+                        <button onClick={() => { onInsertDijon?.(i + 1); setMenuIndex(null) }} className="text-left px-3 py-2 text-xs font-bold text-black hover:bg-zinc-100 rounded-lg transition-colors">💎 Dije</button>
+                        <div className="grid grid-cols-4 gap-2 p-1 border-t border-zinc-100 mt-1">
                           {NEOPRENO_COLORS.map(n => (
                             <button 
                               key={n.color} 
-                              onClick={() => { onInsertNeopreno?.(i + 1, n.color, n.//Lógica simplificada para evitar errores
-                              n.label); setMenuIndex(null) }}
+                              onClick={() => { onInsertNeopreno?.(i + 1, n.color, n.label); setMenuIndex(null) }}
                               className="size-6 rounded-full border border-zinc-300 hover:scale-110 transition-transform" 
                               style={{ backgroundColor: n.color }}
                               title={n.label}
