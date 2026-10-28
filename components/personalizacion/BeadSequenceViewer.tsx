@@ -72,7 +72,8 @@ export default function BeadSequenceViewer({
   }
 
   return (
-    <div className="w-full relative overflow-hidden bg-zinc-900 rounded-xl border border-zinc-800">
+    <div className="w-full relative overflow-hidden bg-red-600 rounded-xl border-4 border-yellow-400">
+      <div className="absolute top-0 left-0 bg-yellow-400 text-black font-black p-2 z-50">SISTEMA ACTUALIZADO - VERSIÓN 2.0</div>
       <div
         ref={containerRef}
         className="flex items-center justify-center py-8 px-4 overflow-x-auto no-scrollbar"
