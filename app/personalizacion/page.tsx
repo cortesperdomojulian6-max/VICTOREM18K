@@ -14,7 +14,7 @@ import { toast } from 'sonner'
 import { Confetti } from '@/components/ui/confetti'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useCartStore } from '@/store/useCartStore'
-import BeadSequenceViewer from '@/components/personalizacion/BeadSequenceViewer'
+import BeadSequenceViewerV3 from '@/components/personalizacion/BeadSequenceViewerV3'
 import ChatAssistant from '@/components/personalizacion/ChatAssistant'
 import {
   DIJONES, COLORS, NEOPRENO_COLORS,
@@ -238,7 +238,7 @@ export default function PersonalizacionPage() {
   function PreviewBlock({ onItemClick, editable }: { onItemClick?: (index: number) => void; editable?: boolean }) {
     return (
       <div className="mb-6">
-        <BeadSequenceViewer
+        <BeadSequenceViewerV3
           items={sequence}
           material={material}
           onItemClick={onItemClick}
