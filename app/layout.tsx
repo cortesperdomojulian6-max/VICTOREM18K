@@ -82,17 +82,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" type="image/png" href="/favicon-16.png" sizes="16x16" />
       </head>
       <body className="min-h-screen flex flex-col">
+        <div className="bg-red-600 text-white text-center py-2 font-bold uppercase tracking-widest text-xs z-[1000] relative">
+          🚀 VERSION ACTUALIZADA 2026 - SISTEMA OPERATIVO
+        </div>
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:px-4 focus:py-2 focus:bg-gold-400 focus:text-ebony focus:font-semibold focus:text-sm focus:uppercase focus:tracking-wider"
         >
           Saltar al contenido
         </a>
-        <ThemeProvider>
-          <Header />
-          <main id="main-content" className="flex-1 pt-16 md:pt-20">{children}</main>
-          <Footer />
-        </ThemeProvider>
+        <Header />
+        <main id="main-content" className="flex-1 pt-16 md:pt-20">{children}</main>
+        <Footer />
         <AuthModal />
         <ScrollToTop />
         <CursorTrail />
