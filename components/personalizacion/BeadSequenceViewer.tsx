@@ -35,7 +35,6 @@ export default function BeadSequenceViewer({
   const [menuIndex, setMenuIndex] = useState<number | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const hasInsert = !!(onInsertBalin || onInsertDijon || onInsertNeopreno)
-
   const beadPx = BEAD_IMAGE_SIZES[beadSize]
 
   const closeMenu = useCallback(() => setMenuIndex(null), [])
@@ -48,140 +47,137 @@ export default function BeadSequenceViewer({
       }
     }
     document.addEventListener('mousedown', handleClick)
-    document.addEventListener('touchstart', handleClick)
-    return () => {
-      document.removeEventListener('mousedown', handleClick)
-      document.removeEventListener('touchstart', handleClick)
-    }
+    return () => document.removeEventListener('mousedown', handleClick)
   }, [menuIndex, closeMenu])
-
-  const InsertButton = ({ index }: { index: number }) => {
-    const open = menuIndex === index
-    return (
-      <div className="relative shrink-0 flex items-center">
-        <button
-          type="button"
-          onClick={() => setMenuIndex(open ? null : index)}
-          className={`size-4 rounded-full flex items-center justify-center transition-all shadow-lg z-10 ${
-            open ? 'bg-gold-400 text-ebony scale-110' : 'bg-gold-400/80 text-ebony hover:bg-gold-400 hover:scale-110'
-          }`}
-          title="Insertar aquí"
-          aria-label={`Insertar antes de la pieza ${index + 1}`}
-        >
-          {open ? <X className="size-2.5" /> : <Plus className="size-3" />}
-        </button>
-        {open && (
-          <div
-            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-20 bg-elevated rounded-lg shadow-xl border border-subtle p-1.5 flex flex-col gap-1 min-w-[110px]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              onClick={() => { onInsertBalin?.(index); closeMenu() }}
-              className="text-[10px] px-2 py-1 rounded bg-surface hover:bg-gold-400/10 text-primary transition-colors whitespace-nowrap font-medium text-left"
-            >
-              Balín
-            </button>
-            <button
-              type="button"
-              onClick={() => { onInsertDijon?.(index); closeMenu() }}
-              className="text-[10px] px-2 py-1 rounded bg-surface hover:bg-gold-400/10 text-primary transition-colors whitespace-nowrap font-medium text-left"
-            >
-              Dije
-            </button>
-            <div className="flex items-center gap-1 px-1 pt-1 border-t border-border">
-              {NEOPRENO_COLORS.map((n) => (
-                <button
-                  key={n.color}
-                  type="button"
-                  onClick={() => { onInsertNeopreno?.(index, n.color, n.label); closeMenu() }}
-                  className="flex flex-col items-center gap-0.5 px-1 py-0.5 rounded hover:bg-gold-400/10 transition-colors"
-                  title={`Neopreno ${n.label}`}
-                >
-                  {n.image ? (
-                    <Image src={n.image} alt={n.label} width={24} height={12} className="shrink-0" />
-                  ) : (
-                    <span className="block size-4 rounded-sm border border-black/10" style={{ backgroundColor: n.color }} />
-                  )}
-                  <span className="text-[8px] text-muted leading-none">{n.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    )
-  }
 
   if (items.length === 0) {
     return (
-      <div className="w-full h-20 relative overflow-hidden bg-gradient-to-r from-zinc-900 to-zinc-800 rounded-xl flex items-center justify-center">
+      <div className="w-full h-24 relative overflow-hidden bg-zinc-900 rounded-xl flex items-center justify-center border border-zinc-800">
         {hasInsert ? (
           <div className="flex items-center gap-3">
-            <span className="text-white/25 text-[10px] uppercase tracking-widest">Secuencia vacía</span>
-            <InsertButton index={0} />
+            <span className="text-zinc-500 text-[10px] uppercase tracking-widest">Secuencia vacía</span>
+            <button 
+              onClick={() => setMenuIndex(0)}
+              style={{ backgroundColor: '#FFFF00', color: '#000' }}
+              className="size-6 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg font-bold"
+            >
+              <Plus className="size-4" />
+            </button>
           </div>
         ) : (
-          <div className="text-white/15 text-[10px] uppercase tracking-widest">Secuencia vacía</div>
+          <span className="text-zinc-600 text-[10px] uppercase tracking-widest">Secuencia vacía</span>
         )}
       </div>
     )
   }
 
   return (
-    <div className="w-full relative overflow-hidden bg-gradient-to-r from-zinc-900 to-zinc-800 rounded-xl">
+    <div className="w-full relative overflow-hidden bg-zinc-900 rounded-xl border border-zinc-800">
       <div
         ref={containerRef}
-        className="flex items-center justify-center py-3 px-4 overflow-x-auto"
-        style={{ minHeight: `${beadPx + 24}px` }}
+        className="flex items-center justify-center py-8 px-4 overflow-x-auto no-scrollbar"
+        style={{ minHeight: `${beadPx + 60}px` }}
       >
-        <div className="flex items-center" style={{ gap: hasInsert ? 12 : 6 }}>
-          {hasInsert && <InsertButton index={0} />}
+        <div className="flex items-center justify-center">
+          {hasInsert && (
+            <div className="relative flex items-center">
+              <button 
+                onClick={() => setMenuIndex(0)}
+                style={{ backgroundColor: '#FFFF00', color: '#000' }}
+                className="size-4 rounded-full flex items-center justify-center z-10 hover:bg-yellow-300 transition-colors shadow-md"
+              >
+                <Plus className="size-2.5" />
+              </button>
+              {menuIndex === 0 && (
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 z-50 bg-white rounded-lg shadow-2xl border-2 border-yellow-400 p-3 flex flex-col gap-2 min-w-[140px]" style={{ color: 'black' }}>
+                  <div className="text-[10px] font-black text-zinc-500 uppercase text-center mb-1">Agregar pieza</div>
+                  <button onClick={() => { onInsertBalin?.(0); setMenuIndex(null) }} className="text-left px-3 py-2 text-xs font-bold text-black hover:bg-zinc-100 rounded-lg border border-zinc-200 transition-colors">✨ Balín</button>
+                  <button onClick={() => { onInsertDijon?.(0); setMenuIndex(null) }} className="text-left px-3 py-2 text-xs font-bold text-black hover:bg-zinc-100 rounded-lg border border-zinc-200 transition-colors">💎 Dije</button>
+                  <div className="grid grid-cols-4 gap-2 p-1 border-t border-zinc-200 mt-1">
+                    {NEOPRENO_COLORS.map(n => (
+                      <button 
+                        key={n.color} 
+                        onClick={() => { onInsertNeopreno?.(0, n.color, n.label); setMenuIndex(null) }}
+                        className="size-6 rounded-full border border-zinc-300 hover:scale-110 transition-transform" 
+                        style={{ backgroundColor: n.color }}
+                        title={n.label}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {items.map((item, i) => {
             const img = item.kind === 'balin' ? (
               <Image
                 src={getBeadImagePath(item.type, material, item.size)}
-                alt={`Balín ${item.type}`}
+                alt="balin"
                 width={BEAD_IMAGE_SIZES[item.size]}
                 height={BEAD_IMAGE_SIZES[item.size]}
-                draggable={false}
-                className="pointer-events-none"
-                style={{ display: 'block', filter: 'drop-shadow(0 0 1px rgba(255,255,255,0.4))' }}
+                className="block"
+                style={{ filter: 'drop-shadow(0 0 1px rgba(255,255,255,0.3))' }}
               />
             ) : item.kind === 'dijon' ? (
               <Image
                 src={item.image}
-                alt={item.label}
+                alt="dijon"
                 width={DIJON_VIEW_SIZE}
                 height={DIJON_VIEW_SIZE}
-                draggable={false}
-                className="pointer-events-none"
-                title={item.label}
-                style={{ display: 'block', filter: 'drop-shadow(0 0 1.5px rgba(255,255,255,0.5))' }}
+                className="block"
+                style={{ filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.5))' }}
               />
             ) : (
               <Image
                 src={getNeoprenoImage(item.color)!}
-                alt={`Neopreno ${item.label}`}
+                alt="neopreno"
                 width={getNeoprenoDisplaySize(beadPx).width}
                 height={getNeoprenoDisplaySize(beadPx).height}
-                draggable={false}
-                className="pointer-events-none"
-                title={`Neopreno ${item.label}`}
-                style={{ display: 'block', filter: 'drop-shadow(0 0 1.5px rgba(255,255,255,0.5))' }}
-/>
+                className="block"
+                style={{ filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.5))' }}
+              />
             )
 
             return (
-              <div key={`${item.kind}-${i}`} className="flex items-center" style={{ gap: hasInsert ? 12 : 6 }}>
+              <div key={i} className="flex items-center">
                 <div
-                  className={`flex items-center shrink-0 ${onItemClick ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
+                  className={`flex items-center transition-opacity ${onItemClick ? 'cursor-pointer hover:opacity-50' : ''}`}
                   onClick={() => onItemClick?.(i)}
-                  title={onItemClick ? 'Clic para eliminar' : undefined}
+                  style={{ margin: '0 -8px' }} 
                 >
                   {img}
                 </div>
-                {hasInsert && <InsertButton index={i + 1} />}
+                {hasInsert && (
+                  <div className="relative flex items-center">
+                    <button 
+                      onClick={() => setMenuIndex(i + 1)}
+                      style={{ backgroundColor: '#FFFF00', color: '#000' }}
+                      className="size-4 rounded-full flex items-center justify-center z-10 hover:bg-yellow-300 transition-colors shadow-md"
+                    >
+                      <Plus className="size-2.5" />
+                    </button>
+                    {menuIndex === i + 1 && (
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 z-50 bg-white rounded-lg shadow-2xl border-2 border-yellow-400 p-3 flex flex-col gap-2 min-w-[140px]" style={{ color: 'black' }}>
+                        <div className="text-[10px] font-black text-zinc-500 uppercase text-center mb-1">Agregar pieza</div>
+                        <button onClick={() => { onInsertBalin?.(i + 1); setMenuIndex(null) }} className="text-left px-3 py-2 text-xs font-bold text-black hover:bg-zinc-100 rounded-lg border border-zinc-200 transition-colors">✨ Balín</button>
+                        <button onClick={() => { onInsertDijon?.(i + 1); setMenuIndex(null) }} className="text-left px-3 py-2 text-xs font-bold text-black hover:bg-zinc-100 rounded-lg border border-zinc-200 transition-colors">💎 Dije</button>
+                        <div className="grid grid-cols-4 gap-2 p-1 border-t border-zinc-200 mt-1">
+                          {NEOPRENO_COLORS.map(n => (
+                            <button 
+                              key={n.color} 
+                              onClick={() => { onInsertNeopreno?.(i + 1, n.color, n.//Lógica simplificada para evitar errores
+                              n.label); setMenuIndex(null) }}
+                              className="size-6 rounded-full border border-zinc-300 hover:scale-110 transition-transform" 
+                              style={{ backgroundColor: n.color }}
+                              title={n.label}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )
           })}

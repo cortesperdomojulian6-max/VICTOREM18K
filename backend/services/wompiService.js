@@ -158,17 +158,35 @@ async function handleWebhook(body, rawBody, headers) {
       );
 
       if (status === 'APPROVED') {
-        const orderItems = await db.query(
-          'SELECT product_id, quantity FROM order_items WHERE order_id = $1',
-          [order.id]
-        )
-        for (const item of orderItems.rows) {
-          await db.query(
-            'UPDATE products SET stock = GREATEST(stock - $1, 0) WHERE id = $2',
-            [item.quantity, item.product_id]
-          )
+        const client = await db.getClient();
+        try {
+          await client.query('BEGIN');
+          
+          const orderItems = await client.query(
+            'SELECT product_id, quantity FROM order_items WHERE order_id = $1',
+            [order.id]
+          );
+          
+          for (const item of orderItems.rows) {
+            const stockResult = await client.query(
+              'UPDATE products SET stock = stock - $1 WHERE id = $2 AND stock >= $1 RETURNING id',
+              [item.quantity, item.product_id]
+            );
+            
+            if (stockResult.rows.length === 0) {
+              throw new Error(`Stock insuficiente para el producto ${item.product_id}`);
+            }
+          }
+          
+          await client.query('DELETE FROM cart_items WHERE user_id = $1', [order.user_id]);
+          await client.query('COMMIT');
+        } catch (err) {
+          await client.query('ROLLBACK');
+          console.error('❌ Error al procesar stock en webhook:', err.message);
+          throw err;
+        } finally {
+          client.release();
         }
-        await db.query('DELETE FROM cart_items WHERE user_id = $1', [order.user_id]);
       }
     }
   }

@@ -11,11 +11,12 @@ const setTokens = (res, tokens) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
-    maxAge: 24 * 60 * 60 * 1000 // 24h
+    maxAge: 15 * 60 * 1000 // Reducido a 15 min para mayor seguridad
   });
   res.cookie('refresh_token', tokens.refresh_token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
     path: '/api/auth/refresh',
     maxAge: 7 * 24 * 60 * 60 * 1000 // 7d
   });

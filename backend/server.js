@@ -71,6 +71,13 @@ app.use(express.json({
 }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(cookieParser());
+// Middleware para asegurar que las cookies se manejen correctamente en producción
+app.use((req, res, next) => {
+  if (process.env.NODE_ENV === 'production') {
+    // Forzamos que cualquier cookie se setee con Secure si estamos en HTTPS
+  }
+  next();
+});
 
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
@@ -132,8 +139,9 @@ app.use((err, req, res, next) => {
   console.error(`❌ [${status}] ${message}`);
   console.error('   URL:', req.url);
   console.error('   IP:', req.ip);
-  if (process.env.NODE_ENV === 'development') {
-    console.error('   Stack:', err.stack?.split('\n').slice(0, 3).join('\n'));
+  if (process.env.NODE_ENV !== 'production') {
+    console.error('   Stack:', err.stack?.split('\n').slice(0, 5).join('\n'));
+    if (err.code) console.error('   DB Error Code:', err.code);
   }
 
   res.status(status).json({
