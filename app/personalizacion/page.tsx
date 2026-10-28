@@ -267,9 +267,21 @@ export default function PersonalizacionPage() {
                   <button
                     key={t}
                     onClick={() => setDefaultBalinType(t)}
-                    className={`px-4 py-2 text-xs uppercase tracking-widest border transition-all ${
-                      defaultBalinType === t ? 'border-gold-400 bg-gold-400/10 text-gold-600 font-bold' : 'border-border text-muted hover:border-gold-400'
-                    }`}
+                    style={{
+                      backgroundColor: defaultBalinType === t ? '#FACC15' : 'transparent',
+                      color: defaultBalinType === t ? '#000000' : '#a1a1aa',
+                      borderColor: defaultBalinType === t ? '#EAB308' : '#3f3f46',
+                      borderWidth: '1px',
+                      borderStyle: 'solid',
+                      padding: '8px 16px',
+                      fontSize: '12px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      fontWeight: defaultBalinType === t ? '700' : '400',
+                      cursor: 'pointer',
+                      borderRadius: '4px',
+                      transition: 'all 0.2s'
+                    }}
                   >
                     Predet: {t === 'liso' ? 'Lisos' : 'Diamantados'}
                   </button>
