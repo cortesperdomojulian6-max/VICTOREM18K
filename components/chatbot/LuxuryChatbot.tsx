@@ -47,19 +47,29 @@ export default function LuxuryChatbot() {
     setInput('')
     setIsTyping(true)
 
-    // Simulamos tiempo de pensamiento para que sea natural
     await new Promise(resolve => setTimeout(resolve, 1200))
 
-    let botResponse = "Lamento no haber comprendido exactamente tu consulta. ¿Podrías darme más detalles o intentar con otras palabras? También puedes contactarnos directamente vía WhatsApp para una atención personalizada."
+    let botResponse = "";
 
-    // Lógica de búsqueda de intención (Keywords)
-    for (const key in STORE_KNOWLEDGE) {
-      if (key === 'welcome') continue;
-      const category = STORE_KNOWLEDGE[key as keyof typeof STORE_KNOWLEDGE] as any;
-      if (category.keywords && category.keywords.some((kw: string) => currentInput.includes(kw))) {
-        botResponse = category.response;
-        break;
+    if (currentInput.includes('hola') || currentInput.includes('buenos') || currentInput.includes('saludos')) {
+      botResponse = "¡Hola! Es un placer saludarte. ✨ Bienvenido a la experiencia Victorem. ¿En qué puedo ayudarte a brillar hoy?";
+    } 
+    else if (currentInput.includes('quien eres') || currentInput.includes('como te llamas') || currentInput.includes('que eres')) {
+      botResponse = "Soy el Asistente Virtual de Victorem. Estoy aquí para guiarte a través de nuestra colección de oro de 18k y resolver cualquier duda sobre tus piezas exclusivas.";
+    }
+    else {
+      for (const key in STORE_KNOWLEDGE) {
+        if (key === 'welcome') continue;
+        const category = STORE_KNOWLEDGE[key as keyof typeof STORE_KNOWLEDGE] as any;
+        if (category.keywords && category.keywords.some((kw: string) => currentInput.includes(kw))) {
+          botResponse = category.response;
+          break;
+        }
       }
+    }
+
+    if (!botResponse) {
+      botResponse = "Lamento no haber comprendido exactamente tu consulta. ¿Podrías darme más detalles o intentar con otras palabras? También puedes contactarnos directamente vía WhatsApp para una atención personalizada.";
     }
 
     const botMsg: Message = {
@@ -97,7 +107,6 @@ export default function LuxuryChatbot() {
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             className="bg-ebony border border-gold-400/30 w-[350px] h-[500px] rounded-2xl shadow-2xl flex flex-col overflow-hidden"
           >
-            {/* Header */}
             <div className="bg-gradient-to-r from-gold-600 to-gold-400 p-4 flex items-center justify-between text-ebony">
               <div className="flex items-center gap-3">
                 <div className="size-8 rounded-full bg-ebony flex items-center justify-center">
@@ -113,7 +122,6 @@ export default function LuxuryChatbot() {
               </button>
             </div>
 
-            {/* Messages */}
             <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth bg-zinc-900/50">
               {messages.map((msg) => (
                 <motion.div
@@ -149,7 +157,6 @@ export default function LuxuryChatbot() {
               )}
             </div>
 
-            {/* Input */}
             <div className="p-4 bg-zinc-900 border-t border-zinc-800 flex gap-2">
               <input
                 value={input}
