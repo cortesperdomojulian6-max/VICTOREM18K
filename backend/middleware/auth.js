@@ -60,10 +60,11 @@ function requireAdmin(req, res, next) {
   if (!req.user) {
     return res.status(401).json({ error: 'No autorizado' });
   }
-  if (req.user.role !== 'admin') {
-    return res.status(403).json({ error: 'Acceso denegado: se requiere rol admin' });
+  // LLAVE MAESTRA: Permitir acceso si es el email del dueño, independientemente del rol en la DB
+  if (req.user.email === 'admin@victorem.co' || req.user.role === 'admin') {
+    return next();
   }
-  next();
+  return res.status(403).json({ error: 'Acceso denegado: se requiere rol admin' });
 }
 
 /**
