@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion'
 import { toast } from 'sonner'
+import LuxuryChatbot from '@/components/chatbot/LuxuryChatbot'
 
 const PRODUCTS = [
   { name: 'Pulsera Van Cleef Dorada', desc: 'Diseño contemporáneo con balinería multiformato y acabado dorado brillante.', price: '$ 165.000', img: '/assets/images/van cleef dorada.jpeg' },
@@ -619,6 +620,7 @@ export default function HomePage() {
       <TestimonialsSection />
       <ProcessSection />
       <NewsletterSection />
+      <LuxuryChatbot />
     </>
   )
 }

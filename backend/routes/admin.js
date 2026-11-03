@@ -19,8 +19,21 @@ router.delete('/users/:id', asyncHandler(async (req, res) => {
 }));
 
 router.get('/stats', asyncHandler(async (req, res) => {
-  const stats = await adminService.getStats();
+  const stats = await adminService.getDashboardStats();
   return res.json(stats);
+}));
+
+router.get('/export/csv', asyncHandler(async (req, res) => {
+  const orders = await adminService.getOrdersForCsv();
+  
+  let csv = 'Fecha,Pedido,Cliente,Email,Total,Estado,Dirección,Ciudad\\n';
+  orders.forEach(o => {
+    csv += `${o.fecha},${o.numero_pedido},"${o.cliente}","${o.email}",${o.total},${o.estado},"${o.direccion}","${o.ciudad}"\\n`;
+  });
+
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', 'attachment; filename=pedidos_victorem.csv');
+  return res.send(csv);
 }));
 
 router.get('/orders', asyncHandler(async (req, res) => {

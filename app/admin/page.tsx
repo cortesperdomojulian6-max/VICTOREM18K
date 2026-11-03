@@ -9,9 +9,16 @@ import { formatPrice, productImageUrl } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/store/useAuthStore'
+import LuxuryChatbot from '@/components/chatbot/LuxuryChatbot'
 
 interface AdminStats {
-  total_usuarios: number; total_productos: number; total_pedidos: number; ingresos: number
+  summary: {
+    total_orders: number;
+    total_revenue: number;
+    pending_orders: number;
+    cancelled_orders: number;
+  };
+  topProducts: Array<{ name: string; total_sold: string }>;
 }
 
 interface AdminUser { id: number; name: string; email: string; role: string; registration_date: string }
@@ -195,21 +202,57 @@ export default function AdminPage() {
         <AnimatePresence mode="wait">
           <motion.div key={tab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.15 }}>
             {tab === 'dashboard' && stats && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-                {[
-                  { icon: Users, label: 'Usuarios', value: stats.total_usuarios },
-                  { icon: Package, label: 'Pedidos', value: stats.total_pedidos },
-                  { icon: TrendingUp, label: 'Productos', value: stats.total_productos },
-                  { icon: DollarSign, label: 'Ingresos', value: formatPrice(stats.ingresos) },
-                ].map((card, i) => (
-                  <motion.div key={card.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                    className="bg-elevated p-6 border border-subtle"
-                  >
-                    <card.icon className="size-8 text-gold-400 mb-3" />
-                    <p className="text-2xl font-heading font-semibold text-primary">{card.value}</p>
-                    <p className="text-xs text-muted uppercase tracking-wider mt-1">{card.label}</p>
-                  </motion.div>
-                ))}
+              <div className="space-y-10">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  {[
+                    { icon: DollarSign, label: 'Ventas Totales', value: formatPrice(stats.summary.total_revenue), color: 'text-gold-400' },
+                    { icon: Package, label: 'Pedidos Pendientes', value: stats.summary.pending_orders, color: 'text-yellow-400' },
+                    { icon: TrendingUp, label: 'Órdenes Totales', value: stats.summary.total_orders, color: 'text-blue-400' },
+                    { icon: X, label: 'Cancelados', value: stats.summary.cancelled_orders, color: 'text-red-400' },
+                  ].map((card, i) => (
+                    <motion.div key={card.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+                      className="bg-elevated p-6 border border-subtle"
+                    >
+                      <card.icon className={`size-8 ${card.color} mb-3`} />
+                      <p className="text-2xl font-heading font-semibold text-primary">{card.value}</p>
+                      <p className="text-xs text-muted uppercase tracking-wider mt-1">{card.label}</p>
+                    </motion.div>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  <div className="md:col-span-2 bg-elevated border border-subtle p-6">
+                    <h3 className="font-heading text-lg font-medium text-primary mb-6 flex items-center gap-2">
+                      <TrendingUp className="size-5 text-gold-400" /> Productos más Vendidos
+                    </h3>
+                    <div className="space-y-4">
+                      {stats.topProducts.length > 0 ? stats.topProducts.map((p, i) => (
+                        <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-surface border border-border/30">
+                          <span className="text-sm font-medium text-primary">{p.name}</span>
+                          <span className="text-xs font-bold text-gold-400 bg-gold-400/10 px-2 py-1 rounded-full">
+                            {p.total_sold} unidades
+                          </span>
+                        </div>
+                      )) : (
+                        <p className="text-sm text-muted text-center py-4">No hay datos de ventas aún</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="bg-ebony/40 border border-gold-400/20 p-6 rounded-xl flex flex-col justify-center items-center text-center">
+                    <div className="bg-gold-400/10 p-4 rounded-full mb-4">
+                      <Package className="size-8 text-gold-400" />
+                    </div>
+                    <h3 className="font-heading text-lg font-medium text-white mb-2">Reporte de Gestión</h3>
+                    <p className="text-xs text-muted mb-6">Descarga la lista completa de pedidos para gestionar envíos y logística.</p>
+                    <button 
+                      onClick={() => window.location.href = '/api/admin/export/csv'}
+                      className="w-full py-3 px-4 bg-gold-400 text-ebony text-xs font-bold uppercase tracking-widest rounded-lg hover:bg-gold-500 transition-all shadow-lg shadow-gold-400/20"
+                    >
+                      Exportar a CSV
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 
