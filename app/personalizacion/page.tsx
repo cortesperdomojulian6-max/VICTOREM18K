@@ -47,6 +47,23 @@ export default function PersonalizacionPage() {
 
   const material: MaterialName = getMaterialFromColor(color)
 
+  // Botón sólido oro 18K: siempre visible en claro y oscuro, sin depender del hover
+  const solidBtnStyle: React.CSSProperties = {
+    backgroundColor: '#d4af37',
+    color: '#111111',
+    border: '1px solid #b8912b',
+    padding: '10px 18px',
+    fontSize: '12px',
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: '0.06em',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    display: 'inline-flex',
+    alignItems: 'center',
+    boxShadow: '0 2px 6px rgba(0,0,0,0.25)',
+  }
+
   useEffect(() => {
     async function loadProducts() {
       setLoadingProducts(true)
@@ -289,13 +306,21 @@ export default function PersonalizacionPage() {
               </div>
 
               <div className="flex flex-wrap justify-center gap-3 mb-6">
-                <Button size="sm" variant="outline" onClick={addBalin}>
+                <button
+                  onClick={addBalin}
+                  style={solidBtnStyle}
+                  className="hover:brightness-110 transition-all"
+                >
                   <Plus className="size-3.5 mr-1.5" /> Balín
-                </Button>
+                </button>
                 <div className="relative">
-                  <Button size="sm" variant="outline" onClick={() => setShowNeoprenoMenu(!showNeoprenoMenu)}>
+                  <button
+                    onClick={() => setShowNeoprenoMenu(!showNeoprenoMenu)}
+                    style={solidBtnStyle}
+                    className="hover:brightness-110 transition-all"
+                  >
                     <Plus className="size-3.5 mr-1.5" /> Neopreno
-                  </Button>
+                  </button>
                   {showNeoprenoMenu && (
                     <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 z-20">
                       <div className="bg-elevated shadow-xl border border-subtle p-3 grid grid-cols-4 gap-2 min-w-[200px]">
@@ -318,9 +343,13 @@ export default function PersonalizacionPage() {
                     </div>
                   )}
                 </div>
-                <Button size="sm" variant="outline" onClick={() => setShowDijeGrid(true)}>
+                <button
+                  onClick={() => setShowDijeGrid(true)}
+                  style={solidBtnStyle}
+                  className="hover:brightness-110 transition-all"
+                >
                   <Plus className="size-3.5 mr-1.5" /> Dije
-                </Button>
+                </button>
               </div>
 
               {showDijeGrid && (
