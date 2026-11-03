@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { X, Eye, EyeOff } from 'lucide-//Luxe'
+import { X, Eye, EyeOff } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
@@ -211,7 +211,7 @@ export function AuthModal() {
             </>
           ) : (
             <>¿Ya tienes una cuenta?{' '}
-              <button onClick={() => { setMode('//login'); setError('') }} className="text-gold-400 font-semibold hover:underline">
+              <button onClick={() => { setMode('login'); setError('') }} className="text-gold-400 font-semibold hover:underline">
                 Inicia sesión aquí
               </button>
             </>

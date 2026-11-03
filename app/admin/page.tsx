@@ -69,27 +69,26 @@ export default function AdminPage() {
     if (isAuthenticated) {
       const load = async () => {
         try {
-          // Cargamos cada dato individualmente para que un error en uno no bloquequee todo el panel
-          const safeFetch = async <T>(url: string, fallback: T) => {
-            try { return await api.get<T>(url); } 
-            catch (e) { console.error(`Error cargando ${url}:`, e); return fallback; }
+          const fetchSafe = async (url: string, fallback: any) => {
+            try { return await api.get(url); } 
+            catch (e) { console.error(`Error ${url}:`, e); return fallback; }
           };
 
           const [statsData, usersData, ordersData, productsData, categoriesData] = await Promise.all([
-            safeFetch<AdminStats>('/admin/stats', null),
-            safeFetch<AdminUser[]>('/admin/users', []),
-            safeFetch<AdminOrder[]>('/admin/orders', []),
-            safeFetch<AdminProduct[]>('/admin/products', []),
-            safeFetch<{ id: number; name: string; slug: string }[]>('/categories', []),
+            fetchSafe('/admin/stats', null),
+            fetchSafe('/admin/users', []),
+            fetchSafe('/admin/orders', []),
+            fetchSafe('/admin/products', []),
+            fetchSafe('/categories', []),
           ]);
 
           setStats(statsData); setUsers(usersData); setOrders(ordersData); setProducts(productsData); setCategories(categoriesData)
           setAuthorized(true)
-        } catch (e) { 
-          console.error('Error crítico en admin:', e);
-          toast.error('Error al cargar el panel de administración'); 
-        } finally { 
-          setLoading(false) 
+        } catch (e) {
+          console.error('Error crítico admin:', e);
+          toast.error('Error al cargar el panel');
+        } finally {
+          setLoading(false)
         }
       }
       load()
