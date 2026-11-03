@@ -27,5 +27,5 @@
 - [ ] Conectar dominio victorem.co en Vercel y validar OG/social previews
 - [ ] sameAs con perfiles de redes sociales en JSON-LD
 - [ ] Panel de admin mejorado (dashboard, analytics, exportar pedidos)
-- [ ] Imágenes WebP <200KB (optimización de assets)
+- [x] Imágenes optimizadas in situ con sharp: 16 archivos >200KB recomprimidos (-9.0 MB), rutas intactas + admin con next/image
 - [ ] Pruebas de accesibilidad (axe-core / Lighthouse) y navegación por teclado
