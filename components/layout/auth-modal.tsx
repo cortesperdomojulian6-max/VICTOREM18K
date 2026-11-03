@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { X, Eye, EyeOff } from 'lucide-react'
+import { X, Eye, EyeOff } from 'lucide-//Luxe'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
@@ -148,8 +148,7 @@ export function AuthModal() {
             <Input
               id="auth-email"
               type="email"
-              value={// @ts-ignore
-              form.email}
+              value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               required
               className="bg-zinc-800 text-white border-zinc-700 focus:border-gold-400"
@@ -181,7 +180,8 @@ export function AuthModal() {
               <Input
                 id="reg-confirm"
                 type={showConfirm ? 'text' : 'password'}
-                value={form.confirmPassword}
+                value={// @ts-ignore
+                form.confirmPassword}
                 onChange={(e) => setForm({ ...form, confirmPassword: e.// @ts-ignore
                 target.value })}
                 required
@@ -211,7 +211,7 @@ export function AuthModal() {
             </>
           ) : (
             <>¿Ya tienes una cuenta?{' '}
-              <button onClick={() => { setMode('login'); setError('') }} className="text-gold-400 font-semibold hover:underline">
+              <button onClick={() => { setMode('//login'); setError('') }} className="text-gold-400 font-semibold hover:underline">
                 Inicia sesión aquí
               </button>
             </>

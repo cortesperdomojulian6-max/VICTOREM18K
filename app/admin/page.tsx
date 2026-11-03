@@ -69,17 +69,28 @@ export default function AdminPage() {
     if (isAuthenticated) {
       const load = async () => {
         try {
+          // Cargamos cada dato individualmente para que un error en uno no bloquequee todo el panel
+          const safeFetch = async <T>(url: string, fallback: T) => {
+            try { return await api.get<T>(url); } 
+            catch (e) { console.error(`Error cargando ${url}:`, e); return fallback; }
+          };
+
           const [statsData, usersData, ordersData, productsData, categoriesData] = await Promise.all([
-            api.get<AdminStats>('/admin/stats'),
-            api.get<AdminUser[]>('/admin/users'),
-            api.get<AdminOrder[]>('/admin/orders'),
-            api.get<AdminProduct[]>('/admin/products'),
-            api.get<{ id: number; name: string; slug: string }[]>('/categories'),
-          ])
+            safeFetch<AdminStats>('/admin/stats', null),
+            safeFetch<AdminUser[]>('/admin/users', []),
+            safeFetch<AdminOrder[]>('/admin/orders', []),
+            safeFetch<AdminProduct[]>('/admin/products', []),
+            safeFetch<{ id: number; name: string; slug: string }[]>('/categories', []),
+          ]);
+
           setStats(statsData); setUsers(usersData); setOrders(ordersData); setProducts(productsData); setCategories(categoriesData)
           setAuthorized(true)
-        } catch { toast.error('No tienes permisos de administrador'); router.push('/') }
-        finally { setLoading(false) }
+        } catch (e) { 
+          console.error('Error crítico en admin:', e);
+          toast.error('Error al cargar el panel de administración'); 
+        } finally { 
+          setLoading(false) 
+        }
       }
       load()
     }
