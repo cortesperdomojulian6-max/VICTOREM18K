@@ -7,9 +7,7 @@ import { motion } from 'framer-motion'
 import { Plus } from 'lucide-react'
 import {
   BEAD_IMAGE_SIZES,
-  DIJON_VIEW_SIZE,
   NEOPRENO_COLORS,
-  getNeoprenoDisplaySize,
   getBeadImagePath,
   getNeoprenoImage,
 } from '@/lib/personalizacion'
@@ -41,13 +39,6 @@ export default function BeadSequenceViewerV3({
   const hasInsert = !!(onInsertBalin || onInsertDijon || onInsertNeopreno)
   const beadPx = BEAD_IMAGE_SIZES[beadSize]
 
-  // Solape proporcional al tamaño de cada pieza: así se tocan como en una joya real ensartada
-  const overlapFor = (item: SequenceItem): number => {
-    if (item.kind === 'balin') return Math.max(4, Math.round(BEAD_IMAGE_SIZES[item.size] * 0.15))
-    if (item.kind === 'dijon') return Math.max(8, Math.round(DIJON_VIEW_SIZE * 0.16))
-    return 8
-  }
-
   const closeMenu = useCallback(() => {
     setMenuIndex(null)
     setMenuPos(null)
@@ -55,18 +46,18 @@ export default function BeadSequenceViewerV3({
 
   useEffect(() => {
     if (menuIndex === null) return
-    const onDocMouseMove = (e: MouseEvent) => {
+    const onDocMouseDown = (e: MouseEvent) => {
       const t = e.target as Node
       if (portalRef.current?.contains(t)) return
       if (t instanceof HTMLElement && t.closest('[data-insert-btn]')) return
       closeMenu()
     }
     const onScrollOrResize = () => closeMenu()
-    document.addEventListener('mousedown', onDocMouseMove)
+    document.addEventListener('mousedown', onDocMouseDown)
     document.addEventListener('scroll', onScrollOrResize, { capture: true, passive: true })
     window.addEventListener('resize', onScrollOrResize)
     return () => {
-      document.removeEventListener('mousedown', onDocMouseMove)
+      document.removeEventListener('mousedown', onDocMouseDown)
       document.removeEventListener('scroll', onScrollOrResize, true)
       window.removeEventListener('resize', onScrollOrResize)
     }
@@ -118,7 +109,7 @@ export default function BeadSequenceViewerV3({
         >
           💎 Dije
         </button>
-        <div className="grid grid-cols-4 gap-2 pt-2 border-t border-zinc-100 mt-0.5">
+        <div className="grid grid-cols-3 gap-2 pt-2 border-t border-zinc-100 mt-0.5">
           {NEOPRENO_COLORS.map(n => (
             <button
               key={n.color}
@@ -130,8 +121,8 @@ export default function BeadSequenceViewerV3({
               <Image
                 src={n.image}
                 alt={n.label}
-                width={30}
-                height={30}
+                width={32}
+                height={32}
                 className="block object-contain"
               />
             </button>
@@ -141,6 +132,33 @@ export default function BeadSequenceViewerV3({
     </div>,
     document.body
   )
+
+  // El dije se dimensiona segun su vecino: ~135% del tamano de la pieza al lado
+  const dijonNeighborSize = (i: number): number => {
+    for (let j = i - 1; j >= 0; j--) {
+      const nb = items[j]
+      if (nb.kind === 'balin') return Math.round(BEAD_IMAGE_SIZES[nb.size] * 1.35)
+      if (nb.kind === 'neopreno') return Math.round(beadPx * 1.35)
+      if (nb.kind === 'dijon') {
+        for (let k = j - 1; k >= 0; k--) {
+          const b2 = items[k]
+          if (b2.kind === 'balin') return Math.round(BEAD_IMAGE_SIZES[b2.size] * 1.35)
+          if (b2.kind === 'neopreno') return Math.round(beadPx * 1.35)
+        }
+        for (let k = j + 1; k < items.length; k++) {
+          const b2 = items[k]
+          if (b2.kind === 'balin') return Math.round(BEAD_IMAGE_SIZES[b2.size] * 1.35)
+          if (b2.kind === 'neopreno') return Math.round(beadPx * 1.35)
+        }
+      }
+    }
+    for (let j = i + 1; j < items.length; j++) {
+      const nb = items[j]
+      if (nb.kind === 'balin') return Math.round(BEAD_IMAGE_SIZES[nb.size] * 1.35)
+      if (nb.kind === 'neopreno') return Math.round(beadPx * 1.35)
+    }
+    return Math.round(beadPx * 1.35)
+  }
 
   if (items.length === 0) {
     return (
@@ -169,29 +187,23 @@ export default function BeadSequenceViewerV3({
     <div className="w-full relative bg-zinc-900 rounded-xl border border-zinc-800">
       <div
         ref={containerRef}
-        className="flex items-center justify-center py-8 px-4 overflow-x-auto no-scrollbar"
+        className="flex items-center justify-center py-8 px-6 overflow-x-auto no-scrollbar"
         style={{ minHeight: `${beadPx + 40}px` }}
       >
         <div className="flex items-center">
-          {hasInsert && (
-            <button
-              onClick={(e) => toggleMenu(0, e)}
-              data-insert-btn
-              style={{ margin: '0 -8px' }}
-              className="relative flex items-center justify-center shrink-0 size-5 rounded-full bg-yellow-400 text-black hover:bg-yellow-300 hover:scale-110 transition-all shadow-md border border-yellow-500 z-10"
-              aria-label="Insertar al inicio"
-            >
-              <Plus className="size-3" />
-            </button>
-          )}
-
           {items.map((item, i) => {
+            const size = item.kind === 'balin'
+              ? BEAD_IMAGE_SIZES[item.size]
+              : item.kind === 'dijon'
+                ? dijonNeighborSize(i)
+                : beadPx
+
             const img = item.kind === 'balin' ? (
               <Image
                 src={getBeadImagePath(item.type, material, item.size)}
                 alt={`Balín ${item.type}`}
-                width={BEAD_IMAGE_SIZES[item.size]}
-                height={BEAD_IMAGE_SIZES[item.size]}
+                width={size}
+                height={size}
                 className="block"
                 style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))' }}
               />
@@ -199,8 +211,8 @@ export default function BeadSequenceViewerV3({
               <Image
                 src={item.image}
                 alt={item.label}
-                width={DIJON_VIEW_SIZE}
-                height={DIJON_VIEW_SIZE}
+                width={size}
+                height={size}
                 className="block"
                 style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.4))' }}
               />
@@ -208,30 +220,44 @@ export default function BeadSequenceViewerV3({
               <Image
                 src={getNeoprenoImage(item.color)!}
                 alt={item.label}
-                width={getNeoprenoDisplaySize(beadPx).width}
-                height={getNeoprenoDisplaySize(beadPx).height}
+                width={size}
+                height={size}
                 className="block"
                 style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.4))' }}
               />
             )
 
             return (
-              <div key={i} className="flex items-center shrink-0">
+              <div
+                key={i}
+                className="relative flex items-center"
+                style={{ margin: '0 -2px' }}
+              >
+                {hasInsert && i === 0 && (
+                  <button
+                    onClick={(e) => toggleMenu(0, e)}
+                    data-insert-btn
+                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 flex items-center justify-center size-5 rounded-full bg-yellow-400 text-black hover:bg-yellow-300 hover:scale-110 transition-all shadow-md border border-yellow-500 z-10"
+                    aria-label="Insertar al inicio"
+                  >
+                    <Plus className="size-3" />
+                  </button>
+                )}
+
                 <button
                   type="button"
                   className={`flex items-center outline-none transition-opacity ${onItemClick ? 'cursor-pointer hover:opacity-70' : ''}`}
                   onClick={() => onItemClick?.(i)}
-                  style={{ margin: `0 ${-overlapFor(item)}px` }}
                   aria-label={item.kind === 'balin' ? `Balín ${item.type}` : item.label}
                 >
                   {img}
                 </button>
+
                 {hasInsert && (
                   <button
                     onClick={(e) => toggleMenu(i + 1, e)}
                     data-insert-btn
-                    style={{ margin: '0 -8px' }}
-                    className="relative flex items-center justify-center shrink-0 size-5 rounded-full bg-yellow-400 text-black hover:bg-yellow-300 hover:scale-110 transition-all shadow-md border border-yellow-500 z-10"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 flex items-center justify-center size-5 rounded-full bg-yellow-400 text-black hover:bg-yellow-300 hover:scale-110 transition-all shadow-md border border-yellow-500 z-10"
                     aria-label={`Insertar después de la pieza ${i + 1}`}
                   >
                     <Plus className="size-3" />
