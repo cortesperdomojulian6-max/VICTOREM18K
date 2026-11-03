@@ -170,6 +170,7 @@ export default function BeadSequenceViewerV3({
             <button
               onClick={(e) => toggleMenu(0, e)}
               data-insert-btn
+              style={{ margin: '0 -4px' }}
               className="relative flex items-center justify-center shrink-0 size-5 rounded-full bg-yellow-400 text-black hover:bg-yellow-300 hover:scale-110 transition-all shadow-md border border-yellow-500 z-10"
               aria-label="Insertar al inicio"
             >
@@ -222,6 +223,7 @@ export default function BeadSequenceViewerV3({
                   <button
                     onClick={(e) => toggleMenu(i + 1, e)}
                     data-insert-btn
+                    style={{ margin: '0 -4px' }}
                     className="relative flex items-center justify-center shrink-0 size-5 rounded-full bg-yellow-400 text-black hover:bg-yellow-300 hover:scale-110 transition-all shadow-md border border-yellow-500 z-10"
                     aria-label={`Insertar después de la pieza ${i + 1}`}
                   >
