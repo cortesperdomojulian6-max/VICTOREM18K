@@ -24,19 +24,9 @@ if (process.env.NODE_ENV !== 'production' && !process.env.CORS_ORIGIN && !proces
 }
 
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
-      imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
-      connectSrc: ["'self'"],
-      frameSrc: ["'none'"],
-      objectSrc: ["'none'"],
-    },
-  },
+  contentSecurityPolicy: false, // Desactivamos temporalmente CSP para evitar bloqueos de recursos en producción
 }));
+app.use(helmet.hsts({ maxAge: 31536000, includeSubDomains: true, preload: true }));
 app.use(helmet.hsts({ maxAge: 31536000, includeSubDomains: true, preload: true }));
 
 app.use(cors({
@@ -55,7 +45,7 @@ const limiter = rateLimit({
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5,
+  max: 100, // Subimos el límite para evitar bloqueos durante pruebas
   message: 'Demasiados intentos de login, intenta en 15 minutos',
 });
 
