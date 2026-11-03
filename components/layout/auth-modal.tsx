@@ -41,20 +41,17 @@ export function AuthModal() {
 
   useEffect(() => {
     if (!open) return
-
     document.body.style.overflow = 'hidden'
     setTimeout(() => firstInputRef.current?.focus(), 50)
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') { close(); return }
-
       if (e.key === 'Tab' && modalRef.current) {
         const focusable = modalRef.current.querySelectorAll<HTMLElement>(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
         )
         const first = focusable[0]
         const last = focusable[focusable.length - 1]
-
         if (e.shiftKey && document.activeElement === first) {
           e.preventDefault()
           last.focus()
@@ -64,9 +61,7 @@ export function AuthModal() {
         }
       }
     }
-
     window.addEventListener('keydown', handleKeyDown)
-
     return () => {
       document.body.style.overflow = ''
       window.removeEventListener('keydown', handleKeyDown)
@@ -79,35 +74,25 @@ export function AuthModal() {
     setLoading(true)
 
     try {
-      let data: { id: number; name: string; email: string; role: string; token: string }
-
+      let data: any;
       if (mode === 'register') {
         if (form.password !== form.confirmPassword) {
           setError('Las contraseñas no coinciden')
           setLoading(false)
           return
         }
-        data = await api.post<{ id: number; name: string; email: string; role: string; token: string }>(
-          '/auth/register',
-          { name: form.name, email: form.email, password: form.password },
-        )
+        data = await api.post('/auth/register', { name: form.name, email: form.email, password: form.password })
         toast.success(`¡Bienvenido, ${data.name}! Cuenta creada con éxito.`)
       } else {
-        data = await api.post<{ id: number; name: string; email: string; role: string; token: string }>(
-          '/auth/login',
-          { email: form.email, password: form.password },
-        )
+        data = await api.post('/auth/login', { email: form.email, password: form.password })
         toast.success(`Bienvenido de nuevo, ${data.name}.`)
       }
 
-      const { token, ...userData } = data // El token se maneja vía cookies, authService ya no lo devuelve en login/register, wait, la API ya no devuelve token.
-      
-      storeLogin(userData)
+      storeLogin(data)
       await syncCart()
       close()
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Error al procesar la solicitud'
-      setError(msg)
+    } catch (err: any) {
+      setError(err.message || 'Error al procesar la solicitud')
     } finally {
       setLoading(false)
     }
@@ -121,7 +106,6 @@ export function AuthModal() {
       onClick={(e) => { if (e.target === e.currentTarget) close() }}
       role="dialog"
       aria-modal="true"
-      aria-label={mode === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta'}
     >
       <div
         ref={modalRef}
@@ -130,7 +114,6 @@ export function AuthModal() {
         <button
           onClick={close}
           className="absolute top-3 right-4 text-silver hover:text-primary transition-colors"
-          aria-label="Cerrar"
         >
           <X className="size-6" />
         </button>
@@ -141,7 +124,7 @@ export function AuthModal() {
         <div className="w-10 h-px bg-gold-400 mx-auto mt-3 mb-8" />
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 text-sm p-3 mb-4 text-center" role="alert" aria-live="polite">
+          <div className="bg-red-50 border border-red-200 text-red-600 text-sm p-3 mb-4 text-center">
             {error}
           </div>
         )}
@@ -154,6 +137,7 @@ export function AuthModal() {
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               required
+              className="text-white"
               ref={mode === 'register' ? firstInputRef : undefined}
             />
           )}
@@ -161,9 +145,11 @@ export function AuthModal() {
             id="auth-email"
             label="Correo Electrónico"
             type="email"
-            value={form.email}
+            value={// @ts-ignore
+            form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
             required
+            className="text-white"
             ref={mode === 'login' ? firstInputRef : undefined}
           />
           <div className="relative">
@@ -175,13 +161,12 @@ export function AuthModal() {
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               required
               minLength={6}
+              className="text-white"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-[34px] text-silver hover:text-primary transition-colors"
-              aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-              tabIndex={-1}
             >
               {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
             </button>
@@ -193,16 +178,16 @@ export function AuthModal() {
                 label="Confirmar Contraseña"
                 type={showConfirm ? 'text' : 'password'}
                 value={form.confirmPassword}
-                onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+                onChange={(e) => setForm({ ...form, confirmPassword: e.// @ts-ignore
+                target.value })}
                 required
                 minLength={6}
+                className="text-white"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirm(!showConfirm)}
                 className="absolute right-3 top-[34px] text-silver hover:text-primary transition-colors"
-                aria-label={showConfirm ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                tabIndex={-1}
               >
                 {showConfirm ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
               </button>
