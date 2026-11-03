@@ -243,7 +243,7 @@ export default function AdminPage() {
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-3">
                               <div className="size-10 bg-hover flex items-center justify-center text-xs text-muted overflow-hidden">
-                                {p.image_url ? <Image src={productImageUrl(p.image_url) ?? undefined} alt="" width={40} height={40} className="object-cover" /> : <Package className="size-5" />}
+                                {p.image_url ? <Image src={productImageUrl(p.image_url)!} alt="" width={40} height={40} className="object-cover" /> : <Package className="size-5" />}
                               </div>
                               <span className="font-medium text-primary">{p.name}</span>
                             </div>
@@ -449,7 +449,7 @@ export default function AdminPage() {
                     </label>
                   </div>
                   {productForm.image_url && (
-                    <Image src={productImageUrl(productForm.image_url) ?? undefined} alt="Preview" width={96} height={96} className="mt-2 size-24 object-cover border border-border" />
+                    <Image src={productImageUrl(productForm.image_url)!} alt="Preview" width={96} height={96} className="mt-2 size-24 object-cover border border-border" />
                   )}
                 </div>
               </div>
